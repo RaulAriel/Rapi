@@ -25,7 +25,7 @@ import {
   Save, 
   X,
   CheckCircle2
-} from "lucide-center";
+} from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 
 const Admin = () => {
