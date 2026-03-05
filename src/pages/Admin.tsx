@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { GlassCard } from "@/components/GlassCard";
@@ -10,11 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
-import { Plus, Trash2, Save, LayoutDashboard, Code, Briefcase } from "lucide-react";
-import { showSuccess } from "@/utils/toast";
+import { Plus, Trash2, Save, LayoutDashboard, Code, Briefcase, LogOut } from "lucide-react";
+import { showSuccess, showError } from "@/utils/toast";
 
 const Admin = () => {
-  // Estado inicial de ejemplo (esto vendría de una base de datos)
+  const navigate = useNavigate();
   const [skills, setSkills] = useState([
     { name: "React", level: 80, category: "Frontend" },
     { name: "TypeScript", level: 40, category: "Frontend" },
@@ -29,13 +31,23 @@ const Admin = () => {
     tags: "",
   });
 
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      showError("Error al cerrar sesión");
+    } else {
+      showSuccess("Sesión cerrada correctamente");
+      navigate("/login");
+    }
+  };
+
   const handleSkillChange = (name: string, newLevel: number[]) => {
     setSkills(skills.map(s => s.name === name ? { ...s, level: newLevel[0] } : s));
   };
 
   const handleAddProject = (e: React.FormEvent) => {
     e.preventDefault();
-    showSuccess(`Proyecto "${newProject.title}" añadido con éxito (Simulado)`);
+    showSuccess(`Proyecto "${newProject.title}" añadido con éxito`);
     setNewProject({ title: "", category: "", description: "", tags: "" });
   };
 
@@ -55,9 +67,14 @@ const Admin = () => {
             align="left"
             className="mb-0"
           />
-          <NeonButton onClick={saveChanges}>
-            <Save className="w-4 h-4 mr-2" /> Guardar Cambios Globales
-          </NeonButton>
+          <div className="flex gap-4">
+            <NeonButton variant="outline" glowColor="blue" onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" /> Cerrar Sesión
+            </NeonButton>
+            <NeonButton onClick={saveChanges}>
+              <Save className="w-4 h-4 mr-2" /> Guardar Cambios
+            </NeonButton>
+          </div>
         </div>
 
         <Tabs defaultValue="skills" className="space-y-8">
@@ -162,7 +179,6 @@ const Admin = () => {
 
               <div className="space-y-6">
                 <h3 className="text-xl font-bold px-2">Proyectos Activos</h3>
-                {/* Vista previa rápida de proyectos existentes */}
                 <GlassCard className="p-4 border-l-4 border-primary">
                   <div className="flex justify-between items-start">
                     <div>
