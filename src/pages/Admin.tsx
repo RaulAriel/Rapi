@@ -12,7 +12,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
-import { Plus, Trash2, LayoutDashboard, Code, Briefcase, LogOut, Loader2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { 
+  Plus, 
+  Trash2, 
+  LayoutDashboard, 
+  Code, 
+  Briefcase, 
+  LogOut, 
+  Loader2, 
+  Edit3, 
+  Save, 
+  X,
+  CheckCircle2
+} from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 
 const Admin = () => {
@@ -22,6 +35,8 @@ const Admin = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
 
+  // Estados para edición
+  const [editingProject, setEditingProject] = useState<any>(null);
   const [newProject, setNewProject] = useState({
     title: "",
     category: "",
@@ -29,6 +44,7 @@ const Admin = () => {
     tags: "",
     link_demo: "",
     link_repo: "",
+    image_url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"
   });
 
   useEffect(() => {
@@ -62,58 +78,115 @@ const Admin = () => {
     navigate("/login");
   };
 
-  const handleSkillChange = async (id: string, newLevel: number[]) => {
-    const level = newLevel[0];
-    setSkills(skills.map(s => s.id === id ? { ...s, level } : s));
-    
+  // --- GESTIÓN DE SKILLS ---
+  const handleUpdateSkill = async (id: string, updates: any) => {
     const { error } = await supabase
       .from('skills')
-      .update({ level })
+      .update(updates)
       .eq('id', id);
 
-    if (error) showError("Error al actualizar nivel");
-  };
-
-  const handleAddProject = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const tagsArray = newProject.tags.split(',').map(t => t.trim()).filter(t => t !== "");
-    
-    const { data, error } = await supabase
-      .from('projects')
-      .insert([{
-        ...newProject,
-        tags: tagsArray,
-        user_id: user.id
-      }])
-      .select();
-
     if (error) {
-      showError(error.message);
+      showError("Error al actualizar skill");
     } else {
-      showSuccess("Proyecto desplegado con éxito");
-      setProjects([data[0], ...projects]);
-      setNewProject({ title: "", category: "", description: "", tags: "", link_demo: "", link_repo: "" });
+      setSkills(skills.map(s => s.id === id ? { ...s, ...updates } : s));
+      showSuccess("Skill actualizada");
     }
   };
 
-  const handleDeleteProject = async (id: string) => {
-    const { error } = await supabase.from('projects').delete().eq('id', id);
-    if (error) {
-      showError("Error al eliminar");
-    } else {
-      setProjects(projects.filter(p => p.id !== id));
-      showSuccess("Proyecto eliminado");
+  const handleDeleteSkill = async (id: string) => {
+    const { error } = await supabase.from('skills').delete().eq('id', id);
+    if (error) showError("Error al eliminar skill");
+    else {
+      setSkills(skills.filter(s => s.id !== id));
+      showSuccess("Skill eliminada");
     }
   };
 
   const handleAddSkill = async () => {
     const { data, error } = await supabase
       .from('skills')
-      .insert([{ name: "Nueva Skill", category: "Frontend", level: 50, user_id: user.id }])
+      .insert([{ 
+        name: "Nueva Habilidad", 
+        category: "Frontend", 
+        level: 50, 
+        user_id: user.id 
+      }])
       .select();
 
     if (error) showError(error.message);
     else if (data) setSkills([...skills, data[0]]);
+  };
+
+  // --- GESTIÓN DE PROYECTOS ---
+  const handleProjectSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const tagsArray = typeof newProject.tags === 'string' 
+      ? newProject.tags.split(',').map(t => t.trim()).filter(t => t !== "")
+      : newProject.tags;
+
+    if (editingProject) {
+      // Modo Edición
+      const { error } = await supabase
+        .from('projects')
+        .update({ ...newProject, tags: tagsArray })
+        .eq('id', editingProject.id);
+
+      if (error) showError(error.message);
+      else {
+        showSuccess("Proyecto actualizado");
+        setProjects(projects.map(p => p.id === editingProject.id ? { ...p, ...newProject, tags: tagsArray } : p));
+        resetProjectForm();
+      }
+    } else {
+      // Modo Creación
+      const { data, error } = await supabase
+        .from('projects')
+        .insert([{ ...newProject, tags: tagsArray, user_id: user.id }])
+        .select();
+
+      if (error) showError(error.message);
+      else {
+        showSuccess("Proyecto creado");
+        if (data) setProjects([data[0], ...projects]);
+        resetProjectForm();
+      }
+    }
+  };
+
+  const resetProjectForm = () => {
+    setEditingProject(null);
+    setNewProject({
+      title: "",
+      category: "",
+      description: "",
+      tags: "",
+      link_demo: "",
+      link_repo: "",
+      image_url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"
+    });
+  };
+
+  const startEditProject = (project: any) => {
+    setEditingProject(project);
+    setNewProject({
+      title: project.title,
+      category: project.category,
+      description: project.description || "",
+      tags: project.tags ? project.tags.join(', ') : "",
+      link_demo: project.link_demo || "",
+      link_repo: project.link_repo || "",
+      image_url: project.image_url || ""
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDeleteProject = async (id: string) => {
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+    if (error) showError("Error al eliminar");
+    else {
+      setProjects(projects.filter(p => p.id !== id));
+      showSuccess("Proyecto eliminado");
+    }
   };
 
   if (loading) {
@@ -131,13 +204,13 @@ const Admin = () => {
       <main className="pt-32 pb-24 container px-4 md:px-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
           <SectionHeading 
-            title="Panel de Control" 
-            subtitle="Gestión centralizada de activos digitales en tiempo real."
+            title="SISTEMA DE CONTROL" 
+            subtitle="Modifica la infraestructura de tu presencia digital."
             align="left"
             className="mb-0"
           />
           <NeonButton variant="outline" glowColor="blue" onClick={handleLogout}>
-            <LogOut className="w-4 h-4 mr-2" /> Cerrar Sesión
+            <LogOut className="w-4 h-4 mr-2" /> Desconectar
           </NeonButton>
         </div>
 
@@ -153,89 +226,97 @@ const Admin = () => {
 
           <TabsContent value="projects">
             <div className="grid lg:grid-cols-3 gap-8">
-              <GlassCard className="lg:col-span-2 p-8">
-                <h3 className="text-xl font-bold mb-6">Añadir Nueva Misión</h3>
-                <form onSubmit={handleAddProject} className="space-y-6">
+              <GlassCard className="lg:col-span-2 p-8 h-fit">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-bold">
+                    {editingProject ? "Editar Misión" : "Registrar Nueva Misión"}
+                  </h3>
+                  {editingProject && (
+                    <button onClick={resetProjectForm} className="text-muted-foreground hover:text-white flex items-center gap-1 text-sm">
+                      <X className="w-4 h-4" /> Cancelar
+                    </button>
+                  )}
+                </div>
+                <form onSubmit={handleProjectSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="title">Título del Proyecto</Label>
+                      <Label className="text-[10px] uppercase font-mono tracking-widest">Título</Label>
                       <Input 
-                        id="title" 
                         value={newProject.title}
                         onChange={(e) => setNewProject({...newProject, title: e.target.value})}
-                        placeholder="Ej: NeuroLink Platform" 
-                        className="bg-white/5 border-white/10" 
-                        required
+                        className="bg-white/5 border-white/10" required
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="category">Categoría</Label>
+                      <Label className="text-[10px] uppercase font-mono tracking-widest">Categoría</Label>
                       <Input 
-                        id="category" 
                         value={newProject.category}
                         onChange={(e) => setNewProject({...newProject, category: e.target.value})}
-                        placeholder="Ej: Web App, Mobile" 
-                        className="bg-white/5 border-white/10" 
-                        required
+                        placeholder="Ej: Web App"
+                        className="bg-white/5 border-white/10" required
                       />
                     </div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="demo">Link Demo</Label>
-                      <Input id="demo" value={newProject.link_demo} onChange={(e) => setNewProject({...newProject, link_demo: e.target.value})} placeholder="https://..." className="bg-white/5 border-white/10" />
+                      <Label className="text-[10px] uppercase font-mono tracking-widest">URL Imagen</Label>
+                      <Input 
+                        value={newProject.image_url}
+                        onChange={(e) => setNewProject({...newProject, image_url: e.target.value})}
+                        className="bg-white/5 border-white/10"
+                      />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="repo">Link Repo</Label>
-                      <Input id="repo" value={newProject.link_repo} onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} placeholder="https://github.com/..." className="bg-white/5 border-white/10" />
+                      <Label className="text-[10px] uppercase font-mono tracking-widest">Tags (comas)</Label>
+                      <Input 
+                        value={newProject.tags}
+                        onChange={(e) => setNewProject({...newProject, tags: e.target.value})}
+                        placeholder="React, Tailwind..."
+                        className="bg-white/5 border-white/10"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] uppercase font-mono tracking-widest">Link Demo</Label>
+                      <Input value={newProject.link_demo} onChange={(e) => setNewProject({...newProject, link_demo: e.target.value})} className="bg-white/5 border-white/10" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] uppercase font-mono tracking-widest">Link Repo</Label>
+                      <Input value={newProject.link_repo} onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} className="bg-white/5 border-white/10" />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="tags">Tags (separados por comas)</Label>
-                    <Input 
-                      id="tags" 
-                      value={newProject.tags}
-                      onChange={(e) => setNewProject({...newProject, tags: e.target.value})}
-                      placeholder="React, Three.js, Node.js" 
-                      className="bg-white/5 border-white/10" 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="desc">Descripción</Label>
-                    <textarea 
-                      id="desc" 
+                    <Label className="text-[10px] uppercase font-mono tracking-widest">Descripción</Label>
+                    <Textarea 
                       value={newProject.description}
                       onChange={(e) => setNewProject({...newProject, description: e.target.value})}
-                      className="w-full min-h-[100px] rounded-xl bg-white/5 border border-white/10 p-4 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                      placeholder="Describe la misión..."
+                      className="min-h-[100px] bg-white/5 border-white/10"
                     />
                   </div>
                   <NeonButton type="submit" className="w-full">
-                    <Plus className="w-4 h-4 mr-2" /> Registrar en la Matrix
+                    {editingProject ? <><Save className="w-4 h-4 mr-2" /> Actualizar Datos</> : <><Plus className="w-4 h-4 mr-2" /> Crear Proyecto</>}
                   </NeonButton>
                 </form>
               </GlassCard>
 
               <div className="space-y-6">
-                <h3 className="text-xl font-bold px-2">Proyectos Activos</h3>
+                <h3 className="text-xl font-bold px-2">Archivos Activos</h3>
                 <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                   {projects.map((p) => (
-                    <GlassCard key={p.id} className="p-4 border-l-4 border-primary">
+                    <GlassCard key={p.id} className="p-4 border-l-4 border-primary group">
                       <div className="flex justify-between items-start">
-                        <div>
+                        <div className="flex-1">
                           <h4 className="font-bold text-sm">{p.title}</h4>
                           <p className="text-[10px] text-muted-foreground uppercase">{p.category}</p>
                         </div>
-                        <button 
-                          onClick={() => handleDeleteProject(p.id)}
-                          className="text-destructive hover:scale-110 transition-transform p-1"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => startEditProject(p)} className="text-primary hover:scale-110 p-1"><Edit3 className="w-4 h-4" /></button>
+                          <button onClick={() => handleDeleteProject(p.id)} className="text-destructive hover:scale-110 p-1"><Trash2 className="w-4 h-4" /></button>
+                        </div>
                       </div>
                     </GlassCard>
                   ))}
-                  {projects.length === 0 && <p className="text-muted-foreground text-center py-8">No hay proyectos.</p>}
                 </div>
               </div>
             </div>
@@ -244,50 +325,98 @@ const Admin = () => {
           <TabsContent value="skills">
             <div className="grid md:grid-cols-2 gap-8">
               <GlassCard className="p-8">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-8">
                   <h3 className="text-xl font-bold flex items-center gap-2">
-                    <LayoutDashboard className="text-primary w-5 h-5" /> Sincronización de Skills
+                    <LayoutDashboard className="text-primary w-5 h-5" /> Banco de Habilidades
                   </h3>
-                  <button onClick={handleAddSkill} className="text-primary hover:scale-110 transition-transform">
-                    <Plus className="w-5 h-5" />
-                  </button>
+                  <NeonButton size="sm" onClick={handleAddSkill}>
+                    <Plus className="w-4 h-4 mr-2" /> Nueva
+                  </NeonButton>
                 </div>
-                <div className="space-y-8">
+                
+                <div className="space-y-12">
                   {skills.map((skill) => (
-                    <div key={skill.id} className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <Label className="font-mono text-xs uppercase tracking-widest">{skill.name}</Label>
-                          <p className="text-[10px] text-muted-foreground">{skill.category}</p>
+                    <div key={skill.id} className="p-6 rounded-2xl glass border-white/5 space-y-6 relative group">
+                      <button 
+                        onClick={() => handleDeleteSkill(skill.id)}
+                        className="absolute top-4 right-4 text-destructive opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-[9px] uppercase tracking-widest font-mono text-muted-foreground">Nombre</Label>
+                          <Input 
+                            value={skill.name}
+                            onChange={(e) => setSkills(skills.map(s => s.id === skill.id ? {...s, name: e.target.value} : s))}
+                            onBlur={() => handleUpdateSkill(skill.id, { name: skill.name })}
+                            className="bg-transparent border-white/10 h-8 text-sm"
+                          />
                         </div>
-                        <span className="text-primary font-bold">{skill.level}%</span>
+                        <div className="space-y-2">
+                          <Label className="text-[9px] uppercase tracking-widest font-mono text-muted-foreground">Categoría</Label>
+                          <Input 
+                            value={skill.category}
+                            onChange={(e) => setSkills(skills.map(s => s.id === skill.id ? {...s, category: e.target.value} : s))}
+                            onBlur={() => handleUpdateSkill(skill.id, { category: skill.category })}
+                            className="bg-transparent border-white/10 h-8 text-sm"
+                          />
+                        </div>
                       </div>
-                      <Slider
-                        value={[skill.level]}
-                        max={100}
-                        step={1}
-                        onValueChange={(val) => handleSkillChange(skill.id, val)}
-                        className="py-2"
-                      />
+
+                      <div className="space-y-2">
+                        <Label className="text-[9px] uppercase tracking-widest font-mono text-muted-foreground">Descripción</Label>
+                        <Input 
+                          value={skill.description || ""}
+                          placeholder="Breve descripción..."
+                          onChange={(e) => setSkills(skills.map(s => s.id === skill.id ? {...s, description: e.target.value} : s))}
+                          onBlur={() => handleUpdateSkill(skill.id, { description: skill.description })}
+                          className="bg-transparent border-white/10 h-8 text-sm"
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-[9px] uppercase tracking-widest font-mono text-muted-foreground">Nivel de Maestría</Label>
+                          <span className="text-primary font-bold text-xs">{skill.level}%</span>
+                        </div>
+                        <Slider
+                          value={[skill.level]}
+                          max={100}
+                          step={1}
+                          onValueChange={(val) => setSkills(skills.map(s => s.id === skill.id ? {...s, level: val[0]} : s))}
+                          onValueCommit={(val) => handleUpdateSkill(skill.id, { level: val[0] })}
+                          className="py-2"
+                        />
+                      </div>
                     </div>
                   ))}
-                  {skills.length === 0 && <p className="text-muted-foreground text-center">Sin habilidades registradas.</p>}
+                  {skills.length === 0 && <p className="text-muted-foreground text-center py-8">No hay habilidades registradas.</p>}
                 </div>
               </GlassCard>
 
-              <GlassCard className="p-8">
-                <h3 className="text-xl font-bold mb-6">Estado del Sistema</h3>
-                <div className="space-y-4">
-                  <div className="p-6 rounded-2xl bg-primary/5 border border-primary/20 text-sm font-mono">
-                    <p className="text-primary mb-2 flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> DATABASE_SYNC: OK
-                    </p>
-                    <p className="text-muted-foreground italic">
-                      Todos los cambios se guardan automáticamente en tiempo real. La arquitectura reactiva asegura que los visitantes vean las actualizaciones sin recargar.
+              <div className="space-y-8">
+                <GlassCard className="p-8 border-l-4 border-secondary">
+                  <h3 className="text-xl font-bold mb-6">Estado de la Base de Datos</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                      <CheckCircle2 className="text-emerald-500 w-5 h-5" />
+                      <span className="text-sm font-mono uppercase tracking-tighter">Sincronización en Tiempo Real: Activa</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      El sistema detecta cambios en el enfoque (blur) de los campos de texto y los guarda automáticamente. Los deslizadores se sincronizan al soltar el ratón.
                     </p>
                   </div>
-                </div>
-              </GlassCard>
+                </GlassCard>
+                
+                <GlassCard className="p-8">
+                  <h3 className="text-xl font-bold mb-4">Consejo de Edición</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Para los proyectos, usa el botón de editar en la lista lateral para cargar los datos en el formulario principal. Al terminar, presiona "Actualizar Datos".
+                  </p>
+                </GlassCard>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
