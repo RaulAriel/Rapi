@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { GlassCard } from "./GlassCard";
 import { SectionHeading } from "./SectionHeading";
 import { User, Code, Palette, Zap } from "lucide-react";
+import profileImg from "@/assets/profile.png";
 
 export const About = () => {
   const highlights = [
@@ -46,7 +47,7 @@ export const About = () => {
               <div className="relative rounded-2xl overflow-hidden aspect-[4/5] bg-muted border border-white/10 shadow-2xl">
                 {/* Image with Cyberpunk Filters */}
                 <img 
-                  src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800&h=1000" 
+                  src={profileImg} 
                   alt="Raúl Ariel" 
                   className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105 saturate-[1.2] brightness-[0.9] hue-rotate-[-10deg]"
                 />
