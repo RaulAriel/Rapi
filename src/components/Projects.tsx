@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { NeonButton } from "./NeonButton";
-import { ExternalLink, Github, Layers } from "lucide-react";
+import { ExternalLink, Github } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const projects = [
   {

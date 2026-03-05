@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { Briefcase, Calendar, MapPin } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const experiences = [
   {
