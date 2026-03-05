@@ -25,7 +25,7 @@ import {
   Save, 
   X,
   CheckCircle2
-} from "lucide-react";
+} from "lucide-center";
 import { showSuccess, showError } from "@/utils/toast";
 
 const Admin = () => {
@@ -63,7 +63,7 @@ const Admin = () => {
   const fetchData = async () => {
     setLoading(true);
     const [skillsRes, projectsRes] = await Promise.all([
-      supabase.from('skills').select('*').order('created_at'),
+      supabase.from('skills').select('*').order('created_at', { ascending: false }),
       supabase.from('projects').select('*').order('created_at', { ascending: false })
     ]);
 
@@ -114,7 +114,7 @@ const Admin = () => {
       .select();
 
     if (error) showError(error.message);
-    else if (data) setSkills([...skills, data[0]]);
+    else if (data) setSkills([data[0], ...skills]);
   };
 
   // --- GESTIÓN DE PROYECTOS ---
