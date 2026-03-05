@@ -1,19 +1,74 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { NeonButton } from "./NeonButton";
-import { Mail, Github, Linkedin, Instagram, Send, MapPin, Phone } from "lucide-react";
+import { Mail, Github, Linkedin, Instagram, Send, MapPin, Phone, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { showSuccess } from "@/utils/toast";
+import { showSuccess, showError } from "@/utils/toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { supabase } from "@/integrations/supabase/client";
+
+const contactFormSchema = z.object({
+  full_name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
+  email: z.string().email("Correo electrónico inválido"),
+  subject: z.string().min(5, "El asunto debe tener al menos 5 caracteres"),
+  message: z.string().min(10, "El mensaje debe tener al menos 10 caracteres"),
+});
+
+type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 export const Contact = () => {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    showSuccess("¡Mensaje enviado con éxito! Me pondré en contacto pronto.");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      full_name: "",
+      email: "",
+      subject: "",
+      message: "",
+    },
+  });
+
+  const onSubmit = async (values: ContactFormValues) => {
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from("contact_messages")
+        .insert([
+          {
+            full_name: values.full_name,
+            email: values.email,
+            subject: values.subject,
+            message: values.message,
+          },
+        ]);
+
+      if (error) throw error;
+
+      showSuccess("¡Mensaje enviado con éxito! Me pondré en contacto pronto.");
+      form.reset();
+    } catch (error: any) {
+      console.error("Error sending message:", error);
+      showError("Hubo un error al enviar el mensaje. Por favor, inténtalo de nuevo.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const socials = [
@@ -98,29 +153,96 @@ export const Contact = () => {
 
           <div className="lg:col-span-3">
             <GlassCard className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-xs uppercase tracking-widest font-mono">Nombre Completo</Label>
-                    <Input id="name" placeholder="Tu nombre" className="bg-white/5 border-white/10 focus:border-primary/50" required />
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="full_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs uppercase tracking-widest font-mono">Nombre Completo</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Tu nombre" 
+                              className="bg-white/5 border-white/10 focus:border-primary/50" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs uppercase tracking-widest font-mono">Correo Electrónico</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="email" 
+                              placeholder="tu@email.com" 
+                              className="bg-white/5 border-white/10 focus:border-primary/50" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-xs uppercase tracking-widest font-mono">Correo Electrónico</Label>
-                    <Input id="email" type="email" placeholder="tu@email.com" className="bg-white/5 border-white/10 focus:border-primary/50" required />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="subject" className="text-xs uppercase tracking-widest font-mono">Asunto</Label>
-                  <Input id="subject" placeholder="Propuesta de Proyecto" className="bg-white/5 border-white/10 focus:border-primary/50" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="message" className="text-xs uppercase tracking-widest font-mono">Mensaje</Label>
-                  <Textarea id="message" placeholder="Cuéntame sobre tu visión..." className="min-h-[150px] bg-white/5 border-white/10 focus:border-primary/50" required />
-                </div>
-                <NeonButton type="submit" className="w-full h-12 text-lg">
-                  Enviar Mensaje <Send className="ml-2 w-5 h-5" />
-                </NeonButton>
-              </form>
+                  <FormField
+                    control={form.control}
+                    name="subject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs uppercase tracking-widest font-mono">Asunto</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Propuesta de Proyecto" 
+                            className="bg-white/5 border-white/10 focus:border-primary/50" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs uppercase tracking-widest font-mono">Mensaje</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Cuéntame sobre tu visión..." 
+                            className="min-h-[150px] bg-white/5 border-white/10 focus:border-primary/50" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <NeonButton 
+                    type="submit" 
+                    className="w-full h-12 text-lg" 
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        Enviando... <Loader2 className="ml-2 w-5 h-5 animate-spin" />
+                      </>
+                    ) : (
+                      <>
+                        Enviar Mensaje <Send className="ml-2 w-5 h-5" />
+                      </>
+                    )}
+                  </NeonButton>
+                </form>
+              </Form>
             </GlassCard>
           </div>
         </div>
