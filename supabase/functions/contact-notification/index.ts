@@ -8,28 +8,27 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    // Note: We removed strict Authorization check here because background triggers 
-    // in Supabase have difficulty passing headers consistently.
-    // For a contact form, the risk is low as it's triggered by a DB insert which is already protected by RLS.
-    
     const { record } = await req.json()
     
-    console.log(`[contact-notification] New message received for: ${record.full_name}`)
+    console.log(`[contact-notification] New message from ${record.full_name} (${record.email})`)
 
     if (!RESEND_API_KEY) {
       console.warn("[contact-notification] RESEND_API_KEY is not set. Email won't be sent.")
-      // We return 200 to not trigger errors in the DB, but log the warning
       return new Response(JSON.stringify({ message: 'API Key missing' }), { 
         status: 200, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       })
     }
+
+    // Prepare WhatsApp link
+    // Clean phone number (remove spaces, +, etc for the link, but we'll show the original too)
+    const cleanPhone = record.phone_number?.replace(/\D/g, '') || '';
+    const whatsappLink = `https://wa.me/${cleanPhone}`;
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -38,17 +37,35 @@ serve(async (req) => {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Contact Form <onboarding@resend.dev>',
+        from: 'Rapi Websites <onboarding@resend.dev>',
         to: ['raularieldiaz@gmail.com'],
-        subject: `Nuevo mensaje de contacto: ${record.subject}`,
+        subject: `nuevo mensaje de rapi-web-contact- ${record.subject}`,
         html: `
-          <h1>Nuevo mensaje de contacto</h1>
-          <p><strong>De:</strong> ${record.full_name} (${record.email})</p>
-          <p><strong>Asunto:</strong> ${record.subject}</p>
-          <p><strong>Mensaje:</strong></p>
-          <p>${record.message}</p>
-          <hr />
-          <p><small>Enviado automáticamente por el sistema de contacto de tu portafolio.</small></p>
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h1 style="color: #6366f1;">Nuevo mensaje de contacto</h1>
+            <p><strong>De:</strong> ${record.full_name}</p>
+            <p><strong>Email:</strong> ${record.email}</p>
+            <p><strong>Teléfono:</strong> ${record.phone_number || 'No proporcionado'}</p>
+            <p><strong>Asunto:</strong> ${record.subject}</p>
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+              <p><strong>Mensaje:</strong></p>
+              <p>${record.message}</p>
+            </div>
+            
+            ${record.phone_number ? `
+              <div style="margin-top: 30px; text-align: center;">
+                <a href="${whatsappLink}" style="background-color: #25D366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                  Contactar por WhatsApp
+                </a>
+                <p style="font-size: 12px; color: #666; margin-top: 10px;">Haz clic para abrir un chat directo</p>
+              </div>
+            ` : ''}
+            
+            <hr style="margin-top: 40px; border: 0; border-top: 1px solid #eee;" />
+            <p style="font-size: 12px; color: #999; text-align: center;">
+              Enviado automáticamente desde Rapi Websites
+            </p>
+          </div>
         `,
       }),
     })
@@ -62,7 +79,6 @@ serve(async (req) => {
     })
   } catch (error: any) {
     console.error("[contact-notification] Error processing notification:", error.message)
-    // Return 200 even on error to avoid blocking DB transactions if the trigger isn't perfectly isolated
     return new Response(JSON.stringify({ error: error.message }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

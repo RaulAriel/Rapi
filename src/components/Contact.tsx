@@ -26,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 const contactFormSchema = z.object({
   full_name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
   email: z.string().email("Correo electrónico inválido"),
+  phone_number: z.string().min(9, "El teléfono debe tener al menos 9 dígitos"),
   subject: z.string().min(5, "El asunto debe tener al menos 5 caracteres"),
   message: z.string().min(10, "El mensaje debe tener al menos 10 caracteres"),
 });
@@ -40,6 +41,7 @@ export const Contact = () => {
     defaultValues: {
       full_name: "",
       email: "",
+      phone_number: "",
       subject: "",
       message: "",
     },
@@ -54,6 +56,7 @@ export const Contact = () => {
           {
             full_name: values.full_name,
             email: values.email,
+            phone_number: values.phone_number,
             subject: values.subject,
             message: values.message,
           },
@@ -192,23 +195,42 @@ export const Contact = () => {
                       )}
                     />
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="subject"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs uppercase tracking-widest font-mono">Asunto</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Propuesta de Proyecto" 
-                            className="bg-white/5 border-white/10 focus:border-primary/50" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="phone_number"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs uppercase tracking-widest font-mono">Teléfono / WhatsApp</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="+34 600 000 000" 
+                              className="bg-white/5 border-white/10 focus:border-primary/50" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="subject"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs uppercase tracking-widest font-mono">Asunto</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Propuesta de Proyecto" 
+                              className="bg-white/5 border-white/10 focus:border-primary/50" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   <FormField
                     control={form.control}
                     name="message"
