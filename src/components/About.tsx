@@ -1,3 +1,5 @@
+"use client";
+
 import { motion } from "framer-motion";
 import { GlassCard } from "./GlassCard";
 import { SectionHeading } from "./SectionHeading";
@@ -38,16 +40,27 @@ export const About = () => {
             transition={{ duration: 0.6 }}
           >
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
-              <div className="relative rounded-2xl overflow-hidden aspect-[4/5] bg-muted">
+              {/* Animated Glow behind image */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary via-secondary to-primary rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200 animate-gradient-x" />
+              
+              <div className="relative rounded-2xl overflow-hidden aspect-[4/5] bg-muted border border-white/10 shadow-2xl">
+                {/* Image with Cyberpunk Filters */}
                 <img 
                   src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800&h=1000" 
-                  alt="Avatar Cyberpunk" 
-                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500 scale-110 group-hover:scale-100"
+                  alt="Raúl Ariel" 
+                  className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105 saturate-[1.2] brightness-[0.9] hue-rotate-[-10deg]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                
+                {/* Cyberpunk Overlays */}
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-primary/10 to-transparent mix-blend-overlay" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-secondary/20 via-transparent to-primary/20 pointer-events-none" />
+                
+                {/* Scanline Effect */}
+                <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
               </div>
-              <div className="absolute -bottom-6 -right-6 p-6 glass rounded-2xl border border-primary/30 hidden md:block">
+
+              {/* Stats Badge */}
+              <div className="absolute -bottom-6 -right-6 p-6 glass rounded-2xl border border-primary/30 hidden md:block shadow-[0_0_20px_rgba(139,92,246,0.3)]">
                 <p className="text-3xl font-black text-primary">+5 Años</p>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">Experiencia</p>
               </div>
