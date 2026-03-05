@@ -74,13 +74,20 @@ export const Skills = () => {
                     className="p-5 border-l-4 border-l-primary/50"
                     hoverGlow
                   >
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-3">
                         <div className="text-primary">{skill.icon}</div>
                         <span className="font-medium">{skill.name}</span>
                       </div>
                       <span className="text-xs font-mono text-muted-foreground">{skill.level}%</span>
                     </div>
+                    
+                    {skill.description && (
+                      <p className="text-[11px] text-muted-foreground mb-3 leading-tight">
+                        {skill.description}
+                      </p>
+                    )}
+
                     <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
