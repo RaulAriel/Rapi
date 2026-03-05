@@ -37,6 +37,8 @@ const Login = () => {
     }
   };
 
+  const inputClasses = "bg-background/50 border-primary/30 focus:border-primary focus:ring-primary/20 transition-all duration-300 h-12";
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
@@ -59,7 +61,7 @@ const Login = () => {
               id="email" 
               type="email" 
               placeholder="admin@cyberportfolio.com" 
-              className="bg-white/5 border-white/10 focus:border-primary/50 h-12"
+              className={inputClasses}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -74,7 +76,7 @@ const Login = () => {
               id="password" 
               type="password" 
               placeholder="••••••••" 
-              className="bg-white/5 border-white/10 focus:border-primary/50 h-12"
+              className={inputClasses}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required

@@ -80,6 +80,9 @@ export const Contact = () => {
     { icon: <Instagram />, href: "https://www.instagram.com/raul_ariel_diaz/", label: "Instagram" }
   ];
 
+  // Helper class for inputs
+  const inputClasses = "bg-background/50 border-primary/30 focus:border-primary focus:ring-primary/20 transition-all duration-300";
+
   return (
     <section id="contact" className="py-24 relative overflow-hidden">
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[150px] pointer-events-none" />
@@ -168,7 +171,7 @@ export const Contact = () => {
                           <FormControl>
                             <Input 
                               placeholder="Tu nombre" 
-                              className="bg-white/5 border-white/10 focus:border-primary/50" 
+                              className={inputClasses}
                               {...field} 
                             />
                           </FormControl>
@@ -186,7 +189,7 @@ export const Contact = () => {
                             <Input 
                               type="email" 
                               placeholder="tu@email.com" 
-                              className="bg-white/5 border-white/10 focus:border-primary/50" 
+                              className={inputClasses}
                               {...field} 
                             />
                           </FormControl>
@@ -205,7 +208,7 @@ export const Contact = () => {
                           <FormControl>
                             <Input 
                               placeholder="+34 600 000 000" 
-                              className="bg-white/5 border-white/10 focus:border-primary/50" 
+                              className={inputClasses}
                               {...field} 
                             />
                           </FormControl>
@@ -222,7 +225,7 @@ export const Contact = () => {
                           <FormControl>
                             <Input 
                               placeholder="Propuesta de Proyecto" 
-                              className="bg-white/5 border-white/10 focus:border-primary/50" 
+                              className={inputClasses}
                               {...field} 
                             />
                           </FormControl>
@@ -240,7 +243,7 @@ export const Contact = () => {
                         <FormControl>
                           <Textarea 
                             placeholder="Cuéntame sobre tu visión..." 
-                            className="min-h-[150px] bg-white/5 border-white/10 focus:border-primary/50" 
+                            className={cn(inputClasses, "min-h-[150px]")}
                             {...field} 
                           />
                         </FormControl>
@@ -248,9 +251,9 @@ export const Contact = () => {
                       </FormItem>
                     )}
                   />
-                  <NeonButton
-                    type="submit"
-                    className="w-full h-12 text-lg"
+                  <NeonButton 
+                    type="submit" 
+                    className="w-full h-12 text-lg" 
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
