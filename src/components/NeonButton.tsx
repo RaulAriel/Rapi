@@ -33,7 +33,9 @@ export const NeonButton = ({
         variant={variant}
         {...props}
       >
-        <span className="relative z-10">{children}</span>
+        <span className="relative z-10 flex items-center justify-center gap-2 w-full h-full">
+          {children}
+        </span>
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full hover:animate-[shimmer_2s_infinite]" />
       </Button>
     </motion.div>

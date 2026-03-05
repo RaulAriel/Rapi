@@ -53,7 +53,7 @@ export const Hero = () => {
         >
           <a href="#projects">
             <NeonButton size="lg" className="px-8 h-14 text-lg">
-              Ver Proyectos <ChevronRight className="ml-2 w-5 h-5" />
+              Ver Proyectos <ChevronRight className="w-5 h-5" />
             </NeonButton>
           </a>
           <a href="#contact">

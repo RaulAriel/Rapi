@@ -248,18 +248,18 @@ export const Contact = () => {
                       </FormItem>
                     )}
                   />
-                  <NeonButton 
-                    type="submit" 
-                    className="w-full h-12 text-lg" 
+                  <NeonButton
+                    type="submit"
+                    className="w-full h-12 text-lg"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
                       <>
-                        Enviando... <Loader2 className="ml-2 w-5 h-5 animate-spin" />
+                        Enviando... <Loader2 className="w-5 h-5 animate-spin" />
                       </>
                     ) : (
                       <>
-                        Enviar Mensaje <Send className="ml-2 w-5 h-5" />
+                        Enviar Mensaje <Send className="w-5 h-5" />
                       </>
                     )}
                   </NeonButton>

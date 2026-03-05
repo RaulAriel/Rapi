@@ -105,14 +105,14 @@ export const Projects = () => {
                       {project.link_demo && (
                         <a href={project.link_demo} target="_blank" rel="noreferrer" className="flex-1">
                           <NeonButton size="sm" className="w-full">
-                            <ExternalLink className="w-4 h-4 mr-2" /> Demo
+                            <ExternalLink className="w-4 h-4" /> Demo
                           </NeonButton>
                         </a>
                       )}
                       {project.link_repo && (
                         <a href={project.link_repo} target="_blank" rel="noreferrer" className="flex-1">
                           <NeonButton size="sm" variant="outline" glowColor="blue" className="w-full">
-                            <Github className="w-4 h-4 mr-2" /> Repo
+                            <Github className="w-4 h-4" /> Repo
                           </NeonButton>
                         </a>
                       )}
