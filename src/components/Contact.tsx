@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { NeonButton } from "./NeonButton";
-import { Mail, Github, Linkedin, Twitter, Send, MapPin, Phone } from "lucide-react";
+import { Mail, Github, Linkedin, Instagram, Send, MapPin, Phone } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -17,10 +17,9 @@ export const Contact = () => {
   };
 
   const socials = [
-    { icon: <Github />, href: "#", label: "Github" },
-    { icon: <Linkedin />, href: "#", label: "LinkedIn" },
-    { icon: <Twitter />, href: "#", label: "Twitter" },
-    { icon: <Mail />, href: "mailto:contact@example.com", label: "Email" }
+    { icon: <Github />, href: "https://github.com", label: "Github" },
+    { icon: <Linkedin />, href: "https://linkedin.com", label: "LinkedIn" },
+    { icon: <Instagram />, href: "https://instagram.com", label: "Instagram" }
   ];
 
   return (
@@ -50,7 +49,7 @@ export const Contact = () => {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-widest">Email</p>
-                    <p className="font-bold">hello@cyberportfolio.com</p>
+                    <p className="font-bold">raularieldiaz@gmail.com</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 group">
@@ -59,7 +58,7 @@ export const Contact = () => {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-widest">Teléfono</p>
-                    <p className="font-bold">+34 900 123 456</p>
+                    <p className="font-bold">+34 695 067 777</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 group">
@@ -68,7 +67,7 @@ export const Contact = () => {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-widest">Ubicación</p>
-                    <p className="font-bold">Distrito Digital, Madrid</p>
+                    <p className="font-bold">Barcelona, España</p>
                   </div>
                 </div>
               </div>
@@ -86,6 +85,8 @@ export const Contact = () => {
                   <a
                     key={index}
                     href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-12 h-12 rounded-xl glass border border-white/10 flex items-center justify-center text-muted-foreground hover:text-primary hover:neon-border-violet transition-all"
                     aria-label={social.label}
                   >
@@ -102,11 +103,11 @@ export const Contact = () => {
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-xs uppercase tracking-widest font-mono">Nombre Completo</Label>
-                    <Input id="name" placeholder="John Doe" className="bg-white/5 border-white/10 focus:border-primary/50" required />
+                    <Input id="name" placeholder="Tu nombre" className="bg-white/5 border-white/10 focus:border-primary/50" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-xs uppercase tracking-widest font-mono">Correo Electrónico</Label>
-                    <Input id="email" type="email" placeholder="john@example.com" className="bg-white/5 border-white/10 focus:border-primary/50" required />
+                    <Input id="email" type="email" placeholder="tu@email.com" className="bg-white/5 border-white/10 focus:border-primary/50" required />
                   </div>
                 </div>
                 <div className="space-y-2">
