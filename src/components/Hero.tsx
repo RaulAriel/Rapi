@@ -20,7 +20,7 @@ export const Hero = () => {
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass border border-primary/30 text-primary text-sm font-medium mb-6"
         >
           <Sparkles className="w-4 h-4" />
-          <span>Diseñador & Desarrollador Fullstack</span>
+          <span>Diseñador & Desarrollador Frontend</span>
         </motion.div>
 
         <motion.h1
@@ -42,7 +42,7 @@ export const Hero = () => {
           className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto mb-10 leading-relaxed"
         >
           Transformo ideas complejas en experiencias web inmersivas de alto impacto. 
-          Especializado en interfaces cyberpunk, animaciones fluidas y arquitectura escalable.
+          Especializado en interfaces cyberpunk, animaciones fluidas y diseño centrado en el usuario.
         </motion.p>
 
         <motion.div

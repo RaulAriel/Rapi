@@ -8,11 +8,11 @@ import { cn } from "@/lib/utils";
 
 const experiences = [
   {
-    role: "Senior Fullstack Developer",
+    role: "Senior Frontend Developer",
     company: "NeoTech Systems",
     period: "2022 - Presente",
     location: "Remoto / Madrid",
-    description: "Lidero el desarrollo de interfaces críticas utilizando React y Next.js, optimizando el rendimiento de aplicaciones SaaS en un 40%."
+    description: "Lidero el desarrollo de interfaces críticas utilizando React y Next.js, optimizando el rendimiento de aplicaciones web en un 40%."
   },
   {
     role: "UI/UX Designer",

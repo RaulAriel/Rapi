@@ -17,28 +17,28 @@ export const Skills = () => {
     {
       title: "Frontend",
       skills: [
-        { name: "React", icon: <FileJson className="w-5 h-5" />, level: 90 },
-        { name: "TypeScript", icon: <Globe className="w-5 h-5" />, level: 85 },
-        { name: "Tailwind CSS", icon: <Wind className="w-5 h-5" />, level: 95 },
-        { name: "Next.js", icon: <Layers className="w-5 h-5" />, level: 80 },
+        { name: "React", icon: <FileJson className="w-5 h-5" />, level: 80 },
+        { name: "TypeScript", icon: <Globe className="w-5 h-5" />, level: 40 },
+        { name: "Tailwind CSS", icon: <Wind className="w-5 h-5" />, level: 40 },
+        { name: "Next.js", icon: <Layers className="w-5 h-5" />, level: 40 },
       ]
     },
     {
       title: "Backend & Herramientas",
       skills: [
-        { name: "Node.js", icon: <Database className="w-5 h-5" />, level: 75 },
-        { name: "PostgreSQL", icon: <Database className="w-5 h-5" />, level: 70 },
-        { name: "WordPress", icon: <Layout className="w-5 h-5" />, level: 85 },
-        { name: "Git", icon: <Globe className="w-5 h-5" />, level: 90 },
+        { name: "Node.js", icon: <Database className="w-5 h-5" />, level: 40 },
+        { name: "PostgreSQL", icon: <Database className="w-5 h-5" />, level: 40 },
+        { name: "WordPress", icon: <Layout className="w-5 h-5" />, level: 40 },
+        { name: "Git", icon: <Globe className="w-5 h-5" />, level: 40 },
       ]
     },
     {
       title: "Diseño & UX",
       skills: [
-        { name: "Figma", icon: <Figma className="w-5 h-5" />, level: 85 },
-        { name: "UI Design", icon: <Layout className="w-5 h-5" />, level: 90 },
-        { name: "Responsive", icon: <Smartphone className="w-5 h-5" />, level: 95 },
-        { name: "Prototyping", icon: <Layers className="w-5 h-5" />, level: 80 },
+        { name: "Figma", icon: <Figma className="w-5 h-5" />, level: 80 },
+        { name: "UI Design", icon: <Layout className="w-5 h-5" />, level: 80 },
+        { name: "Responsive", icon: <Smartphone className="w-5 h-5" />, level: 40 },
+        { name: "Prototyping", icon: <Layers className="w-5 h-5" />, level: 40 },
       ]
     }
   ];
