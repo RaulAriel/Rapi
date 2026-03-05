@@ -25,10 +25,36 @@ serve(async (req) => {
       })
     }
 
-    // Prepare WhatsApp link
-    // Clean phone number (remove spaces, +, etc for the link, but we'll show the original too)
-    const cleanPhone = record.phone_number?.replace(/\D/g, '') || '';
-    const whatsappLink = `https://wa.me/${cleanPhone}`;
+    // --- Phone Normalization Logic ---
+    let cleanPhone = record.phone_number?.replace(/\s/g, '') || '';
+    
+    // Check if it starts with + or 00
+    if (!cleanPhone.startsWith('+') && !cleanPhone.startsWith('00')) {
+      // If it's a 9-digit number, assume it's Spanish and add 34
+      // We also check if it's just numbers to be safe
+      const digitsOnly = cleanPhone.replace(/\D/g, '');
+      if (digitsOnly.length === 9) {
+        cleanPhone = '34' + digitsOnly;
+      } else {
+        cleanPhone = digitsOnly;
+      }
+    } else {
+      // Just keep digits if it already had a prefix
+      cleanPhone = cleanPhone.replace(/\D/g, '');
+    }
+
+    // --- WhatsApp Message Pre-fill ---
+    const whatsappMessage = `Hola ${record.full_name}, he recibido tu mensaje a través de Rapi Websites.
+
+*Resumen de tu contacto:*
+*Asunto:* ${record.subject}
+*Email:* ${record.email}
+*Mensaje:* ${record.message}
+
+¿Cómo puedo ayudarte?`;
+
+    const encodedMessage = encodeURIComponent(whatsappMessage);
+    const whatsappLink = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -57,7 +83,7 @@ serve(async (req) => {
                 <a href="${whatsappLink}" style="background-color: #25D366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
                   Contactar por WhatsApp
                 </a>
-                <p style="font-size: 12px; color: #666; margin-top: 10px;">Haz clic para abrir un chat directo</p>
+                <p style="font-size: 12px; color: #666; margin-top: 10px;">Abre un chat con la info del cliente ya escrita</p>
               </div>
             ` : ''}
             
