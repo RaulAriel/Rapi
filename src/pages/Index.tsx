@@ -6,7 +6,7 @@ import { About } from "@/components/About";
 import { Skills } from "@/components/Skills";
 import { Services } from "@/components/Services";
 import { Projects } from "@/components/Projects";
-import { Experience } from "@/components/Experience";
+// import { Experience } from "@/components/Experience"; // Importación mantenida para referencia
 import { Process } from "@/components/Process";
 import { Testimonials } from "@/components/Testimonials";
 import { FAQ } from "@/components/FAQ";
@@ -29,7 +29,7 @@ const Index = () => {
         <Skills />
         <Services />
         <Projects />
-        <Experience />
+        {/* <Experience /> */} {/* Sección ocultada temporalmente */}
         <Process />
         <Testimonials />
         <FAQ />
