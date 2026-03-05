@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
@@ -8,42 +8,29 @@ import { NeonButton } from "./NeonButton";
 import { ExternalLink, Github } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-
-const projects = [
-  {
-    title: "NeuroLink Platform",
-    category: "Web App",
-    image: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&q=80&w=800",
-    tags: ["React", "Three.js", "Node.js"],
-    description: "Una plataforma de visualización de datos neuronales en tiempo real con interfaces inmersivas."
-  },
-  {
-    title: "VaporStore E-commerce",
-    category: "E-commerce",
-    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800",
-    tags: ["Next.js", "Tailwind", "Stripe"],
-    description: "Tienda digital con estética vaporwave optimizada para la venta de activos digitales."
-  },
-  {
-    title: "CyberGrid CRM",
-    category: "SaaS",
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800",
-    tags: ["TypeScript", "Supabase", "Prisma"],
-    description: "Herramienta de gestión de clientes diseñada para agencias de desarrollo creativo."
-  },
-  {
-    title: "NeonCity Guide",
-    category: "Mobile",
-    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=800",
-    tags: ["React Native", "Expo", "Firebase"],
-    description: "Aplicación móvil para descubrir eventos nocturnos en metrópolis digitales."
-  }
-];
-
-const categories = ["Todos", "Web App", "E-commerce", "SaaS", "Mobile"];
+import { supabase } from "@/integrations/supabase/client";
 
 export const Projects = () => {
   const [filter, setFilter] = useState("Todos");
+  const [projects, setProjects] = useState<any[]>([]);
+  const [categories, setCategories] = useState(["Todos"]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (data) {
+        setProjects(data);
+        const cats = ["Todos", ...new Set(data.map((p: any) => p.category))];
+        setCategories(cats);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const filteredProjects = filter === "Todos" 
     ? projects 
@@ -78,7 +65,7 @@ export const Projects = () => {
           <AnimatePresence mode="popLayout">
             {filteredProjects.map((project, index) => (
               <motion.div
-                key={project.title}
+                key={project.id}
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -88,7 +75,7 @@ export const Projects = () => {
                 <GlassCard className="p-0 overflow-hidden flex flex-col h-full group" hoverGlow>
                   <div className="relative aspect-video overflow-hidden">
                     <img 
-                      src={project.image} 
+                      src={project.image_url} 
                       alt={project.title} 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
@@ -108,19 +95,27 @@ export const Projects = () => {
                       {project.description}
                     </p>
                     <div className="flex flex-wrap gap-2 mb-6">
-                      {project.tags.map(tag => (
+                      {project.tags?.map((tag: string) => (
                         <span key={tag} className="text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded bg-white/5 border border-white/10">
                           {tag}
                         </span>
                       ))}
                     </div>
                     <div className="flex gap-4">
-                      <NeonButton size="sm" className="flex-1">
-                        <ExternalLink className="w-4 h-4 mr-2" /> Demo
-                      </NeonButton>
-                      <NeonButton size="sm" variant="outline" glowColor="blue" className="flex-1">
-                        <Github className="w-4 h-4 mr-2" /> Repo
-                      </NeonButton>
+                      {project.link_demo && (
+                        <a href={project.link_demo} target="_blank" rel="noreferrer" className="flex-1">
+                          <NeonButton size="sm" className="w-full">
+                            <ExternalLink className="w-4 h-4 mr-2" /> Demo
+                          </NeonButton>
+                        </a>
+                      )}
+                      {project.link_repo && (
+                        <a href={project.link_repo} target="_blank" rel="noreferrer" className="flex-1">
+                          <NeonButton size="sm" variant="outline" glowColor="blue" className="w-full">
+                            <Github className="w-4 h-4 mr-2" /> Repo
+                          </NeonButton>
+                        </a>
+                      )}
                     </div>
                   </div>
                 </GlassCard>

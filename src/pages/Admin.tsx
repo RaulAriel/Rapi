@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/Navbar";
@@ -12,48 +12,117 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
-import { Plus, Trash2, Save, LayoutDashboard, Code, Briefcase, LogOut } from "lucide-react";
+import { Plus, Trash2, LayoutDashboard, Code, Briefcase, LogOut, Loader2 } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 
 const Admin = () => {
   const navigate = useNavigate();
-  const [skills, setSkills] = useState([
-    { name: "React", level: 80, category: "Frontend" },
-    { name: "TypeScript", level: 40, category: "Frontend" },
-    { name: "Figma", level: 80, category: "Diseño" },
-    { name: "UI Design", level: 80, category: "Diseño" },
-  ]);
+  const [loading, setLoading] = useState(true);
+  const [skills, setSkills] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
 
   const [newProject, setNewProject] = useState({
     title: "",
     category: "",
     description: "",
     tags: "",
+    link_demo: "",
+    link_repo: "",
   });
 
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+      setUser(user);
+      fetchData();
+    };
+    init();
+  }, [navigate]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    const [skillsRes, projectsRes] = await Promise.all([
+      supabase.from('skills').select('*').order('created_at'),
+      supabase.from('projects').select('*').order('created_at', { ascending: false })
+    ]);
+
+    if (skillsRes.data) setSkills(skillsRes.data);
+    if (projectsRes.data) setProjects(projectsRes.data);
+    setLoading(false);
+  };
+
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
+    await supabase.auth.signOut();
+    showSuccess("Sesión cerrada");
+    navigate("/login");
+  };
+
+  const handleSkillChange = async (id: string, newLevel: number[]) => {
+    const level = newLevel[0];
+    setSkills(skills.map(s => s.id === id ? { ...s, level } : s));
+    
+    const { error } = await supabase
+      .from('skills')
+      .update({ level })
+      .eq('id', id);
+
+    if (error) showError("Error al actualizar nivel");
+  };
+
+  const handleAddProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const tagsArray = newProject.tags.split(',').map(t => t.trim()).filter(t => t !== "");
+    
+    const { data, error } = await supabase
+      .from('projects')
+      .insert([{
+        ...newProject,
+        tags: tagsArray,
+        user_id: user.id
+      }])
+      .select();
+
     if (error) {
-      showError("Error al cerrar sesión");
+      showError(error.message);
     } else {
-      showSuccess("Sesión cerrada correctamente");
-      navigate("/login");
+      showSuccess("Proyecto desplegado con éxito");
+      setProjects([data[0], ...projects]);
+      setNewProject({ title: "", category: "", description: "", tags: "", link_demo: "", link_repo: "" });
     }
   };
 
-  const handleSkillChange = (name: string, newLevel: number[]) => {
-    setSkills(skills.map(s => s.name === name ? { ...s, level: newLevel[0] } : s));
+  const handleDeleteProject = async (id: string) => {
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+    if (error) {
+      showError("Error al eliminar");
+    } else {
+      setProjects(projects.filter(p => p.id !== id));
+      showSuccess("Proyecto eliminado");
+    }
   };
 
-  const handleAddProject = (e: React.FormEvent) => {
-    e.preventDefault();
-    showSuccess(`Proyecto "${newProject.title}" añadido con éxito`);
-    setNewProject({ title: "", category: "", description: "", tags: "" });
+  const handleAddSkill = async () => {
+    const { data, error } = await supabase
+      .from('skills')
+      .insert([{ name: "Nueva Skill", category: "Frontend", level: 50, user_id: user.id }])
+      .select();
+
+    if (error) showError(error.message);
+    else if (data) setSkills([...skills, data[0]]);
   };
 
-  const saveChanges = () => {
-    showSuccess("Configuración del sistema actualizada correctamente");
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -63,66 +132,24 @@ const Admin = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
           <SectionHeading 
             title="Panel de Control" 
-            subtitle="Gestión centralizada de activos y capacidades digitales."
+            subtitle="Gestión centralizada de activos digitales en tiempo real."
             align="left"
             className="mb-0"
           />
-          <div className="flex gap-4">
-            <NeonButton variant="outline" glowColor="blue" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" /> Cerrar Sesión
-            </NeonButton>
-            <NeonButton onClick={saveChanges}>
-              <Save className="w-4 h-4 mr-2" /> Guardar Cambios
-            </NeonButton>
-          </div>
+          <NeonButton variant="outline" glowColor="blue" onClick={handleLogout}>
+            <LogOut className="w-4 h-4 mr-2" /> Cerrar Sesión
+          </NeonButton>
         </div>
 
-        <Tabs defaultValue="skills" className="space-y-8">
+        <Tabs defaultValue="projects" className="space-y-8">
           <TabsList className="glass border-white/5 p-1 h-auto flex-wrap justify-start gap-2">
-            <TabsTrigger value="skills" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-6 py-3 rounded-xl transition-all">
-              <Code className="w-4 h-4 mr-2" /> Habilidades
-            </TabsTrigger>
             <TabsTrigger value="projects" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-6 py-3 rounded-xl transition-all">
               <Briefcase className="w-4 h-4 mr-2" /> Proyectos
             </TabsTrigger>
+            <TabsTrigger value="skills" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-6 py-3 rounded-xl transition-all">
+              <Code className="w-4 h-4 mr-2" /> Habilidades
+            </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="skills">
-            <div className="grid md:grid-cols-2 gap-8">
-              <GlassCard className="p-8">
-                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                  <LayoutDashboard className="text-primary w-5 h-5" /> Ajuste de Niveles
-                </h3>
-                <div className="space-y-8">
-                  {skills.map((skill) => (
-                    <div key={skill.name} className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <Label className="font-mono text-sm uppercase tracking-widest">{skill.name}</Label>
-                        <span className="text-primary font-bold">{skill.level}%</span>
-                      </div>
-                      <Slider
-                        value={[skill.level]}
-                        max={100}
-                        step={1}
-                        onValueChange={(val) => handleSkillChange(skill.name, val)}
-                        className="py-2"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </GlassCard>
-
-              <GlassCard className="p-8">
-                <h3 className="text-xl font-bold mb-6">Métricas de Rendimiento</h3>
-                <p className="text-muted-foreground mb-6">
-                  Los cambios realizados aquí se verán reflejados instantáneamente en la sección de habilidades de la página principal.
-                </p>
-                <div className="p-6 rounded-2xl bg-primary/5 border border-primary/20 text-sm text-primary/80 italic font-mono">
-                  INFO: Sistema de sincronización activa activado. Todos los módulos están operando dentro de los parámetros normales.
-                </div>
-              </GlassCard>
-            </div>
-          </TabsContent>
 
           <TabsContent value="projects">
             <div className="grid lg:grid-cols-3 gap-8">
@@ -138,6 +165,7 @@ const Admin = () => {
                         onChange={(e) => setNewProject({...newProject, title: e.target.value})}
                         placeholder="Ej: NeuroLink Platform" 
                         className="bg-white/5 border-white/10" 
+                        required
                       />
                     </div>
                     <div className="space-y-2">
@@ -148,7 +176,18 @@ const Admin = () => {
                         onChange={(e) => setNewProject({...newProject, category: e.target.value})}
                         placeholder="Ej: Web App, Mobile" 
                         className="bg-white/5 border-white/10" 
+                        required
                       />
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="demo">Link Demo</Label>
+                      <Input id="demo" value={newProject.link_demo} onChange={(e) => setNewProject({...newProject, link_demo: e.target.value})} placeholder="https://..." className="bg-white/5 border-white/10" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="repo">Link Repo</Label>
+                      <Input id="repo" value={newProject.link_repo} onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} placeholder="https://github.com/..." className="bg-white/5 border-white/10" />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -162,46 +201,93 @@ const Admin = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="desc">Descripción del Proyecto</Label>
+                    <Label htmlFor="desc">Descripción</Label>
                     <textarea 
                       id="desc" 
                       value={newProject.description}
                       onChange={(e) => setNewProject({...newProject, description: e.target.value})}
-                      className="w-full min-h-[120px] rounded-xl bg-white/5 border border-white/10 p-4 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                      placeholder="Describe la misión y tecnologías utilizadas..."
+                      className="w-full min-h-[100px] rounded-xl bg-white/5 border border-white/10 p-4 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      placeholder="Describe la misión..."
                     />
                   </div>
                   <NeonButton type="submit" className="w-full">
-                    <Plus className="w-4 h-4 mr-2" /> Desplegar Proyecto
+                    <Plus className="w-4 h-4 mr-2" /> Registrar en la Matrix
                   </NeonButton>
                 </form>
               </GlassCard>
 
               <div className="space-y-6">
                 <h3 className="text-xl font-bold px-2">Proyectos Activos</h3>
-                <GlassCard className="p-4 border-l-4 border-primary">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-bold">NeuroLink Platform</h4>
-                      <p className="text-xs text-muted-foreground">Web App</p>
-                    </div>
-                    <button className="text-destructive hover:scale-110 transition-transform">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </GlassCard>
-                <GlassCard className="p-4 border-l-4 border-secondary">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-bold">VaporStore E-commerce</h4>
-                      <p className="text-xs text-muted-foreground">E-commerce</p>
-                    </div>
-                    <button className="text-destructive hover:scale-110 transition-transform">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </GlassCard>
+                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                  {projects.map((p) => (
+                    <GlassCard key={p.id} className="p-4 border-l-4 border-primary">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-bold text-sm">{p.title}</h4>
+                          <p className="text-[10px] text-muted-foreground uppercase">{p.category}</p>
+                        </div>
+                        <button 
+                          onClick={() => handleDeleteProject(p.id)}
+                          className="text-destructive hover:scale-110 transition-transform p-1"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </GlassCard>
+                  ))}
+                  {projects.length === 0 && <p className="text-muted-foreground text-center py-8">No hay proyectos.</p>}
+                </div>
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="skills">
+            <div className="grid md:grid-cols-2 gap-8">
+              <GlassCard className="p-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-bold flex items-center gap-2">
+                    <LayoutDashboard className="text-primary w-5 h-5" /> Sincronización de Skills
+                  </h3>
+                  <button onClick={handleAddSkill} className="text-primary hover:scale-110 transition-transform">
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="space-y-8">
+                  {skills.map((skill) => (
+                    <div key={skill.id} className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <Label className="font-mono text-xs uppercase tracking-widest">{skill.name}</Label>
+                          <p className="text-[10px] text-muted-foreground">{skill.category}</p>
+                        </div>
+                        <span className="text-primary font-bold">{skill.level}%</span>
+                      </div>
+                      <Slider
+                        value={[skill.level]}
+                        max={100}
+                        step={1}
+                        onValueChange={(val) => handleSkillChange(skill.id, val)}
+                        className="py-2"
+                      />
+                    </div>
+                  ))}
+                  {skills.length === 0 && <p className="text-muted-foreground text-center">Sin habilidades registradas.</p>}
+                </div>
+              </GlassCard>
+
+              <GlassCard className="p-8">
+                <h3 className="text-xl font-bold mb-6">Estado del Sistema</h3>
+                <div className="space-y-4">
+                  <div className="p-6 rounded-2xl bg-primary/5 border border-primary/20 text-sm font-mono">
+                    <p className="text-primary mb-2 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> DATABASE_SYNC: OK
+                    </p>
+                    <p className="text-muted-foreground italic">
+                      Todos los cambios se guardan automáticamente en tiempo real. La arquitectura reactiva asegura que los visitantes vean las actualizaciones sin recargar.
+                    </p>
+                  </div>
+                </div>
+              </GlassCard>
             </div>
           </TabsContent>
         </Tabs>
