@@ -17,14 +17,13 @@ export const Contact = () => {
   };
 
   const socials = [
-    { icon: <Github />, href: "https://github.com", label: "Github" },
-    { icon: <Linkedin />, href: "https://linkedin.com", label: "LinkedIn" },
-    { icon: <Instagram />, href: "https://instagram.com", label: "Instagram" }
+    { icon: <Github />, href: "https://github.com/RaulAriel", label: "Github" },
+    { icon: <Linkedin />, href: "https://www.linkedin.com/in/ra%C3%BAl-ariel-gazapo-diaz-74b94b98/", label: "LinkedIn" },
+    { icon: <Instagram />, href: "https://www.instagram.com/raul_ariel_diaz/", label: "Instagram" }
   ];
 
   return (
     <section id="contact" className="py-24 relative overflow-hidden">
-      {/* Background Glow */}
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[150px] pointer-events-none" />
 
       <div className="container px-4 md:px-6">

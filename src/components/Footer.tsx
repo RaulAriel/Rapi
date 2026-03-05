@@ -14,7 +14,7 @@ export const Footer = () => {
               <Terminal className="w-4 h-4 text-primary" />
             </div>
             <span className="text-lg font-black tracking-tighter">
-              CYBER<span className="text-primary">PORTFOLIO</span>
+              RAÚL<span className="text-primary">ARIEL</span>
             </span>
           </div>
 
@@ -26,7 +26,7 @@ export const Footer = () => {
           </div>
 
           <div className="text-sm text-muted-foreground flex items-center gap-2">
-            © {currentYear} — Hecho con <Heart className="w-3 h-3 text-red-500 fill-red-500" /> por Dyad User
+            © {currentYear} — Hecho con <Heart className="w-3 h-3 text-red-500 fill-red-500" /> por Raúl Ariel
           </div>
         </div>
         

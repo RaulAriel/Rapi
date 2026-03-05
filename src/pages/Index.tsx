@@ -6,13 +6,12 @@ import { About } from "@/components/About";
 import { Skills } from "@/components/Skills";
 import { Services } from "@/components/Services";
 import { Projects } from "@/components/Projects";
-// import { Experience } from "@/components/Experience"; // Importación mantenida para referencia
+// import { Experience } from "@/components/Experience"; 
 import { Process } from "@/components/Process";
 import { Testimonials } from "@/components/Testimonials";
 import { FAQ } from "@/components/FAQ";
 import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
-import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Preloader } from "@/components/Preloader";
 import { BackToTop } from "@/components/BackToTop";
 
@@ -28,7 +27,7 @@ const Index = () => {
         <Skills />
         <Services />
         <Projects />
-        {/* <Experience /> */} {/* Sección ocultada temporalmente */}
+        {/* <Experience /> */} 
         <Process />
         <Testimonials />
         <FAQ />
@@ -37,7 +36,6 @@ const Index = () => {
 
       <Footer />
       <BackToTop />
-      <MadeWithDyad />
     </div>
   );
 };
