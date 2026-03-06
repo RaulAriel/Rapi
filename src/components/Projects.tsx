@@ -5,163 +5,144 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { NeonButton } from "./NeonButton";
-import { ExternalLink, Github, Monitor, AlertCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { ExternalLink, Github, Code2, Layers, Loader2, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Projects = () => {
   const [filter, setFilter] = useState("Todos");
   const [projects, setProjects] = useState<any[]>([]);
-  const [categories, setCategories] = useState(["Todos"]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProjects = async () => {
+      setLoading(true);
       const { data, error } = await supabase
         .from('projects')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('sort_order', { ascending: true }); // Respetamos el orden de Admin
 
-      if (data) {
-        setProjects(data);
-        const cats = ["Todos", ...new Set(data.map((p: any) => p.category))];
-        setCategories(cats);
-      }
+      if (data) setProjects(data);
+      setLoading(false);
     };
 
     fetchProjects();
   }, []);
 
+  const categories = ["Todos", ...Array.from(new Set(projects.map((p) => p.category)))];
+
   const filteredProjects = filter === "Todos" 
     ? projects 
-    : projects.filter(p => p.category === filter);
+    : projects.filter((p) => p.category === filter);
+
+  if (loading) {
+    return (
+      <div className="py-24 flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <section id="projects" className="py-24 relative">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[120px] pointer-events-none" />
+
       <div className="container px-4 md:px-6">
         <SectionHeading 
-          title="Proyectos Destacados" 
-          subtitle="Una selección de misiones digitales completadas con éxito."
+          title="Casos de Éxito" 
+          subtitle="Explora mi repositorio de misiones completadas y proyectos experimentales."
         />
 
-        <div className="flex flex-wrap justify-center gap-4 mb-12">
+        {/* Categories Filter */}
+        <div className="flex flex-wrap justify-center gap-3 mb-16">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setFilter(cat)}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 border",
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                 filter === cat 
-                  ? "bg-primary text-white border-primary shadow-[0_0_15px_rgba(139,92,246,0.5)]" 
-                  : "bg-white/5 border-white/10 text-muted-foreground hover:border-primary/50"
-              )}
+                  ? "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(139,92,246,0.4)]" 
+                  : "glass hover:border-primary/50"
+              }`}
             >
               {cat}
             </button>
           ))}
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        {/* Projects Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           <AnimatePresence mode="popLayout">
             {filteredProjects.map((project, index) => (
               <motion.div
                 key={project.id}
                 layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4 }}
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
               >
-                <GlassCard className="p-0 overflow-hidden flex flex-col h-full group" hoverGlow>
-                  <div className="relative aspect-video overflow-hidden bg-black/40">
-                    {/* Background Image (Always present as fallback/loading state) */}
+                <GlassCard className="h-full group overflow-hidden flex flex-col">
+                  {/* Project Image */}
+                  <div className="relative aspect-video overflow-hidden">
                     <img 
-                      src={project.image_url || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"} 
-                      alt={project.title} 
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-60"
+                      src={project.image_url} 
+                      alt={project.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
-
-                    {project.link_demo && (
-                      <div className="absolute inset-0 w-full h-full z-10">
-                        {/* Iframe for live preview with improved scaling and no scrollbars */}
-                        <div className="w-full h-full relative overflow-hidden">
-                          <iframe 
-                            src={project.link_demo} 
-                            scrolling="no"
-                            className="absolute top-0 left-0 border-none pointer-events-none origin-top-left overflow-hidden scrollbar-hide"
-                            style={{ 
-                              width: '200%',
-                              height: '200%',
-                              transform: 'scale(0.5)',
-                              msOverflowStyle: 'none',
-                              scrollbarWidth: 'none',
-                            }}
-                            title={project.title}
-                            loading="lazy"
-                          />
-                        </div>
-                        {/* Blocking overlay */}
-                        <div className="absolute inset-0 bg-transparent z-20 cursor-default" />
-                      </div>
-                    )}
-                    
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90 z-30" />
-                    
-                    <div className="absolute top-4 right-4 z-40">
-                      <Badge variant="secondary" className="glass border-primary/30 uppercase tracking-tighter">
-                        {project.category}
-                      </Badge>
-                    </div>
-
-                    <div className="absolute bottom-4 left-4 z-40 flex items-center gap-2 text-[10px] font-mono text-primary/80">
-                      <Monitor className="w-3 h-3" /> PREVISUALIZACIÓN EN VIVO
-                    </div>
-                  </div>
-                  
-                  <div className="p-6 flex flex-col flex-grow relative z-40 bg-background/20 backdrop-blur-sm">
-                    <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
-                      {project.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm mb-4 flex-grow line-clamp-2">
-                      {project.description}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {project.tags?.map((tag: string) => (
-                        <span key={tag} className="text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded bg-white/5 border border-white/10">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="flex gap-4">
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
                       {project.link_demo && (
-                        <a href={project.link_demo} target="_blank" rel="noreferrer" className="flex-1">
-                          <NeonButton size="sm" className="w-full">
-                            <ExternalLink className="w-4 h-4" /> Visitar Sitio
-                          </NeonButton>
+                        <a 
+                          href={project.link_demo} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
+                        >
+                          <Play className="w-5 h-5 fill-current" />
                         </a>
                       )}
                       {project.link_repo && (
-                        <a href={project.link_repo} target="_blank" rel="noreferrer" className="flex-1">
-                          <NeonButton size="sm" variant="outline" glowColor="blue" className="w-full">
-                            <Github className="w-4 h-4" /> Repo
-                          </NeonButton>
+                        <a 
+                          href={project.link_repo} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="w-12 h-12 rounded-full bg-background/80 backdrop-blur-md flex items-center justify-center text-foreground hover:scale-110 transition-transform shadow-lg"
+                        >
+                          <Github className="w-5 h-5" />
                         </a>
                       )}
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6 flex-1 flex flex-col">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <span className="text-[10px] uppercase tracking-widest font-mono text-primary mb-1 block">
+                          {project.category}
+                        </span>
+                        <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
+                          {project.title}
+                        </h3>
+                      </div>
+                    </div>
+                    
+                    <p className="text-muted-foreground text-sm line-clamp-3 mb-6">
+                      {project.description}
+                    </p>
+
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-2 mt-auto">
+                      {project.tags?.map((tag: string) => (
+                        <span key={tag} className="text-[10px] font-mono px-2 py-1 rounded bg-white/5 border border-white/10">
+                          #{tag}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </GlassCard>
               </motion.div>
             ))}
           </AnimatePresence>
-        </div>
-
-        {/* Info message for the user */}
-        <div className="mt-12 flex items-center justify-center gap-2 text-xs text-muted-foreground bg-white/5 p-4 rounded-xl border border-white/10 max-w-2xl mx-auto">
-          <AlertCircle className="w-4 h-4 text-primary" />
-          <p>
-            Nota: Algunos sitios externos pueden no visualizarse aquí debido a sus políticas de seguridad (X-Frame-Options). 
-            En esos casos, se mostrará la imagen de portada.
-          </p>
         </div>
       </div>
     </section>
