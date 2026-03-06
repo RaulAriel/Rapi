@@ -18,7 +18,7 @@ import { BackToTop } from "@/components/BackToTop";
 const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
-      <Preloader />
+      {/* <Preloader /> */}
       <Navbar />
       
       <main>
