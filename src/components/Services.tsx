@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
-import { NeonButton } from "./NeonButton";
 import { 
   Code, 
   Layout, 
@@ -68,14 +67,9 @@ export const Services = () => {
                 {service.icon}
               </div>
               <h3 className="text-xl font-bold mb-4">{service.title}</h3>
-              <p className="text-muted-foreground mb-6 leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed">
                 {service.description}
               </p>
-              <div className="mt-auto">
-                <NeonButton variant="ghost" className="text-sm font-mono tracking-widest uppercase">
-                  Saber más
-                </NeonButton>
-              </div>
             </GlassCard>
           ))}
         </div>
