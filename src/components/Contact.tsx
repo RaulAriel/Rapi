@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { NeonButton } from "./NeonButton";
-import { Mail, Github, Linkedin, Instagram, Send, MapPin, Phone, Loader2 } from "lucide-react";
+import { Mail, Github, Linkedin, Instagram, Send, MapPin, MessageCircle, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -104,24 +104,34 @@ export const Contact = () => {
             >
               <h3 className="text-2xl font-bold mb-6">Información de Enlace</h3>
               <div className="space-y-6">
-                <div className="flex items-center gap-4 group">
+                <a 
+                  href="mailto:raularieldiaz@gmail.com" 
+                  className="flex items-center gap-4 group transition-all"
+                >
                   <div className="w-12 h-12 rounded-xl glass border border-white/10 flex items-center justify-center text-primary group-hover:neon-border-violet transition-all">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-widest">Email</p>
-                    <p className="font-bold">raularieldiaz@gmail.com</p>
+                    <p className="font-bold group-hover:text-primary transition-colors">raularieldiaz@gmail.com</p>
                   </div>
-                </div>
-                <div className="flex items-center gap-4 group">
+                </a>
+                
+                <a 
+                  href="https://wa.me/34695067777" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center gap-4 group transition-all"
+                >
                   <div className="w-12 h-12 rounded-xl glass border border-white/10 flex items-center justify-center text-secondary group-hover:neon-border-blue transition-all">
-                    <Phone className="w-5 h-5" />
+                    <MessageCircle className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-widest">Teléfono</p>
-                    <p className="font-bold">+34 695 067 777</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">WhatsApp</p>
+                    <p className="font-bold group-hover:text-secondary transition-colors">+34 695 067 777</p>
                   </div>
-                </div>
+                </a>
+
                 <div className="flex items-center gap-4 group">
                   <div className="w-12 h-12 rounded-xl glass border border-white/10 flex items-center justify-center text-yellow-400 group-hover:shadow-[0_0_15px_rgba(250,204,21,0.3)] transition-all">
                     <MapPin className="w-5 h-5" />
