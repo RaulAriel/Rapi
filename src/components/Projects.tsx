@@ -107,16 +107,14 @@ export const Projects = () => {
                     
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90 z-30" />
                     
-                    {/* Position swapped: Live preview badge at top right */}
-                    <div className="absolute top-4 right-4 z-40 flex items-center gap-2 text-[10px] font-mono text-primary/80 bg-background/40 backdrop-blur-md px-2 py-1 rounded-md border border-primary/20">
-                      <Monitor className="w-3 h-3" /> PREVISUALIZACIÓN EN VIVO
-                    </div>
-
-                    {/* Position swapped: Category badge at bottom left */}
-                    <div className="absolute bottom-4 left-4 z-40">
+                    <div className="absolute top-4 right-4 z-40">
                       <Badge variant="secondary" className="glass border-primary/30 uppercase tracking-tighter">
                         {project.category}
                       </Badge>
+                    </div>
+
+                    <div className="absolute bottom-4 left-4 z-40 flex items-center gap-2 text-[10px] font-mono text-primary/80">
+                      <Monitor className="w-3 h-3" /> PREVISUALIZACIÓN EN VIVO
                     </div>
                   </div>
                   
