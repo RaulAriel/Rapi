@@ -1,5 +1,6 @@
 "use client";
 
+import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
 import { Logo } from "./Logo";
 
@@ -10,12 +11,12 @@ export const Footer = () => {
     <footer className="py-12 border-t border-white/5 relative bg-background">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-2">
-            <Logo size="sm" />
-            <span className="text-lg font-black tracking-tighter">
+          <Link to="/" className="flex items-center gap-2 group">
+            <Logo size="sm" className="group-hover:neon-border-violet transition-all" />
+            <span className="text-lg font-black tracking-tighter group-hover:text-primary transition-colors">
               RAÚL<span className="text-primary">ARIEL</span>
             </span>
-          </div>
+          </Link>
 
           <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
             <a href="#hero" className="hover:text-primary transition-colors">Inicio</a>

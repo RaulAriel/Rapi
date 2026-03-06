@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -43,7 +44,7 @@ export const Navbar = () => {
               : "bg-transparent border-transparent"
           )}
         >
-          <a href="#hero" className="flex items-center gap-2 group">
+          <Link to="/" className="flex items-center gap-2 group">
             <Logo 
               size="md" 
               className="group-hover:neon-border-violet" 
@@ -51,7 +52,7 @@ export const Navbar = () => {
             <span className="text-xl font-black tracking-tighter hidden sm:block">
               RAÚL<span className="text-primary">ARIEL</span>
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-8">
