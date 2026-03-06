@@ -16,12 +16,23 @@ export const Projects = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       setLoading(true);
+      // Intentamos ordenar por order_index, si falla (por ejemplo si la columna no existe aún), 
+      // Supabase devolverá un error pero aquí lo manejamos
       const { data, error } = await supabase
         .from('projects')
         .select('*')
-        .order('order_index', { ascending: true });
+        .order('order_index', { ascending: true, nullsFirst: false });
       
-      if (data) setProjects(data);
+      if (error) {
+        console.error("Error fetching projects by order, falling back to date:", error);
+        const { data: fallbackData } = await supabase
+          .from('projects')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (fallbackData) setProjects(fallbackData);
+      } else if (data) {
+        setProjects(data);
+      }
       setLoading(false);
     };
     fetchProjects();
@@ -76,7 +87,7 @@ export const Projects = () => {
                   <GlassCard className="group h-full flex flex-col overflow-hidden border-white/5 hover:border-primary/30 transition-all duration-500">
                     <div className="relative aspect-video overflow-hidden">
                       <img 
-                        src={project.image_url} 
+                        src={project.image_url || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"} 
                         alt={project.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       />
@@ -129,6 +140,11 @@ export const Projects = () => {
                 </motion.div>
               ))}
             </AnimatePresence>
+            {projects.length === 0 && !loading && (
+              <div className="col-span-full text-center py-20">
+                <p className="text-muted-foreground">No se encontraron proyectos activos.</p>
+              </div>
+            )}
           </div>
         )}
       </div>
