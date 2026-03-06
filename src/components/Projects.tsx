@@ -74,7 +74,7 @@ export const Projects = () => {
               >
                 <GlassCard className="p-0 overflow-hidden flex flex-col h-full group" hoverGlow>
                   <div className="relative aspect-video overflow-hidden bg-black/40">
-                    {/* Background Image */}
+                    {/* Background Image (Always present as fallback/loading state) */}
                     <img 
                       src={project.image_url || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"} 
                       alt={project.title} 
@@ -83,6 +83,7 @@ export const Projects = () => {
 
                     {project.link_demo && (
                       <div className="absolute inset-0 w-full h-full z-10">
+                        {/* Iframe for live preview with improved scaling and no scrollbars */}
                         <div className="w-full h-full relative overflow-hidden">
                           <iframe 
                             src={project.link_demo} 
@@ -99,39 +100,38 @@ export const Projects = () => {
                             loading="lazy"
                           />
                         </div>
+                        {/* Blocking overlay */}
                         <div className="absolute inset-0 bg-transparent z-20 cursor-default" />
                       </div>
                     )}
                     
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90 z-30" />
                     
+                    <div className="absolute top-4 right-4 z-40">
+                      <Badge variant="secondary" className="glass border-primary/30 uppercase tracking-tighter">
+                        {project.category}
+                      </Badge>
+                    </div>
+
                     <div className="absolute bottom-4 left-4 z-40 flex items-center gap-2 text-[10px] font-mono text-primary/80">
                       <Monitor className="w-3 h-3" /> PREVISUALIZACIÓN EN VIVO
                     </div>
                   </div>
                   
                   <div className="p-6 flex flex-col flex-grow relative z-40 bg-background/20 backdrop-blur-sm">
-                    <div className="mb-4">
-                      <h3 className="text-2xl font-bold group-hover:text-primary transition-colors">
-                        {project.title}
-                      </h3>
-                      <Badge variant="secondary" className="mt-2 glass border-primary/30 uppercase tracking-widest text-[10px] py-0 px-2">
-                        {project.category}
-                      </Badge>
-                    </div>
-
-                    <p className="text-muted-foreground text-sm mb-6 flex-grow line-clamp-2">
+                    <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
+                      {project.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm mb-4 flex-grow line-clamp-2">
                       {project.description}
                     </p>
-
                     <div className="flex flex-wrap gap-2 mb-6">
                       {project.tags?.map((tag: string) => (
-                        <span key={tag} className="text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded bg-white/5 border border-white/10 text-primary/80">
+                        <span key={tag} className="text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded bg-white/5 border border-white/10">
                           {tag}
                         </span>
                       ))}
                     </div>
-
                     <div className="flex gap-4">
                       {project.link_demo && (
                         <a href={project.link_demo} target="_blank" rel="noreferrer" className="flex-1">
@@ -155,10 +155,12 @@ export const Projects = () => {
           </AnimatePresence>
         </div>
 
+        {/* Info message for the user */}
         <div className="mt-12 flex items-center justify-center gap-2 text-xs text-muted-foreground bg-white/5 p-4 rounded-xl border border-white/10 max-w-2xl mx-auto">
           <AlertCircle className="w-4 h-4 text-primary" />
           <p>
             Nota: Algunos sitios externos pueden no visualizarse aquí debido a sus políticas de seguridad (X-Frame-Options). 
+            En esos casos, se mostrará la imagen de portada.
           </p>
         </div>
       </div>
