@@ -1,3 +1,4 @@
+Categoría > Tags > Descripción">
 "use client";
 
 import { useState, useEffect } from "react";
@@ -74,7 +75,7 @@ export const Projects = () => {
               >
                 <GlassCard className="p-0 overflow-hidden flex flex-col h-full group" hoverGlow>
                   <div className="relative aspect-video overflow-hidden bg-black/40">
-                    {/* Background Image (Always present as fallback/loading state) */}
+                    {/* Background Image */}
                     <img 
                       src={project.image_url || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"} 
                       alt={project.title} 
@@ -83,7 +84,7 @@ export const Projects = () => {
 
                     {project.link_demo && (
                       <div className="absolute inset-0 w-full h-full z-10">
-                        {/* Iframe for live preview with improved scaling and no scrollbars */}
+                        {/* Iframe for live preview */}
                         <div className="w-full h-full relative overflow-hidden">
                           <iframe 
                             src={project.link_demo} 
@@ -107,31 +108,39 @@ export const Projects = () => {
                     
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90 z-30" />
                     
-                    <div className="absolute top-4 right-4 z-40">
-                      <Badge variant="secondary" className="glass border-primary/30 uppercase tracking-tighter">
-                        {project.category}
-                      </Badge>
-                    </div>
-
                     <div className="absolute bottom-4 left-4 z-40 flex items-center gap-2 text-[10px] font-mono text-primary/80">
                       <Monitor className="w-3 h-3" /> PREVISUALIZACIÓN EN VIVO
                     </div>
                   </div>
                   
                   <div className="p-6 flex flex-col flex-grow relative z-40 bg-background/20 backdrop-blur-sm">
-                    <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
+                    {/* Título */}
+                    <h3 className="text-2xl font-bold mb-1 group-hover:text-primary transition-colors">
                       {project.title}
                     </h3>
-                    <p className="text-muted-foreground text-sm mb-4 flex-grow line-clamp-2">
-                      {project.description}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-6">
+                    
+                    {/* Categoría debajo del nombre */}
+                    <div className="mb-3">
+                      <span className="text-[10px] uppercase font-mono tracking-[0.2em] text-secondary font-bold">
+                        {project.category}
+                      </span>
+                    </div>
+
+                    {/* Tags debajo de la categoría */}
+                    <div className="flex flex-wrap gap-2 mb-4">
                       {project.tags?.map((tag: string) => (
-                        <span key={tag} className="text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded bg-white/5 border border-white/10">
+                        <span key={tag} className="text-[9px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary-foreground/80">
                           {tag}
                         </span>
                       ))}
                     </div>
+
+                    {/* Descripción */}
+                    <p className="text-muted-foreground text-sm mb-6 flex-grow line-clamp-2">
+                      {project.description}
+                    </p>
+
+                    {/* Botones */}
                     <div className="flex gap-4">
                       {project.link_demo && (
                         <a href={project.link_demo} target="_blank" rel="noreferrer" className="flex-1">
