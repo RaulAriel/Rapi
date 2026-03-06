@@ -17,9 +17,11 @@ export const Projects = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
+      // Pedimos ordenados por order_index primero, luego por fecha de creación como fallback
       const { data, error } = await supabase
         .from('projects')
         .select('*')
+        .order('order_index', { ascending: true })
         .order('created_at', { ascending: false });
 
       if (data) {
@@ -74,7 +76,6 @@ export const Projects = () => {
               >
                 <GlassCard className="p-0 overflow-hidden flex flex-col h-full group" hoverGlow>
                   <div className="relative aspect-video overflow-hidden bg-black/40">
-                    {/* Background Image (Always present as fallback/loading state) */}
                     <img 
                       src={project.image_url || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"} 
                       alt={project.title} 
@@ -83,7 +84,6 @@ export const Projects = () => {
 
                     {project.link_demo && (
                       <div className="absolute inset-0 w-full h-full z-10">
-                        {/* Iframe for live preview with improved scaling and no scrollbars */}
                         <div className="w-full h-full relative overflow-hidden">
                           <iframe 
                             src={project.link_demo} 
@@ -100,7 +100,6 @@ export const Projects = () => {
                             loading="lazy"
                           />
                         </div>
-                        {/* Blocking overlay */}
                         <div className="absolute inset-0 bg-transparent z-20 cursor-default" />
                       </div>
                     )}
@@ -155,7 +154,6 @@ export const Projects = () => {
           </AnimatePresence>
         </div>
 
-        {/* Info message for the user */}
         <div className="mt-12 flex items-center justify-center gap-2 text-xs text-muted-foreground bg-white/5 p-4 rounded-xl border border-white/10 max-w-2xl mx-auto">
           <AlertCircle className="w-4 h-4 text-primary" />
           <p>
