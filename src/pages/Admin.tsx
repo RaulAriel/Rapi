@@ -266,7 +266,9 @@ const Admin = () => {
         <Tabs defaultValue="projects" className="space-y-8">
           <TabsList className="glass border-white/5 p-1 h-auto flex-wrap justify-start gap-2">
             <TabsTrigger value="projects" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-6 py-3 rounded-xl transition-all"><Briefcase className="w-4 h-4 mr-2" /> Proyectos</TabsTrigger>
+            {/* Ocultado temporalmente
             <TabsTrigger value="skills" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-6 py-3 rounded-xl transition-all"><Code className="w-4 h-4 mr-2" /> Habilidades</TabsTrigger>
+            */}
           </TabsList>
 
           <TabsContent value="projects">
@@ -309,6 +311,7 @@ const Admin = () => {
             </div>
           </TabsContent>
 
+          {/* Ocultado temporalmente
           <TabsContent value="skills">
             <div className="max-w-4xl mx-auto">
               <div className="flex justify-between items-center mb-8">
@@ -342,6 +345,7 @@ const Admin = () => {
               </div>
             </div>
           </TabsContent>
+          */}
         </Tabs>
       </main>
       <Footer />
