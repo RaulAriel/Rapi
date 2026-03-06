@@ -7,7 +7,7 @@ import { GlassCard } from "@/components/GlassCard";
 import { NeonButton } from "@/components/NeonButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Terminal, Lock, User } from "lucide-react";
+import { Lock, User } from "lucide-react";
 import { showError, showSuccess } from "@/utils/toast";
 
 const Login = () => {
@@ -45,8 +45,8 @@ const Login = () => {
       
       <GlassCard className="w-full max-w-md p-8 relative z-10" hoverGlow={false}>
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-primary/20 border border-primary/50 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(139,92,246,0.3)]">
-            <Terminal className="w-8 h-8 text-primary" />
+          <div className="w-16 h-16 rounded-2xl bg-primary/20 border border-primary/50 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(139,92,246,0.3)] overflow-hidden">
+            <img src="/src/assets/logo.svg" alt="Login Logo" className="w-10 h-10 object-contain" />
           </div>
           <h1 className="text-2xl font-black tracking-tighter">SISTEMA DE <span className="text-primary">ACCESO</span></h1>
           <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] mt-2">Nivel de Seguridad: Alpha</p>

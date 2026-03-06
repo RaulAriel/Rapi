@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Terminal } from "lucide-react";
 
 export const Preloader = () => {
   const [loading, setLoading] = useState(true);
@@ -43,7 +42,7 @@ export const Preloader = () => {
         >
           <div className="w-full max-w-md font-mono text-primary space-y-2">
             <div className="flex items-center gap-3 mb-6">
-              <Terminal className="w-8 h-8 animate-pulse" />
+              <img src="/src/assets/logo.svg" alt="Loading Logo" className="w-8 h-8 animate-pulse" />
               <div className="h-1 flex-1 bg-white/10 rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}

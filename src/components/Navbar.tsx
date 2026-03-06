@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Terminal } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -43,11 +43,11 @@ export const Navbar = () => {
           )}
         >
           <a href="#hero" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-lg bg-primary/20 border border-primary/50 flex items-center justify-center group-hover:neon-border-violet transition-all">
-              <Terminal className="w-6 h-6 text-primary" />
+            <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center group-hover:neon-border-violet transition-all">
+              <img src="/src/assets/logo.svg" alt="Logo" className="w-8 h-8 object-contain" />
             </div>
             <span className="text-xl font-black tracking-tighter hidden sm:block">
-              CYBER<span className="text-primary">PORTFOLIO</span>
+              RAÚL<span className="text-primary">ARIEL</span>
             </span>
           </a>
 
