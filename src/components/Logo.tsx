@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import logoSrc from "@/assets/logo.svg";
 
 interface LogoProps {
   className?: string;
@@ -19,15 +20,15 @@ export const Logo = ({ className, size = "md", showNeon = false }: LogoProps) =>
   return (
     <div
       className={cn(
-        "w-fit h-fit rounded-[10px] overflow-hidden flex items-center justify-center transition-all duration-300",
+        "w-fit h-fit rounded-[10px] flex items-center justify-center transition-all duration-300",
         showNeon && "neon-border-violet",
         className
       )}
     >
       <img
-        src="/src/assets/logo.svg"
+        src={logoSrc}
         alt="Raúl Ariel Logo"
-        className={cn("object-contain", sizeClasses[size])}
+        className={cn("object-contain block", sizeClasses[size])}
       />
     </div>
   );
