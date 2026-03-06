@@ -156,9 +156,7 @@ const Admin = () => {
 
       if (skillsRes.data) setSkills(skillsRes.data);
       
-      // Si hay error en proyectos (posiblemente por falta de columna order_index), intentamos sin ella
       if (projectsRes.error) {
-        console.warn("Error fetching projects with order_index, falling back to created_at");
         const fallbackRes = await supabase.from('projects').select('*').order('created_at', { ascending: false });
         if (fallbackRes.data) setProjects(fallbackRes.data);
       } else if (projectsRes.data) {
@@ -181,16 +179,16 @@ const Admin = () => {
       const newOrder = arrayMove(projects, oldIndex, newIndex);
       setProjects(newOrder);
 
-      // Importante: Mandar todos los campos para no sobreescribir con nulos si la política es estricta
+      // Enviamos solo ID, orden y user_id para evitar conflictos con otras columnas
       const updates = newOrder.map((project, index) => ({
-        ...project,
+        id: project.id,
         order_index: index,
         user_id: user.id
       }));
 
       const { error } = await supabase
         .from('projects')
-        .upsert(updates);
+        .upsert(updates, { onConflict: 'id' });
 
       if (error) {
         showError("Error al guardar el orden. Asegúrate de haber ejecutado el SQL de la columna order_index.");
