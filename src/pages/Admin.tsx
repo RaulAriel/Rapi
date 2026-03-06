@@ -185,8 +185,9 @@ const Admin = () => {
 
   const handleProjectSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Separamos por punto y coma (;) como solicitó el usuario
     const tagsArray = typeof newProject.tags === 'string' 
-      ? newProject.tags.split(',').map(t => t.trim()).filter(t => t !== "")
+      ? newProject.tags.split(';').map(t => t.trim()).filter(t => t !== "")
       : newProject.tags;
 
     if (editingProject) {
@@ -235,7 +236,8 @@ const Admin = () => {
       title: project.title,
       category: project.category,
       description: project.description || "",
-      tags: project.tags ? project.tags.join(', ') : "",
+      // Unimos con punto y coma para editar
+      tags: project.tags ? project.tags.join('; ') : "",
       link_demo: project.link_demo || "",
       link_repo: project.link_repo || "",
       image_url: project.image_url || ""
@@ -266,9 +268,6 @@ const Admin = () => {
         <Tabs defaultValue="projects" className="space-y-8">
           <TabsList className="glass border-white/5 p-1 h-auto flex-wrap justify-start gap-2">
             <TabsTrigger value="projects" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-6 py-3 rounded-xl transition-all"><Briefcase className="w-4 h-4 mr-2" /> Proyectos</TabsTrigger>
-            {/* Ocultado temporalmente
-            <TabsTrigger value="skills" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-6 py-3 rounded-xl transition-all"><Code className="w-4 h-4 mr-2" /> Habilidades</TabsTrigger>
-            */}
           </TabsList>
 
           <TabsContent value="projects">
@@ -285,7 +284,7 @@ const Admin = () => {
                   </div>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2"><Label className="text-[10px] uppercase font-mono tracking-widest">URL Imagen</Label><Input value={newProject.image_url} onChange={(e) => setNewProject({...newProject, image_url: e.target.value})} className={inputClasses} /></div>
-                    <div className="space-y-2"><Label className="text-[10px] uppercase font-mono tracking-widest">Tags</Label><Input value={newProject.tags} onChange={(e) => setNewProject({...newProject, tags: e.target.value})} className={inputClasses} /></div>
+                    <div className="space-y-2"><Label className="text-[10px] uppercase font-mono tracking-widest">Tags (separados por ;)</Label><Input value={newProject.tags} placeholder="React; Tailwind; Node" onChange={(e) => setNewProject({...newProject, tags: e.target.value})} className={inputClasses} /></div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2"><Label className="text-[10px] uppercase font-mono tracking-widest flex items-center gap-2"><Globe className="w-3 h-3 text-primary" /> URL Previsualización</Label><Input value={newProject.link_demo} onChange={(e) => setNewProject({...newProject, link_demo: e.target.value})} className={cn(inputClasses, "border-primary/50")} /></div>
@@ -310,42 +309,6 @@ const Admin = () => {
               </div>
             </div>
           </TabsContent>
-
-          {/* Ocultado temporalmente
-          <TabsContent value="skills">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex justify-between items-center mb-8">
-                <h3 className="text-xl font-bold flex items-center gap-2">
-                  <LayoutDashboard className="text-primary w-5 h-5" /> Banco de Habilidades
-                </h3>
-                <NeonButton size="sm" onClick={handleAddSkill}>
-                  <Plus className="w-4 h-4 mr-2" /> Nueva
-                </NeonButton>
-              </div>
-
-              <div className="space-y-4">
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndSkills}>
-                  <SortableContext items={skills.map(s => s.id)} strategy={verticalListSortingStrategy}>
-                    <div className="flex flex-col gap-4">
-                      {skills.map((skill) => (
-                        <SortableSkillItem 
-                          key={skill.id} 
-                          skill={skill} 
-                          inputClasses={inputClasses}
-                          onUpdate={(id, updates) => {
-                            handleSkillUpdateLocal(id, updates);
-                            if (updates.level !== undefined) handleSkillUpdateDB(id, updates);
-                          }}
-                          onDelete={handleDeleteSkill}
-                        />
-                      ))}
-                    </div>
-                  </SortableContext>
-                </DndContext>
-              </div>
-            </div>
-          </TabsContent>
-          */}
         </Tabs>
       </main>
       <Footer />
