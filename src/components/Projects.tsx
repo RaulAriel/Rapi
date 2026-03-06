@@ -5,148 +5,164 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { NeonButton } from "./NeonButton";
-import { ExternalLink, Github, Terminal, ArrowRight, Loader2 } from "lucide-react";
+import { ExternalLink, Github, Monitor, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Projects = () => {
-  const [activeTab, setActiveTab] = useState("all");
+  const [filter, setFilter] = useState("Todos");
   const [projects, setProjects] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState(["Todos"]);
 
   useEffect(() => {
     const fetchProjects = async () => {
-      setLoading(true);
-      // Intentamos ordenar por order_index, si falla (por ejemplo si la columna no existe aún), 
-      // Supabase devolverá un error pero aquí lo manejamos
       const { data, error } = await supabase
         .from('projects')
         .select('*')
-        .order('order_index', { ascending: true, nullsFirst: false });
-      
-      if (error) {
-        console.error("Error fetching projects by order, falling back to date:", error);
-        const { data: fallbackData } = await supabase
-          .from('projects')
-          .select('*')
-          .order('created_at', { ascending: false });
-        if (fallbackData) setProjects(fallbackData);
-      } else if (data) {
+        .order('created_at', { ascending: false });
+
+      if (data) {
         setProjects(data);
+        const cats = ["Todos", ...new Set(data.map((p: any) => p.category))];
+        setCategories(cats);
       }
-      setLoading(false);
     };
+
     fetchProjects();
   }, []);
 
-  const categories = ["all", ...Array.from(new Set(projects.map(p => p.category)))];
-
-  const filteredProjects = activeTab === "all" 
+  const filteredProjects = filter === "Todos" 
     ? projects 
-    : projects.filter(p => p.category === activeTab);
+    : projects.filter(p => p.category === filter);
 
   return (
-    <section id="projects" className="py-24 relative overflow-hidden">
+    <section id="projects" className="py-24 relative">
       <div className="container px-4 md:px-6">
         <SectionHeading 
-          title="PROYECTOS DESTACADOS" 
-          subtitle="Una colección de misiones técnicas completadas con éxito."
+          title="Proyectos Destacados" 
+          subtitle="Una selección de misiones digitales completadas con éxito."
         />
 
         <div className="flex flex-wrap justify-center gap-4 mb-12">
-          {categories.map((category) => (
+          {categories.map((cat) => (
             <button
-              key={category}
-              onClick={() => setActiveTab(category)}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 border ${
-                activeTab === category
-                  ? "bg-primary text-primary-foreground border-primary shadow-[0_0_15px_rgba(139,92,246,0.5)]"
-                  : "bg-transparent text-muted-foreground border-white/10 hover:border-primary/50"
-              }`}
+              key={cat}
+              onClick={() => setFilter(cat)}
+              className={cn(
+                "px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 border",
+                filter === cat 
+                  ? "bg-primary text-white border-primary shadow-[0_0_15px_rgba(139,92,246,0.5)]" 
+                  : "bg-white/5 border-white/10 text-muted-foreground hover:border-primary/50"
+              )}
             >
-              {category.charAt(0).toUpperCase() + category.slice(1)}
+              {cat}
             </button>
           ))}
         </div>
 
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-10 h-10 text-primary animate-spin" />
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <AnimatePresence mode="popLayout">
-              {filteredProjects.map((project, index) => (
-                <motion.div
-                  key={project.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                >
-                  <GlassCard className="group h-full flex flex-col overflow-hidden border-white/5 hover:border-primary/30 transition-all duration-500">
-                    <div className="relative aspect-video overflow-hidden">
-                      <img 
-                        src={project.image_url || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"} 
-                        alt={project.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60" />
-                      <div className="absolute top-4 left-4">
-                        <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-primary/80 backdrop-blur-md text-white border border-white/10">
-                          {project.category}
-                        </span>
+        <div className="grid md:grid-cols-2 gap-8">
+          <AnimatePresence mode="popLayout">
+            {filteredProjects.map((project, index) => (
+              <motion.div
+                key={project.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.4 }}
+              >
+                <GlassCard className="p-0 overflow-hidden flex flex-col h-full group" hoverGlow>
+                  <div className="relative aspect-video overflow-hidden bg-black/40">
+                    {/* Background Image (Always present as fallback/loading state) */}
+                    <img 
+                      src={project.image_url || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"} 
+                      alt={project.title} 
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-60"
+                    />
+
+                    {project.link_demo && (
+                      <div className="absolute inset-0 w-full h-full z-10">
+                        {/* Iframe for live preview with improved scaling and no scrollbars */}
+                        <div className="w-full h-full relative overflow-hidden">
+                          <iframe 
+                            src={project.link_demo} 
+                            scrolling="no"
+                            className="absolute top-0 left-0 border-none pointer-events-none origin-top-left overflow-hidden scrollbar-hide"
+                            style={{ 
+                              width: '200%',
+                              height: '200%',
+                              transform: 'scale(0.5)',
+                              msOverflowStyle: 'none',
+                              scrollbarWidth: 'none',
+                            }}
+                            title={project.title}
+                            loading="lazy"
+                          />
+                        </div>
+                        {/* Blocking overlay */}
+                        <div className="absolute inset-0 bg-transparent z-20 cursor-default" />
                       </div>
-                    </div>
+                    )}
                     
-                    <div className="p-6 flex-1 flex flex-col">
-                      <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
-                      <p className="text-muted-foreground text-sm mb-6 line-clamp-3">
-                        {project.description}
-                      </p>
-                      
-                      <div className="flex flex-wrap gap-2 mb-8 mt-auto">
-                        {project.tags?.map((tag: string) => (
-                          <span key={tag} className="text-[10px] font-mono text-primary/70 bg-primary/5 px-2 py-0.5 rounded border border-primary/10">
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                      
-                      <div className="flex gap-4">
-                        {project.link_demo && (
-                          <NeonButton 
-                            variant="primary" 
-                            size="sm" 
-                            className="flex-1"
-                            onClick={() => window.open(project.link_demo, '_blank')}
-                          >
-                            Demo <ExternalLink className="w-3 h-3 ml-2" />
-                          </NeonButton>
-                        )}
-                        {project.link_repo && (
-                          <NeonButton 
-                            variant="outline" 
-                            size="sm" 
-                            className="flex-1"
-                            onClick={() => window.open(project.link_repo, '_blank')}
-                          >
-                            Code <Github className="w-3 h-3 ml-2" />
-                          </NeonButton>
-                        )}
-                      </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90 z-30" />
+                    
+                    <div className="absolute top-4 right-4 z-40">
+                      <Badge variant="secondary" className="glass border-primary/30 uppercase tracking-tighter">
+                        {project.category}
+                      </Badge>
                     </div>
-                  </GlassCard>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-            {projects.length === 0 && !loading && (
-              <div className="col-span-full text-center py-20">
-                <p className="text-muted-foreground">No se encontraron proyectos activos.</p>
-              </div>
-            )}
-          </div>
-        )}
+
+                    <div className="absolute bottom-4 left-4 z-40 flex items-center gap-2 text-[10px] font-mono text-primary/80">
+                      <Monitor className="w-3 h-3" /> PREVISUALIZACIÓN EN VIVO
+                    </div>
+                  </div>
+                  
+                  <div className="p-6 flex flex-col flex-grow relative z-40 bg-background/20 backdrop-blur-sm">
+                    <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
+                      {project.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm mb-4 flex-grow line-clamp-2">
+                      {project.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {project.tags?.map((tag: string) => (
+                        <span key={tag} className="text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded bg-white/5 border border-white/10">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-4">
+                      {project.link_demo && (
+                        <a href={project.link_demo} target="_blank" rel="noreferrer" className="flex-1">
+                          <NeonButton size="sm" className="w-full">
+                            <ExternalLink className="w-4 h-4" /> Visitar Sitio
+                          </NeonButton>
+                        </a>
+                      )}
+                      {project.link_repo && (
+                        <a href={project.link_repo} target="_blank" rel="noreferrer" className="flex-1">
+                          <NeonButton size="sm" variant="outline" glowColor="blue" className="w-full">
+                            <Github className="w-4 h-4" /> Repo
+                          </NeonButton>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* Info message for the user */}
+        <div className="mt-12 flex items-center justify-center gap-2 text-xs text-muted-foreground bg-white/5 p-4 rounded-xl border border-white/10 max-w-2xl mx-auto">
+          <AlertCircle className="w-4 h-4 text-primary" />
+          <p>
+            Nota: Algunos sitios externos pueden no visualizarse aquí debido a sus políticas de seguridad (X-Frame-Options). 
+            En esos casos, se mostrará la imagen de portada.
+          </p>
+        </div>
       </div>
     </section>
   );
