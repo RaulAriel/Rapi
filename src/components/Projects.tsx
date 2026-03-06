@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { NeonButton } from "./NeonButton";
-import { ExternalLink, Github } from "lucide-react";
+import { ExternalLink, Github, Monitor } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -73,21 +73,52 @@ export const Projects = () => {
                 transition={{ duration: 0.4 }}
               >
                 <GlassCard className="p-0 overflow-hidden flex flex-col h-full group" hoverGlow>
-                  <div className="relative aspect-video overflow-hidden">
-                    <img 
-                      src={project.image_url} 
-                      alt={project.title} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60" />
-                    <div className="absolute top-4 right-4">
+                  <div className="relative aspect-video overflow-hidden bg-black/40">
+                    {project.link_demo ? (
+                      <div className="absolute inset-0 w-full h-full">
+                        {/* Iframe for live preview */}
+                        <iframe 
+                          src={project.link_demo} 
+                          className="w-[1280px] h-[720px] origin-top-left border-none pointer-events-none"
+                          style={{ 
+                            transform: 'scale(calc(100% / 1280 * 1))',
+                            width: '1280px',
+                            height: '720px'
+                          }}
+                          title={project.title}
+                          loading="lazy"
+                        />
+                        {/* Blocking overlay to prevent interaction */}
+                        <div className="absolute inset-0 bg-transparent z-10 cursor-default" />
+                        {/* Fallback image in case iframe fails or for faster initial paint */}
+                        <img 
+                          src={project.image_url} 
+                          alt={project.title} 
+                          className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-0 transition-opacity duration-500"
+                        />
+                      </div>
+                    ) : (
+                      <img 
+                        src={project.image_url} 
+                        alt={project.title} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    )}
+                    
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-80 z-20" />
+                    
+                    <div className="absolute top-4 right-4 z-30">
                       <Badge variant="secondary" className="glass border-primary/30 uppercase tracking-tighter">
                         {project.category}
                       </Badge>
                     </div>
+
+                    <div className="absolute bottom-4 left-4 z-30 flex items-center gap-2 text-xs font-mono text-primary/80">
+                      <Monitor className="w-3 h-3" /> PREVISUALIZACIÓN EN VIVO
+                    </div>
                   </div>
                   
-                  <div className="p-6 flex flex-col flex-grow">
+                  <div className="p-6 flex flex-col flex-grow relative z-30">
                     <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
                       {project.title}
                     </h3>
@@ -105,7 +136,7 @@ export const Projects = () => {
                       {project.link_demo && (
                         <a href={project.link_demo} target="_blank" rel="noreferrer" className="flex-1">
                           <NeonButton size="sm" className="w-full">
-                            <ExternalLink className="w-4 h-4" /> Demo
+                            <ExternalLink className="w-4 h-4" /> Visitar Sitio
                           </NeonButton>
                         </a>
                       )}
