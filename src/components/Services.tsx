@@ -3,50 +3,50 @@ import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { NeonButton } from "./NeonButton";
 import { 
-  Laptop, 
+  Code, 
+  Layout, 
+  PenTool, 
   Search, 
-  Megaphone, 
   ShieldCheck, 
-  Smartphone, 
   BarChart3 
 } from "lucide-react";
 
 export const Services = () => {
   const services = [
     {
-      icon: <Laptop className="w-10 h-10" />,
-      title: "Desarrollo Web",
-      description: "Sitios web de alto rendimiento construidos con arquitecturas modernas.",
+      icon: <Layout className="w-10 h-10" />,
+      title: "Diseño Web UI/UX",
+      description: "Interfaces visualmente impactantes con un enfoque obsesivo en la experiencia de usuario y la estética moderna.",
       color: "text-primary"
     },
     {
-      icon: <Smartphone className="w-10 h-10" />,
-      title: "Aplicaciones Mobile",
-      description: "Experiencias fluidas y nativas optimizadas para cualquier dispositivo.",
+      icon: <Code className="w-10 h-10" />,
+      title: "Desarrollo Web",
+      description: "Arquitecturas robustas y escalables construidas con las tecnologías más avanzadas del mercado actual.",
       color: "text-secondary"
+    },
+    {
+      icon: <PenTool className="w-10 h-10" />,
+      title: "Diseño de Marca",
+      description: "Identidades visuales únicas y memorables que posicionan tu negocio en la vanguardia digital.",
+      color: "text-pink-500"
     },
     {
       icon: <Search className="w-10 h-10" />,
       title: "Optimización SEO",
-      description: "Posicionamiento estratégico para dominar los motores de búsqueda.",
+      description: "Estrategias de posicionamiento técnico para dominar los motores de búsqueda y atraer tráfico cualificado.",
       color: "text-yellow-400"
-    },
-    {
-      icon: <Megaphone className="w-10 h-10" />,
-      title: "Branding Digital",
-      description: "Identidad visual única que destaca en el ruido del mercado.",
-      color: "text-pink-500"
     },
     {
       icon: <ShieldCheck className="w-10 h-10" />,
       title: "Ciberseguridad",
-      description: "Protección integral para tus activos digitales y datos de usuarios.",
+      description: "Protección integral para tus activos digitales, garantizando la integridad de tus datos y los de tus usuarios.",
       color: "text-emerald-400"
     },
     {
       icon: <BarChart3 className="w-10 h-10" />,
       title: "Analítica Avanzada",
-      description: "Toma de decisiones basada en datos reales y comportamiento del usuario.",
+      description: "Monitorización y análisis de datos para optimizar la conversión y entender el comportamiento del usuario.",
       color: "text-orange-400"
     }
   ];
@@ -58,7 +58,7 @@ export const Services = () => {
       <div className="container px-4 md:px-6">
         <SectionHeading 
           title="Servicios Premium" 
-          subtitle="Soluciones digitales integrales diseñadas para el mañana."
+          subtitle="Soluciones digitales integrales diseñadas para conquistar el mañana."
         />
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
