@@ -43,8 +43,12 @@ export const Navbar = () => {
           )}
         >
           <a href="#hero" className="flex items-center gap-2 group">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(139,92,246,0.5)] group-hover:bg-primary/5 border border-transparent group-hover:border-primary/20">
-              <img src="/src/assets/logo.svg" alt="Logo" className="w-10 h-10 object-contain transition-transform duration-300 group-hover:scale-110" />
+            <div className="w-12 h-12 flex items-center justify-center transition-all duration-300 group-hover:shadow-[0_0_25px_rgba(139,92,246,0.4)] rounded-xl border border-transparent group-hover:border-primary/30 group-hover:bg-primary/5">
+              <img 
+                src="/src/assets/logo.svg" 
+                alt="Logo" 
+                className="w-10 h-10 object-contain transition-transform duration-300 group-hover:scale-110" 
+              />
             </div>
             <span className="text-xl font-black tracking-tighter hidden sm:block">
               RAÚL<span className="text-primary">ARIEL</span>
