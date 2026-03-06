@@ -25,79 +25,10 @@ import {
   Save, 
   X,
   CheckCircle2,
-  Globe,
-  GripVertical
+  Globe
 } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
-
-// DnD Kit Imports
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-
-// Componente individual para cada proyecto en la lista (Sortable)
-const SortableProjectItem = ({ project, onEdit, onDelete }: { project: any, onEdit: any, onDelete: any }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging
-  } = useSortable({ id: project.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 50 : 'auto',
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} className={cn("relative", isDragging && "opacity-50")}>
-      <GlassCard className="p-4 border-l-4 border-primary group relative overflow-visible">
-        <div className="flex justify-between items-start gap-3">
-          {/* Handle para arrastrar */}
-          <button 
-            {...attributes} 
-            {...listeners} 
-            className="mt-1 text-muted-foreground hover:text-primary cursor-grab active:cursor-grabbing p-1"
-          >
-            <GripVertical className="w-4 h-4" />
-          </button>
-
-          <div className="flex-1">
-            <h4 className="font-bold text-sm truncate max-w-[150px]">{project.title}</h4>
-            <p className="text-[10px] text-muted-foreground uppercase">{project.category}</p>
-          </div>
-          
-          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button onClick={() => onEdit(project)} className="text-primary hover:scale-110 p-1">
-              <Edit3 className="w-3.5 h-3.5" />
-            </button>
-            <button onClick={() => onDelete(project.id)} className="text-destructive hover:scale-110 p-1">
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      </GlassCard>
-    </div>
-  );
-};
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -105,13 +36,6 @@ const Admin = () => {
   const [skills, setSkills] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   // Clase unificada para inputs
   const inputClasses = "bg-background/50 border-primary/30 focus:border-primary focus:ring-primary/20 transition-all duration-300";
@@ -145,7 +69,7 @@ const Admin = () => {
     setLoading(true);
     const [skillsRes, projectsRes] = await Promise.all([
       supabase.from('skills').select('*').order('created_at', { ascending: false }),
-      supabase.from('projects').select('*').order('sort_order', { ascending: true })
+      supabase.from('projects').select('*').order('created_at', { ascending: false })
     ]);
 
     if (skillsRes.data) setSkills(skillsRes.data);
@@ -206,6 +130,7 @@ const Admin = () => {
       : newProject.tags;
 
     if (editingProject) {
+      // Modo Edición
       const { error } = await supabase
         .from('projects')
         .update({ ...newProject, tags: tagsArray })
@@ -218,56 +143,18 @@ const Admin = () => {
         resetProjectForm();
       }
     } else {
-      // Determinamos el siguiente sort_order
-      const nextOrder = projects.length > 0 ? Math.max(...projects.map(p => p.sort_order || 0)) + 1 : 0;
-      
+      // Modo Creación
       const { data, error } = await supabase
         .from('projects')
-        .insert([{ ...newProject, tags: tagsArray, user_id: user.id, sort_order: nextOrder }])
+        .insert([{ ...newProject, tags: tagsArray, user_id: user.id }])
         .select();
 
       if (error) showError(error.message);
       else {
         showSuccess("Proyecto creado");
-        if (data) setProjects([...projects, data[0]]);
+        if (data) setProjects([data[0], ...projects]);
         resetProjectForm();
       }
-    }
-  };
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      setProjects((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-        const newItems = arrayMove(items, oldIndex, newIndex);
-        
-        // Actualizamos en background en Supabase
-        updateProjectsOrder(newItems);
-        
-        return newItems;
-      });
-    }
-  };
-
-  const updateProjectsOrder = async (reorderedProjects: any[]) => {
-    const updates = reorderedProjects.map((project, index) => ({
-      id: project.id,
-      sort_order: index,
-      // Incluimos campos requeridos o necesarios para evitar errores si la política es estricta
-      user_id: user.id 
-    }));
-
-    // Actualización masiva (batch update)
-    const { error } = await supabase
-      .from('projects')
-      .upsert(updates, { onConflict: 'id' });
-
-    if (error) {
-      showError("Error al guardar el orden");
-      fetchData(); // Recargamos para volver al estado consistente
     }
   };
 
@@ -432,35 +319,22 @@ const Admin = () => {
               </GlassCard>
 
               <div className="space-y-6">
-                <div className="flex items-center justify-between px-2">
-                  <h3 className="text-xl font-bold">Archivos Activos</h3>
-                  <span className="text-[10px] uppercase font-mono text-muted-foreground bg-primary/10 px-2 py-1 rounded">Arrastrable</span>
-                </div>
-                
+                <h3 className="text-xl font-bold px-2">Archivos Activos</h3>
                 <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                  <DndContext 
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <SortableContext 
-                      items={projects.map(p => p.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      {projects.map((p) => (
-                        <SortableProjectItem 
-                          key={p.id} 
-                          project={p} 
-                          onEdit={startEditProject} 
-                          onDelete={handleDeleteProject} 
-                        />
-                      ))}
-                    </SortableContext>
-                  </DndContext>
-                  
-                  {projects.length === 0 && (
-                    <p className="text-center text-muted-foreground py-8 text-sm italic">No hay proyectos registrados.</p>
-                  )}
+                  {projects.map((p) => (
+                    <GlassCard key={p.id} className="p-4 border-l-4 border-primary group">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="font-bold text-sm">{p.title}</h4>
+                          <p className="text-[10px] text-muted-foreground uppercase">{p.category}</p>
+                        </div>
+                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => startEditProject(p)} className="text-primary hover:scale-110 p-1"><Edit3 className="w-4 h-4" /></button>
+                          <button onClick={() => handleDeleteProject(p.id)} className="text-destructive hover:scale-110 p-1"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      </div>
+                    </GlassCard>
+                  ))}
                 </div>
               </div>
             </div>
@@ -549,7 +423,7 @@ const Admin = () => {
                       <span className="text-sm font-mono uppercase tracking-tighter">Sincronización en Tiempo Real: Activa</span>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      El sistema detecta cambios de orden y los guarda automáticamente. Los proyectos se mostrarán en la web siguiendo este orden personalizado.
+                      El sistema detecta cambios en el enfoque (blur) de los campos de texto y los guarda automáticamente. Los deslizadores se sincronizan al soltar el ratón.
                     </p>
                   </div>
                 </GlassCard>
@@ -557,7 +431,7 @@ const Admin = () => {
                 <GlassCard className="p-8">
                   <h3 className="text-xl font-bold mb-4">Consejo de Edición</h3>
                   <p className="text-sm text-muted-foreground">
-                    Usa el icono de arrastre (seis puntos) para reordenar tus proyectos. La web se actualizará automáticamente con la nueva jerarquía.
+                    Para los proyectos, usa el botón de editar en la lista lateral para cargar los datos en el formulario principal. Al terminar, presiona "Actualizar Datos".
                   </p>
                 </GlassCard>
               </div>
