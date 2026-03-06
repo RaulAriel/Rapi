@@ -11,21 +11,17 @@ import { NeonButton } from "@/components/NeonButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { 
   Plus, 
-  Trash2, 
   LayoutDashboard, 
   Code, 
   Briefcase, 
   LogOut, 
   Loader2, 
-  Edit3, 
   Save, 
   X,
-  Globe,
-  GripVertical
+  Globe
 } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
@@ -44,67 +40,11 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable
+  verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
-const SortableProjectItem = ({ 
-  project, 
-  onEdit, 
-  onDelete 
-}: { 
-  project: any, 
-  onEdit: (p: any) => void, 
-  onDelete: (id: string) => void 
-}) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging
-  } = useSortable({ id: project.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 50 : 'auto',
-    opacity: isDragging ? 0.5 : 1
-  };
-
-  return (
-    <div ref={setNodeRef} style={style}>
-      <GlassCard className={cn(
-        "p-4 border-l-4 border-primary group flex items-center gap-4",
-        isDragging && "shadow-2xl border-primary"
-      )}>
-        <button 
-          {...attributes} 
-          {...listeners} 
-          className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-primary transition-colors p-2"
-        >
-          <GripVertical className="w-5 h-5" />
-        </button>
-        
-        <div className="flex-1 min-w-0">
-          <h4 className="font-bold text-sm truncate">{project.title}</h4>
-          <p className="text-[10px] text-muted-foreground uppercase">{project.category}</p>
-        </div>
-
-        <div className="flex gap-2">
-          <button onClick={() => onEdit(project)} className="text-primary hover:scale-110 p-2">
-            <Edit3 className="w-4 h-4" />
-          </button>
-          <button onClick={() => onDelete(project.id)} className="text-destructive hover:scale-110 p-2">
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
-      </GlassCard>
-    </div>
-  );
-};
+import { SortableProjectItem } from "@/components/SortableProjectItem";
+import { SortableSkillItem } from "@/components/SortableSkillItem";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -150,19 +90,12 @@ const Admin = () => {
     setLoading(true);
     try {
       const [skillsRes, projectsRes] = await Promise.all([
-        supabase.from('skills').select('*').order('created_at', { ascending: false }),
+        supabase.from('skills').select('*').order('order_index', { ascending: true }),
         supabase.from('projects').select('*').order('order_index', { ascending: true })
       ]);
 
       if (skillsRes.data) setSkills(skillsRes.data);
-      
-      if (projectsRes.error) {
-        console.error("Error cargando proyectos:", projectsRes.error);
-        const fallbackRes = await supabase.from('projects').select('*').order('created_at', { ascending: false });
-        if (fallbackRes.data) setProjects(fallbackRes.data);
-      } else if (projectsRes.data) {
-        setProjects(projectsRes.data);
-      }
+      if (projectsRes.data) setProjects(projectsRes.data);
     } catch (err) {
       console.error("Error crítico en fetchData:", err);
     } finally {
@@ -170,33 +103,50 @@ const Admin = () => {
     }
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
+  const handleDragEndProjects = async (event: DragEndEvent) => {
     const { active, over } = event;
-
     if (over && active.id !== over.id) {
       const oldIndex = projects.findIndex((p) => p.id === active.id);
       const newIndex = projects.findIndex((p) => p.id === over.id);
-
       const newOrder = arrayMove(projects, oldIndex, newIndex);
       setProjects(newOrder);
 
-      // Enviamos el objeto completo para evitar violar restricciones NOT NULL (como el title)
       const updates = newOrder.map((project, index) => ({
         ...project,
         order_index: index,
         user_id: user.id
       }));
 
-      const { error } = await supabase
-        .from('projects')
-        .upsert(updates, { onConflict: 'id' });
-
+      const { error } = await supabase.from('projects').upsert(updates, { onConflict: 'id' });
       if (error) {
-        console.error("Error al guardar orden en Supabase:", error);
-        showError(`Error DB: ${error.message}. Asegúrate de ejecutar el SQL.`);
+        showError(`Error DB: ${error.message}`);
         fetchData();
       } else {
-        showSuccess("Orden actualizado en el servidor");
+        showSuccess("Orden de proyectos actualizado");
+      }
+    }
+  };
+
+  const handleDragEndSkills = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = skills.findIndex((s) => s.id === active.id);
+      const newIndex = skills.findIndex((s) => s.id === over.id);
+      const newOrder = arrayMove(skills, oldIndex, newIndex);
+      setSkills(newOrder);
+
+      const updates = newOrder.map((skill, index) => ({
+        ...skill,
+        order_index: index,
+        user_id: user.id
+      }));
+
+      const { error } = await supabase.from('skills').upsert(updates, { onConflict: 'id' });
+      if (error) {
+        showError(`Error DB: ${error.message}. Asegúrate de ejecutar el SQL para skills.`);
+        fetchData();
+      } else {
+        showSuccess("Orden de habilidades actualizado");
       }
     }
   };
@@ -206,13 +156,13 @@ const Admin = () => {
     navigate("/login");
   };
 
-  const handleUpdateSkill = async (id: string, updates: any) => {
+  const handleSkillUpdateLocal = (id: string, updates: any) => {
+    setSkills(skills.map(s => s.id === id ? { ...s, ...updates } : s));
+  };
+
+  const handleSkillUpdateDB = async (id: string, updates: any) => {
     const { error } = await supabase.from('skills').update(updates).eq('id', id);
-    if (error) showError("Error al actualizar skill");
-    else {
-      setSkills(skills.map(s => s.id === id ? { ...s, ...updates } : s));
-      showSuccess("Skill actualizada");
-    }
+    if (error) showError("Error al sincronizar skill");
   };
 
   const handleDeleteSkill = async (id: string) => {
@@ -227,10 +177,10 @@ const Admin = () => {
   const handleAddSkill = async () => {
     const { data, error } = await supabase
       .from('skills')
-      .insert([{ name: "Nueva Habilidad", category: "Frontend", level: 50, user_id: user.id }])
+      .insert([{ name: "Nueva Habilidad", category: "Frontend", level: 50, user_id: user.id, order_index: skills.length }])
       .select();
     if (error) showError(error.message);
-    else if (data) setSkills([data[0], ...skills]);
+    else if (data) setSkills([...skills, data[0]]);
   };
 
   const handleProjectSubmit = async (e: React.FormEvent) => {
@@ -347,7 +297,7 @@ const Admin = () => {
               <div className="space-y-6">
                 <h3 className="text-xl font-bold px-2">Archivos Activos (Arrastra para ordenar)</h3>
                 <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndProjects}>
                     <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
                       {projects.map((p) => (
                         <SortableProjectItem key={p.id} project={p} onEdit={startEditProject} onDelete={handleDeleteProject} />
@@ -360,26 +310,37 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="skills">
-            <div className="grid md:grid-cols-2 gap-8">
-              <GlassCard className="p-8">
-                <div className="flex justify-between items-center mb-8"><h3 className="text-xl font-bold flex items-center gap-2"><LayoutDashboard className="text-primary w-5 h-5" /> Banco de Habilidades</h3><NeonButton size="sm" onClick={handleAddSkill}><Plus className="w-4 h-4 mr-2" /> Nueva</NeonButton></div>
-                <div className="space-y-12">
-                  {skills.map((skill) => (
-                    <div key={skill.id} className="p-6 rounded-2xl glass border-white/5 space-y-6 relative group">
-                      <button onClick={() => handleDeleteSkill(skill.id)} className="absolute top-4 right-4 text-destructive opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"><Trash2 className="w-4 h-4" /></button>
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        <div className="space-y-2"><Label className="text-[9px] uppercase tracking-widest">Nombre</Label><Input value={skill.name} onChange={(e) => setSkills(skills.map(s => s.id === skill.id ? {...s, name: e.target.value} : s))} onBlur={() => handleUpdateSkill(skill.id, { name: skill.name })} className={cn(inputClasses, "h-8 text-sm")} /></div>
-                        <div className="space-y-2"><Label className="text-[9px] uppercase tracking-widest">Categoría</Label><Input value={skill.category} onChange={(e) => setSkills(skills.map(s => s.id === skill.id ? {...s, category: e.target.value} : s))} onBlur={() => handleUpdateSkill(skill.id, { category: skill.category })} className={cn(inputClasses, "h-8 text-sm")} /></div>
-                      </div>
-                      <div className="space-y-2"><Label className="text-[9px] uppercase tracking-widest">Descripción</Label><Input value={skill.description || ""} onChange={(e) => setSkills(skills.map(s => s.id === skill.id ? {...s, description: e.target.value} : s))} onBlur={() => handleUpdateSkill(skill.id, { description: skill.description })} className={cn(inputClasses, "h-8 text-sm")} /></div>
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center"><Label className="text-[9px] uppercase tracking-widest">Nivel</Label><span className="text-primary font-bold text-xs">{skill.level}%</span></div>
-                        <Slider value={[skill.level]} max={100} step={1} onValueChange={(val) => setSkills(skills.map(s => s.id === skill.id ? {...s, level: val[0]} : s))} onValueCommit={(val) => handleUpdateSkill(skill.id, { level: val[0] })} className="py-2" />
-                      </div>
+            <div className="max-w-4xl mx-auto">
+              <div className="flex justify-between items-center mb-8">
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <LayoutDashboard className="text-primary w-5 h-5" /> Banco de Habilidades
+                </h3>
+                <NeonButton size="sm" onClick={handleAddSkill}>
+                  <Plus className="w-4 h-4 mr-2" /> Nueva
+                </NeonButton>
+              </div>
+
+              <div className="space-y-6">
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndSkills}>
+                  <SortableContext items={skills.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {skills.map((skill) => (
+                        <SortableSkillItem 
+                          key={skill.id} 
+                          skill={skill} 
+                          inputClasses={inputClasses}
+                          onUpdate={(id, updates) => {
+                            handleSkillUpdateLocal(id, updates);
+                            // Debounce or wait for blur in a real app, here we sync for the slider
+                            if (updates.level !== undefined) handleSkillUpdateDB(id, updates);
+                          }}
+                          onDelete={handleDeleteSkill}
+                        />
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </GlassCard>
+                  </SortableContext>
+                </DndContext>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
