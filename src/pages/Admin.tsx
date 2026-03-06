@@ -157,13 +157,14 @@ const Admin = () => {
       if (skillsRes.data) setSkills(skillsRes.data);
       
       if (projectsRes.error) {
+        console.error("Error cargando proyectos:", projectsRes.error);
         const fallbackRes = await supabase.from('projects').select('*').order('created_at', { ascending: false });
         if (fallbackRes.data) setProjects(fallbackRes.data);
       } else if (projectsRes.data) {
         setProjects(projectsRes.data);
       }
     } catch (err) {
-      console.error("Error en fetchData:", err);
+      console.error("Error crítico en fetchData:", err);
     } finally {
       setLoading(false);
     }
@@ -179,7 +180,7 @@ const Admin = () => {
       const newOrder = arrayMove(projects, oldIndex, newIndex);
       setProjects(newOrder);
 
-      // Enviamos solo ID, orden y user_id para evitar conflictos con otras columnas
+      // Solo enviamos los campos mínimos necesarios para el upsert
       const updates = newOrder.map((project, index) => ({
         id: project.id,
         order_index: index,
@@ -191,10 +192,11 @@ const Admin = () => {
         .upsert(updates, { onConflict: 'id' });
 
       if (error) {
-        showError("Error al guardar el orden. Asegúrate de haber ejecutado el SQL de la columna order_index.");
-        fetchData();
+        console.error("Error al guardar orden en Supabase:", error);
+        showError(`Error DB: ${error.message}. Asegúrate de ejecutar el SQL.`);
+        fetchData(); // Recargar para volver al estado anterior
       } else {
-        showSuccess("Orden actualizado");
+        showSuccess("Orden actualizado en el servidor");
       }
     }
   };
