@@ -28,6 +28,7 @@ import {
   Globe
 } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
+import { cn } from "@/lib/utils";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -35,6 +36,9 @@ const Admin = () => {
   const [skills, setSkills] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
+
+  // Clase unificada para inputs
+  const inputClasses = "bg-background/50 border-primary/30 focus:border-primary focus:ring-primary/20 transition-all duration-300";
 
   // Estados para edición
   const [editingProject, setEditingProject] = useState<any>(null);
@@ -245,7 +249,7 @@ const Admin = () => {
                       <Input 
                         value={newProject.title}
                         onChange={(e) => setNewProject({...newProject, title: e.target.value})}
-                        className="bg-white/5 border-white/10" required
+                        className={inputClasses} required
                       />
                     </div>
                     <div className="space-y-2">
@@ -254,7 +258,7 @@ const Admin = () => {
                         value={newProject.category}
                         onChange={(e) => setNewProject({...newProject, category: e.target.value})}
                         placeholder="Ej: Web App, Landing Page"
-                        className="bg-white/5 border-white/10" required
+                        className={inputClasses} required
                       />
                     </div>
                   </div>
@@ -265,7 +269,7 @@ const Admin = () => {
                         value={newProject.image_url}
                         onChange={(e) => setNewProject({...newProject, image_url: e.target.value})}
                         placeholder="https://link-a-la-imagen.jpg"
-                        className="bg-white/5 border-white/10"
+                        className={inputClasses}
                       />
                     </div>
                     <div className="space-y-2">
@@ -274,7 +278,7 @@ const Admin = () => {
                         value={newProject.tags}
                         onChange={(e) => setNewProject({...newProject, tags: e.target.value})}
                         placeholder="React, Tailwind, Supabase..."
-                        className="bg-white/5 border-white/10"
+                        className={inputClasses}
                       />
                     </div>
                   </div>
@@ -287,7 +291,7 @@ const Admin = () => {
                         value={newProject.link_demo} 
                         onChange={(e) => setNewProject({...newProject, link_demo: e.target.value})} 
                         placeholder="https://tu-sitio-web.com"
-                        className="bg-white/5 border-white/10 border-primary/30 focus:border-primary" 
+                        className={cn(inputClasses, "border-primary/50")} 
                       />
                     </div>
                     <div className="space-y-2">
@@ -296,7 +300,7 @@ const Admin = () => {
                         value={newProject.link_repo} 
                         onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} 
                         placeholder="https://github.com/..."
-                        className="bg-white/5 border-white/10" 
+                        className={inputClasses} 
                       />
                     </div>
                   </div>
@@ -305,7 +309,7 @@ const Admin = () => {
                     <Textarea 
                       value={newProject.description}
                       onChange={(e) => setNewProject({...newProject, description: e.target.value})}
-                      className="min-h-[100px] bg-white/5 border-white/10"
+                      className={cn(inputClasses, "min-h-[100px]")}
                     />
                   </div>
                   <NeonButton type="submit" className="w-full">
@@ -365,7 +369,7 @@ const Admin = () => {
                             value={skill.name}
                             onChange={(e) => setSkills(skills.map(s => s.id === skill.id ? {...s, name: e.target.value} : s))}
                             onBlur={() => handleUpdateSkill(skill.id, { name: skill.name })}
-                            className="bg-transparent border-white/10 h-8 text-sm"
+                            className={cn(inputClasses, "h-8 text-sm")}
                           />
                         </div>
                         <div className="space-y-2">
@@ -374,7 +378,7 @@ const Admin = () => {
                             value={skill.category}
                             onChange={(e) => setSkills(skills.map(s => s.id === skill.id ? {...s, category: e.target.value} : s))}
                             onBlur={() => handleUpdateSkill(skill.id, { category: skill.category })}
-                            className="bg-transparent border-white/10 h-8 text-sm"
+                            className={cn(inputClasses, "h-8 text-sm")}
                           />
                         </div>
                       </div>
@@ -386,7 +390,7 @@ const Admin = () => {
                           placeholder="Breve descripción..."
                           onChange={(e) => setSkills(skills.map(s => s.id === skill.id ? {...s, description: e.target.value} : s))}
                           onBlur={() => handleUpdateSkill(skill.id, { description: skill.description })}
-                          className="bg-transparent border-white/10 h-8 text-sm"
+                          className={cn(inputClasses, "h-8 text-sm")}
                         />
                       </div>
 
