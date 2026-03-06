@@ -32,16 +32,16 @@ export const Services = () => {
       color: "text-pink-500"
     },
     {
-      icon: <Search className="w-10 h-10" />,
-      title: "Optimización SEO",
-      description: "Estrategias de posicionamiento técnico para dominar los motores de búsqueda y atraer tráfico cualificado.",
-      color: "text-yellow-400"
-    },
-    {
       icon: <ShieldCheck className="w-10 h-10" />,
       title: "Ciberseguridad",
       description: "Protección integral para tus activos digitales, garantizando la integridad de tus datos y los de tus usuarios.",
       color: "text-emerald-400"
+    },
+    {
+      icon: <Search className="w-10 h-10" />,
+      title: "Optimización SEO",
+      description: "Estrategias de posicionamiento técnico para dominar los motores de búsqueda y atraer tráfico cualificado.",
+      color: "text-yellow-400"
     },
     {
       icon: <BarChart3 className="w-10 h-10" />,
