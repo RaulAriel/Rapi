@@ -27,6 +27,22 @@ import {
   CheckCircle2,
   Globe
 } from "lucide-react";
+import { 
+  DndContext, 
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { SortableProjectItem } from "@/components/SortableProjectItem";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +52,13 @@ const Admin = () => {
   const [skills, setSkills] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Clase unificada para inputs
   const inputClasses = "bg-background/50 border-primary/30 focus:border-primary focus:ring-primary/20 transition-all duration-300";
@@ -69,7 +92,7 @@ const Admin = () => {
     setLoading(true);
     const [skillsRes, projectsRes] = await Promise.all([
       supabase.from('skills').select('*').order('created_at', { ascending: false }),
-      supabase.from('projects').select('*').order('created_at', { ascending: false })
+      supabase.from('projects').select('*').order('order_index', { ascending: true })
     ]);
 
     if (skillsRes.data) setSkills(skillsRes.data);
@@ -130,7 +153,6 @@ const Admin = () => {
       : newProject.tags;
 
     if (editingProject) {
-      // Modo Edición
       const { error } = await supabase
         .from('projects')
         .update({ ...newProject, tags: tagsArray })
@@ -143,16 +165,16 @@ const Admin = () => {
         resetProjectForm();
       }
     } else {
-      // Modo Creación
+      const maxOrder = projects.length > 0 ? Math.max(...projects.map(p => p.order_index || 0)) : -1;
       const { data, error } = await supabase
         .from('projects')
-        .insert([{ ...newProject, tags: tagsArray, user_id: user.id }])
+        .insert([{ ...newProject, tags: tagsArray, user_id: user.id, order_index: maxOrder + 1 }])
         .select();
 
       if (error) showError(error.message);
       else {
         showSuccess("Proyecto creado");
-        if (data) setProjects([data[0], ...projects]);
+        if (data) setProjects([...projects, data[0]]);
         resetProjectForm();
       }
     }
@@ -191,6 +213,32 @@ const Admin = () => {
     else {
       setProjects(projects.filter(p => p.id !== id));
       showSuccess("Proyecto eliminado");
+    }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (active.id !== over?.id) {
+      const oldIndex = projects.findIndex((p) => p.id === active.id);
+      const newIndex = projects.findIndex((p) => p.id === over?.id);
+      
+      const newProjects = arrayMove(projects, oldIndex, newIndex);
+      setProjects(newProjects);
+
+      // Persist to Supabase
+      const updates = newProjects.map((p, index) => ({
+        id: p.id,
+        order_index: index,
+      }));
+
+      for (const update of updates) {
+        await supabase
+          .from('projects')
+          .update({ order_index: update.order_index })
+          .eq('id', update.id);
+      }
+      showSuccess("Orden actualizado");
     }
   };
 
@@ -321,20 +369,26 @@ const Admin = () => {
               <div className="space-y-6">
                 <h3 className="text-xl font-bold px-2">Archivos Activos</h3>
                 <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                  {projects.map((p) => (
-                    <GlassCard key={p.id} className="p-4 border-l-4 border-primary group">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="font-bold text-sm">{p.title}</h4>
-                          <p className="text-[10px] text-muted-foreground uppercase">{p.category}</p>
-                        </div>
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => startEditProject(p)} className="text-primary hover:scale-110 p-1"><Edit3 className="w-4 h-4" /></button>
-                          <button onClick={() => handleDeleteProject(p.id)} className="text-destructive hover:scale-110 p-1"><Trash2 className="w-4 h-4" /></button>
-                        </div>
-                      </div>
-                    </GlassCard>
-                  ))}
+                  <DndContext 
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext 
+                      items={projects.map(p => p.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {projects.map((p) => (
+                        <SortableProjectItem 
+                          key={p.id} 
+                          project={p} 
+                          onEdit={startEditProject} 
+                          onDelete={handleDeleteProject} 
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
+                  {projects.length === 0 && <p className="text-muted-foreground text-center py-4">No hay proyectos.</p>}
                 </div>
               </div>
             </div>
