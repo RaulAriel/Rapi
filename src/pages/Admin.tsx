@@ -24,7 +24,6 @@ import {
   Edit3, 
   Save, 
   X,
-  CheckCircle2,
   Globe,
   GripVertical
 } from "lucide-react";
@@ -50,7 +49,6 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-// Componente para item de proyecto arrastrable
 const SortableProjectItem = ({ 
   project, 
   onEdit, 
@@ -85,7 +83,7 @@ const SortableProjectItem = ({
         <button 
           {...attributes} 
           {...listeners} 
-          className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-primary transition-colors"
+          className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-primary transition-colors p-2"
         >
           <GripVertical className="w-5 h-5" />
         </button>
@@ -96,10 +94,10 @@ const SortableProjectItem = ({
         </div>
 
         <div className="flex gap-2">
-          <button onClick={() => onEdit(project)} className="text-primary hover:scale-110 p-1">
+          <button onClick={() => onEdit(project)} className="text-primary hover:scale-110 p-2">
             <Edit3 className="w-4 h-4" />
           </button>
-          <button onClick={() => onDelete(project.id)} className="text-destructive hover:scale-110 p-1">
+          <button onClick={() => onDelete(project.id)} className="text-destructive hover:scale-110 p-2">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -150,15 +148,27 @@ const Admin = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    // Ordenamos por order_index ascendente (menor primero) y luego por fecha descendente
-    const [skillsRes, projectsRes] = await Promise.all([
-      supabase.from('skills').select('*').order('created_at', { ascending: false }),
-      supabase.from('projects').select('*').order('order_index', { ascending: true }).order('created_at', { ascending: false })
-    ]);
+    try {
+      const [skillsRes, projectsRes] = await Promise.all([
+        supabase.from('skills').select('*').order('created_at', { ascending: false }),
+        supabase.from('projects').select('*').order('order_index', { ascending: true })
+      ]);
 
-    if (skillsRes.data) setSkills(skillsRes.data);
-    if (projectsRes.data) setProjects(projectsRes.data);
-    setLoading(false);
+      if (skillsRes.data) setSkills(skillsRes.data);
+      
+      // Si hay error en proyectos (posiblemente por falta de columna order_index), intentamos sin ella
+      if (projectsRes.error) {
+        console.warn("Error fetching projects with order_index, falling back to created_at");
+        const fallbackRes = await supabase.from('projects').select('*').order('created_at', { ascending: false });
+        if (fallbackRes.data) setProjects(fallbackRes.data);
+      } else if (projectsRes.data) {
+        setProjects(projectsRes.data);
+      }
+    } catch (err) {
+      console.error("Error en fetchData:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -171,13 +181,11 @@ const Admin = () => {
       const newOrder = arrayMove(projects, oldIndex, newIndex);
       setProjects(newOrder);
 
-      // Actualizar todos los índices en la DB
+      // Importante: Mandar todos los campos para no sobreescribir con nulos si la política es estricta
       const updates = newOrder.map((project, index) => ({
-        id: project.id,
+        ...project,
         order_index: index,
-        title: project.title,
-        category: project.category,
-        user_id: user.id // Supabase necesita user_id para las políticas
+        user_id: user.id
       }));
 
       const { error } = await supabase
@@ -185,8 +193,8 @@ const Admin = () => {
         .upsert(updates);
 
       if (error) {
-        showError("Error al guardar el nuevo orden");
-        fetchData(); // Revertir cambios
+        showError("Error al guardar el orden. Asegúrate de haber ejecutado el SQL de la columna order_index.");
+        fetchData();
       } else {
         showSuccess("Orden actualizado");
       }
@@ -195,7 +203,6 @@ const Admin = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    showSuccess("Sesión cerrada");
     navigate("/login");
   };
 
@@ -245,7 +252,6 @@ const Admin = () => {
         resetProjectForm();
       }
     } else {
-      // Nuevo proyecto: se añade al final
       const { data, error } = await supabase
         .from('projects')
         .insert([{ ...newProject, tags: tagsArray, user_id: user.id, order_index: projects.length }])

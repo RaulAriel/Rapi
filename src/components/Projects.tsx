@@ -17,18 +17,32 @@ export const Projects = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      // Pedimos ordenados por order_index primero, luego por fecha de creación como fallback
+      // Intentamos ordenar por index manual primero
       const { data, error } = await supabase
         .from('projects')
         .select('*')
-        .order('order_index', { ascending: true })
-        .order('created_at', { ascending: false });
+        .order('order_index', { ascending: true });
 
-      if (data) {
+      if (error) {
+        console.warn("Falling back to date ordering");
+        const fallback = await supabase
+          .from('projects')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (fallback.data) {
+          setProjects(fallback.data);
+          updateCategories(fallback.data);
+        }
+      } else if (data) {
         setProjects(data);
-        const cats = ["Todos", ...new Set(data.map((p: any) => p.category))];
-        setCategories(cats);
+        updateCategories(data);
       }
+    };
+
+    const updateCategories = (data: any[]) => {
+      const cats = ["Todos", ...new Set(data.map((p: any) => p.category))];
+      setCategories(cats);
     };
 
     fetchProjects();
@@ -65,7 +79,7 @@ export const Projects = () => {
 
         <div className="grid md:grid-cols-2 gap-8">
           <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project, index) => (
+            {filteredProjects.map((project) => (
               <motion.div
                 key={project.id}
                 layout
