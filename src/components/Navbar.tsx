@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
+import { Logo } from "./Logo";
 
 const navLinks = [
   { name: "Inicio", href: "#hero" },
@@ -43,9 +44,10 @@ export const Navbar = () => {
           )}
         >
           <a href="#hero" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center group-hover:neon-border-violet transition-all">
-              <img src="/src/assets/logo.svg" alt="Logo" className="w-8 h-8 object-contain" />
-            </div>
+            <Logo 
+              size="md" 
+              className="group-hover:neon-border-violet" 
+            />
             <span className="text-xl font-black tracking-tighter hidden sm:block">
               RAÚL<span className="text-primary">ARIEL</span>
             </span>

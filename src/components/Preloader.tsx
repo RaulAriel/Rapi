@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Logo } from "./Logo";
 
 export const Preloader = () => {
   const [loading, setLoading] = useState(true);
@@ -42,7 +43,7 @@ export const Preloader = () => {
         >
           <div className="w-full max-w-md font-mono text-primary space-y-2">
             <div className="flex items-center gap-3 mb-6">
-              <img src="/src/assets/logo.svg" alt="Loading Logo" className="w-8 h-8 animate-pulse" />
+              <Logo size="md" className="animate-pulse" />
               <div className="h-1 flex-1 bg-white/10 rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}
