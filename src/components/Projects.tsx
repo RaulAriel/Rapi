@@ -121,7 +121,7 @@ export const Projects = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90 z-30" />
                     
                     <div className="absolute top-4 right-4 z-40">
-                      <Badge variant="secondary" className="glass border-primary/30 uppercase tracking-tighter">
+                      <Badge variant="secondary" className="glass border-primary/30 uppercase tracking-tighter shadow-sm">
                         {project.category}
                       </Badge>
                     </div>
@@ -140,7 +140,10 @@ export const Projects = () => {
                     </p>
                     <div className="flex flex-wrap gap-2 mb-6">
                       {project.tags?.map((tag: string) => (
-                        <span key={tag} className="text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded bg-white/5 border border-white/10">
+                        <span 
+                          key={tag} 
+                          className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-md bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-foreground/70 dark:text-muted-foreground"
+                        >
                           {tag}
                         </span>
                       ))}
