@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { NeonButton } from "./NeonButton";
-import { ExternalLink, Github, Monitor } from "lucide-react";
+import { ExternalLink, Github, Monitor, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -74,55 +74,56 @@ export const Projects = () => {
               >
                 <GlassCard className="p-0 overflow-hidden flex flex-col h-full group" hoverGlow>
                   <div className="relative aspect-video overflow-hidden bg-black/40">
-                    {project.link_demo ? (
-                      <div className="absolute inset-0 w-full h-full">
-                        {/* Iframe for live preview */}
-                        <iframe 
-                          src={project.link_demo} 
-                          className="w-[1280px] h-[720px] origin-top-left border-none pointer-events-none"
-                          style={{ 
-                            transform: 'scale(calc(100% / 1280 * 1))',
-                            width: '1280px',
-                            height: '720px'
-                          }}
-                          title={project.title}
-                          loading="lazy"
-                        />
-                        {/* Blocking overlay to prevent interaction */}
-                        <div className="absolute inset-0 bg-transparent z-10 cursor-default" />
-                        {/* Fallback image in case iframe fails or for faster initial paint */}
-                        <img 
-                          src={project.image_url} 
-                          alt={project.title} 
-                          className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-0 transition-opacity duration-500"
-                        />
+                    {/* Background Image (Always present as fallback/loading state) */}
+                    <img 
+                      src={project.image_url || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"} 
+                      alt={project.title} 
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-60"
+                    />
+
+                    {project.link_demo && (
+                      <div className="absolute inset-0 w-full h-full z-10">
+                        {/* Iframe for live preview with improved scaling */}
+                        <div className="w-full h-full relative overflow-hidden">
+                          <iframe 
+                            src={project.link_demo} 
+                            className="absolute top-0 left-0 border-none pointer-events-none origin-top-left"
+                            style={{ 
+                              width: '1280px',
+                              height: '800px',
+                              transform: 'scale(0.5)', // Default scale for common card sizes, adjusted below
+                              // The scale is better handled by a container, but for this fixed aspect ratio:
+                              width: '200%',
+                              height: '200%',
+                              transform: 'scale(0.5)',
+                            }}
+                            title={project.title}
+                            loading="lazy"
+                          />
+                        </div>
+                        {/* Blocking overlay */}
+                        <div className="absolute inset-0 bg-transparent z-20 cursor-default" />
                       </div>
-                    ) : (
-                      <img 
-                        src={project.image_url} 
-                        alt={project.title} 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
                     )}
                     
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-80 z-20" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90 z-30" />
                     
-                    <div className="absolute top-4 right-4 z-30">
+                    <div className="absolute top-4 right-4 z-40">
                       <Badge variant="secondary" className="glass border-primary/30 uppercase tracking-tighter">
                         {project.category}
                       </Badge>
                     </div>
 
-                    <div className="absolute bottom-4 left-4 z-30 flex items-center gap-2 text-xs font-mono text-primary/80">
+                    <div className="absolute bottom-4 left-4 z-40 flex items-center gap-2 text-[10px] font-mono text-primary/80">
                       <Monitor className="w-3 h-3" /> PREVISUALIZACIÓN EN VIVO
                     </div>
                   </div>
                   
-                  <div className="p-6 flex flex-col flex-grow relative z-30">
+                  <div className="p-6 flex flex-col flex-grow relative z-40 bg-background/20 backdrop-blur-sm">
                     <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
                       {project.title}
                     </h3>
-                    <p className="text-muted-foreground mb-4 flex-grow">
+                    <p className="text-muted-foreground text-sm mb-4 flex-grow line-clamp-2">
                       {project.description}
                     </p>
                     <div className="flex flex-wrap gap-2 mb-6">
@@ -153,6 +154,15 @@ export const Projects = () => {
               </motion.div>
             ))}
           </AnimatePresence>
+        </div>
+
+        {/* Info message for the user */}
+        <div className="mt-12 flex items-center justify-center gap-2 text-xs text-muted-foreground bg-white/5 p-4 rounded-xl border border-white/10 max-w-2xl mx-auto">
+          <AlertCircle className="w-4 h-4 text-primary" />
+          <p>
+            Nota: Algunos sitios externos pueden no visualizarse aquí debido a sus políticas de seguridad (X-Frame-Options). 
+            En esos casos, se mostrará la imagen de portada.
+          </p>
         </div>
       </div>
     </section>
