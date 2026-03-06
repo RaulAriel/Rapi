@@ -17,14 +17,14 @@ export const Projects = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      // Intentamos ordenar por index manual primero
+      // Priorizamos siempre el orden manual definido en el admin
       const { data, error } = await supabase
         .from('projects')
         .select('*')
         .order('order_index', { ascending: true });
 
       if (error) {
-        console.warn("Falling back to date ordering");
+        console.warn("Falling back to date ordering due to error:", error);
         const fallback = await supabase
           .from('projects')
           .select('*')

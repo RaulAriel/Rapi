@@ -29,22 +29,30 @@ export const Skills = () => {
 
   useEffect(() => {
     const fetchSkills = async () => {
+      // Ordenamos por order_index para respetar la selección del admin
       const { data, error } = await supabase
         .from('skills')
         .select('*')
-        .order('created_at', { ascending: true });
+        .order('order_index', { ascending: true });
 
       if (data) {
+        // Mantenemos el orden al agrupar
+        const categoriesOrder: string[] = [];
         const grouped = data.reduce((acc: any, skill: any) => {
           const cat = skill.category;
-          if (!acc[cat]) acc[cat] = { title: cat, skills: [] };
+          if (!acc[cat]) {
+            acc[cat] = { title: cat, skills: [] };
+            categoriesOrder.push(cat);
+          }
           acc[cat].skills.push({
             ...skill,
             icon: iconMap[skill.name] || iconMap["Default"]
           });
           return acc;
         }, {});
-        setSkillCategories(Object.values(grouped));
+        
+        // Renderizamos las categorías en el orden en que aparecieron sus habilidades ordenadas
+        setSkillCategories(categoriesOrder.map(cat => grouped[cat]));
       }
     };
 
