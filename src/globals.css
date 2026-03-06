@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* --- MODO CLARO (PASTEL/LIMPIO) --- */
+    /* Modo Claro Pastel */
     --background: 40 33% 98%;
     --foreground: 222.2 47.4% 11.2%;
 
@@ -14,11 +14,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 47.4% 11.2%;
 
-    /* Color Principal (Violeta por defecto) */
     --primary: 263.4 70% 50.4%;
     --primary-foreground: 210 40% 98%;
 
-    /* Color Secundario (Azul por defecto) */
     --secondary: 217.2 91.2% 59.8%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
@@ -39,8 +37,7 @@
   }
 
   .dark {
-    /* --- MODO OSCURO (CYBERPUNK) --- */
-    /* Fondo principal (Muy oscuro/Negro azulado) */
+    /* Modo Oscuro Cyberpunk */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -50,11 +47,9 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    /* Color de Marca 1 (Violeta Neón) */
     --primary: 263.4 70% 50.4%;
     --primary-foreground: 210 40% 98%;
 
-    /* Color de Marca 2 (Azul Eléctrico) */
     --secondary: 217.2 91.2% 59.8%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
@@ -83,11 +78,9 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased overflow-x-hidden transition-colors duration-500;
-    
-    /* Fondo con gradientes sutiles que usan las variables */
     background-image: 
-      radial-gradient(circle at 50% -20%, hsla(var(--primary), 0.15), transparent 80%),
-      radial-gradient(circle at 0% 100%, hsla(var(--secondary), 0.1), transparent 50%);
+      radial-gradient(circle at 50% -20%, rgba(139, 92, 246, 0.15), transparent 80%),
+      radial-gradient(circle at 0% 100%, rgba(59, 130, 246, 0.1), transparent 50%);
   }
 }
 
@@ -100,14 +93,12 @@
     @apply glass shadow-[0_0_32px_0_rgba(0,0,0,0.1)] dark:shadow-[0_0_32px_0_rgba(0,0,0,0.4)] transition-all duration-300;
   }
 
-  /* Sombra neón basada en el color primario */
   .neon-border-violet {
-    @apply border-primary/50 shadow-[0_0_20px_0_hsla(var(--primary), 0.4)];
+    @apply border-primary/50 shadow-[0_0_20px_0_rgba(139,92,246,0.4)];
   }
 
-  /* Sombra neón basada en el color secundario */
   .neon-border-blue {
-    @apply border-secondary/50 shadow-[0_0_20px_0_hsla(var(--secondary), 0.4)];
+    @apply border-secondary/50 shadow-[0_0_20px_0_rgba(59,130,246,0.4)];
   }
 
   .bg-grid-white {
