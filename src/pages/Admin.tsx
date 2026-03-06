@@ -180,9 +180,9 @@ const Admin = () => {
       const newOrder = arrayMove(projects, oldIndex, newIndex);
       setProjects(newOrder);
 
-      // Solo enviamos los campos mínimos necesarios para el upsert
+      // Enviamos el objeto completo para evitar violar restricciones NOT NULL (como el title)
       const updates = newOrder.map((project, index) => ({
-        id: project.id,
+        ...project,
         order_index: index,
         user_id: user.id
       }));
@@ -194,7 +194,7 @@ const Admin = () => {
       if (error) {
         console.error("Error al guardar orden en Supabase:", error);
         showError(`Error DB: ${error.message}. Asegúrate de ejecutar el SQL.`);
-        fetchData(); // Recargar para volver al estado anterior
+        fetchData();
       } else {
         showSuccess("Orden actualizado en el servidor");
       }
