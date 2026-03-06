@@ -83,19 +83,18 @@ export const Projects = () => {
 
                     {project.link_demo && (
                       <div className="absolute inset-0 w-full h-full z-10">
-                        {/* Iframe for live preview with improved scaling */}
+                        {/* Iframe for live preview with improved scaling and no scrollbars */}
                         <div className="w-full h-full relative overflow-hidden">
                           <iframe 
                             src={project.link_demo} 
-                            className="absolute top-0 left-0 border-none pointer-events-none origin-top-left"
+                            scrolling="no"
+                            className="absolute top-0 left-0 border-none pointer-events-none origin-top-left overflow-hidden scrollbar-hide"
                             style={{ 
-                              width: '1280px',
-                              height: '800px',
-                              transform: 'scale(0.5)', // Default scale for common card sizes, adjusted below
-                              // The scale is better handled by a container, but for this fixed aspect ratio:
                               width: '200%',
                               height: '200%',
                               transform: 'scale(0.5)',
+                              msOverflowStyle: 'none',
+                              scrollbarWidth: 'none',
                             }}
                             title={project.title}
                             loading="lazy"
