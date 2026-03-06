@@ -43,12 +43,8 @@ export const Navbar = () => {
           )}
         >
           <a href="#hero" className="flex items-center gap-2 group">
-            <div className="w-12 h-12 flex items-center justify-center transition-all duration-500 group-hover:shadow-[0_0_350px_40px_rgba(139,92,246,0.7)] rounded-full">
-              <img 
-                src="/src/assets/logo.svg" 
-                alt="Logo" 
-                className="w-full h-full object-contain p-1" 
-              />
+            <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center group-hover:neon-border-violet transition-all">
+              <img src="/src/assets/logo.svg" alt="Logo" className="w-8 h-8 object-contain" />
             </div>
             <span className="text-xl font-black tracking-tighter hidden sm:block">
               RAÚL<span className="text-primary">ARIEL</span>

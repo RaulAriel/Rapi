@@ -10,8 +10,8 @@ export const Footer = () => {
       <div className="container px-4 md:px-6">
         <div className="flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 flex items-center justify-center">
-              <img src="/src/assets/logo.svg" alt="Logo" className="w-8 h-8 object-contain" />
+            <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
+              <img src="/src/assets/logo.svg" alt="Logo" className="w-6 h-6 object-contain" />
             </div>
             <span className="text-lg font-black tracking-tighter">
               RAÚL<span className="text-primary">ARIEL</span>

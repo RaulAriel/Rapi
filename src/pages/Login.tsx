@@ -45,8 +45,8 @@ const Login = () => {
       
       <GlassCard className="w-full max-w-md p-8 relative z-10" hoverGlow={false}>
         <div className="flex flex-col items-center mb-8">
-          <div className="w-20 h-20 rounded-2xl bg-primary/20 border border-primary/50 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(139,92,246,0.3)]">
-            <img src="/src/assets/logo.svg" alt="Login Logo" className="w-14 h-14 object-contain" />
+          <div className="w-16 h-16 rounded-2xl bg-primary/20 border border-primary/50 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(139,92,246,0.3)] overflow-hidden">
+            <img src="/src/assets/logo.svg" alt="Login Logo" className="w-10 h-10 object-contain" />
           </div>
           <h1 className="text-2xl font-black tracking-tighter">SISTEMA DE <span className="text-primary">ACCESO</span></h1>
           <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] mt-2">Nivel de Seguridad: Alpha</p>
