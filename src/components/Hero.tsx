@@ -41,8 +41,8 @@ export const Hero = () => {
           transition={{ duration: 0.7, delay: 0.2 }}
           className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto mb-10 leading-relaxed"
         >
-          Transformo ideas complejas en experiencias web inmersivas de alto impacto. 
-          Especializado en interfaces cyberpunk, animaciones fluidas y diseño centrado en el usuario.
+          Transformo tus ideas en experiencias digitales de alto impacto que impulsan tu negocio. 
+          Especializado en diseño moderno, desarrollo web escalable y soluciones centradas en resultados para llevar tu marca al siguiente nivel.
         </motion.p>
 
         <motion.div
