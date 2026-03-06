@@ -320,10 +320,10 @@ const Admin = () => {
                 </NeonButton>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndSkills}>
                   <SortableContext items={skills.map(s => s.id)} strategy={verticalListSortingStrategy}>
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-4">
                       {skills.map((skill) => (
                         <SortableSkillItem 
                           key={skill.id} 
@@ -331,7 +331,6 @@ const Admin = () => {
                           inputClasses={inputClasses}
                           onUpdate={(id, updates) => {
                             handleSkillUpdateLocal(id, updates);
-                            // Debounce or wait for blur in a real app, here we sync for the slider
                             if (updates.level !== undefined) handleSkillUpdateDB(id, updates);
                           }}
                           onDelete={handleDeleteSkill}
