@@ -24,7 +24,8 @@ import {
   Edit3, 
   Save, 
   X,
-  CheckCircle2
+  CheckCircle2,
+  Globe
 } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 
@@ -240,7 +241,7 @@ const Admin = () => {
                 <form onSubmit={handleProjectSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label className="text-[10px] uppercase font-mono tracking-widest">Título</Label>
+                      <Label className="text-[10px] uppercase font-mono tracking-widest">Título del Proyecto</Label>
                       <Input 
                         value={newProject.title}
                         onChange={(e) => setNewProject({...newProject, title: e.target.value})}
@@ -252,42 +253,55 @@ const Admin = () => {
                       <Input 
                         value={newProject.category}
                         onChange={(e) => setNewProject({...newProject, category: e.target.value})}
-                        placeholder="Ej: Web App"
+                        placeholder="Ej: Web App, Landing Page"
                         className="bg-white/5 border-white/10" required
                       />
                     </div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label className="text-[10px] uppercase font-mono tracking-widest">URL Imagen</Label>
+                      <Label className="text-[10px] uppercase font-mono tracking-widest">URL Imagen (Poster/Respaldo)</Label>
                       <Input 
                         value={newProject.image_url}
                         onChange={(e) => setNewProject({...newProject, image_url: e.target.value})}
+                        placeholder="https://link-a-la-imagen.jpg"
                         className="bg-white/5 border-white/10"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[10px] uppercase font-mono tracking-widest">Tags (comas)</Label>
+                      <Label className="text-[10px] uppercase font-mono tracking-widest">Tags (separados por comas)</Label>
                       <Input 
                         value={newProject.tags}
                         onChange={(e) => setNewProject({...newProject, tags: e.target.value})}
-                        placeholder="React, Tailwind..."
+                        placeholder="React, Tailwind, Supabase..."
                         className="bg-white/5 border-white/10"
                       />
                     </div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label className="text-[10px] uppercase font-mono tracking-widest">Link Demo</Label>
-                      <Input value={newProject.link_demo} onChange={(e) => setNewProject({...newProject, link_demo: e.target.value})} className="bg-white/5 border-white/10" />
+                      <Label className="text-[10px] uppercase font-mono tracking-widest flex items-center gap-2">
+                        <Globe className="w-3 h-3 text-primary" /> URL de Previsualización (Iframe)
+                      </Label>
+                      <Input 
+                        value={newProject.link_demo} 
+                        onChange={(e) => setNewProject({...newProject, link_demo: e.target.value})} 
+                        placeholder="https://tu-sitio-web.com"
+                        className="bg-white/5 border-white/10 border-primary/30 focus:border-primary" 
+                      />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[10px] uppercase font-mono tracking-widest">Link Repo</Label>
-                      <Input value={newProject.link_repo} onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} className="bg-white/5 border-white/10" />
+                      <Label className="text-[10px] uppercase font-mono tracking-widest">URL Repositorio (Código)</Label>
+                      <Input 
+                        value={newProject.link_repo} 
+                        onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} 
+                        placeholder="https://github.com/..."
+                        className="bg-white/5 border-white/10" 
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] uppercase font-mono tracking-widest">Descripción</Label>
+                    <Label className="text-[10px] uppercase font-mono tracking-widest">Descripción del Proyecto</Label>
                     <Textarea 
                       value={newProject.description}
                       onChange={(e) => setNewProject({...newProject, description: e.target.value})}
