@@ -90,18 +90,20 @@ export const ThemeToggle = () => {
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       onClick={toggleTheme}
-      className="p-2 rounded-xl glass border-primary/20 text-primary hover:neon-border-violet transition-all flex items-center gap-2 min-w-[40px] justify-center"
+      className="p-2 rounded-xl glass border-primary/20 text-primary hover:neon-border-violet transition-all flex items-center gap-2 h-10 w-10 lg:w-28 justify-center shrink-0"
       aria-label="Cambiar tema"
     >
-      {theme === "system" ? (
-        <AutoIcon />
-      ) : theme === "dark" ? (
-        <SunNoRays className="w-5 h-5" />
-      ) : (
-        <SunLongRays className="w-5 h-5" />
-      )}
+      <div className="flex-shrink-0">
+        {theme === "system" ? (
+          <AutoIcon />
+        ) : theme === "dark" ? (
+          <SunNoRays className="w-5 h-5" />
+        ) : (
+          <SunLongRays className="w-5 h-5" />
+        )}
+      </div>
       
-      <span className="text-[10px] font-mono uppercase hidden lg:block">
+      <span className="text-[10px] font-mono uppercase hidden lg:block w-8 text-center">
         {theme === "system" ? "Auto" : theme}
       </span>
     </motion.button>
