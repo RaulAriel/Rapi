@@ -87,10 +87,10 @@ export const ThemeToggle = () => {
 
   return (
     <motion.button
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
       onClick={toggleTheme}
-      className="p-2 rounded-xl glass border-primary/20 text-primary hover:neon-border-violet transition-all flex items-center gap-2 h-10 w-10 lg:w-28 justify-center shrink-0"
+      className="p-2 rounded-xl glass border-primary/20 text-primary hover:neon-border-violet transition-all flex items-center gap-2 h-10 w-10 lg:w-24 justify-center shrink-0"
       aria-label="Cambiar tema"
     >
       <div className="flex-shrink-0">
@@ -103,7 +103,7 @@ export const ThemeToggle = () => {
         )}
       </div>
       
-      <span className="text-[10px] font-mono uppercase hidden lg:block w-8 text-center">
+      <span className="text-[10px] font-bold uppercase hidden lg:block w-8 text-center">
         {theme === "system" ? "Auto" : theme}
       </span>
     </motion.button>
