@@ -14,31 +14,28 @@ import { useLanguage } from "@/hooks/use-language";
 export const Projects = () => {
   const [filter, setFilter] = useState("Todos");
   const [projects, setProjects] = useState<any[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const { language, t } = useLanguage();
+  const [categories, setCategories] = useState(["Todos"]);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchProjects = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('projects')
         .select('*')
         .order('order_index', { ascending: true });
 
       if (data) {
         setProjects(data);
-        const cats = ["Todos", ...new Set(data.map((p: any) => 
-          language === 'en' && p.category_en ? p.category_en : p.category
-        ))];
-        setCategories(cats as string[]);
+        const cats = ["Todos", ...new Set(data.map((p: any) => p.category))];
+        setCategories(cats);
       }
     };
     fetchProjects();
-  }, [language]);
+  }, []);
 
-  const filteredProjects = projects.filter(p => {
-    const cat = language === 'en' && p.category_en ? p.category_en : p.category;
-    return filter === "Todos" || filter === "All" || cat === filter;
-  });
+  const filteredProjects = filter === "Todos" 
+    ? projects 
+    : projects.filter(p => p.category === filter);
 
   return (
     <section id="projects" className="py-24 relative">
@@ -57,10 +54,10 @@ export const Projects = () => {
                 "px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 border",
                 filter === cat 
                   ? "bg-primary text-white border-primary shadow-[0_0_15px_rgba(139,92,246,0.5)]" 
-                  : "bg-white/5 border-white/10 text-muted-foreground hover:border-primary/50"
+                  : "bg-white/5 border-white/10 dark:border-white/10 border-foreground/10 text-muted-foreground hover:border-primary/50"
               )}
             >
-              {cat === "Todos" && language === 'en' ? "All" : cat}
+              {cat}
             </button>
           ))}
         </div>
@@ -68,30 +65,66 @@ export const Projects = () => {
         <div className="grid md:grid-cols-2 gap-8">
           <AnimatePresence mode="popLayout">
             {filteredProjects.map((project) => (
-              <motion.div key={project.id} layout>
+              <motion.div
+                key={project.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.4 }}
+              >
                 <GlassCard className="p-0 overflow-hidden flex flex-col h-full group" hoverGlow>
                   <div className="relative aspect-video overflow-hidden bg-black/40">
                     {project.image_url ? (
-                      <img src={project.image_url} alt={project.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all" />
-                    ) : <div className="absolute inset-0 flex items-center justify-center"><ImageIcon className="w-12 h-12 opacity-20" /></div>}
-                    <div className="absolute top-4 right-4">
-                      <Badge variant="secondary" className="glass border-primary/30 uppercase">
-                        {language === 'en' && project.category_en ? project.category_en : project.category}
+                      <img 
+                        src={project.image_url} 
+                        alt={project.title} 
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/20">
+                        <ImageIcon className="w-16 h-16" />
+                      </div>
+                    )}
+                    
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60 z-10" />
+                    
+                    <div className="absolute top-4 right-4 z-20">
+                      <Badge variant="secondary" className="glass border-primary/30 uppercase tracking-tighter shadow-sm">
+                        {project.category}
                       </Badge>
                     </div>
                   </div>
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-2xl font-bold mb-2">
-                      {language === 'en' && project.title_en ? project.title_en : project.title}
+                  
+                  <div className="p-6 flex flex-col flex-grow relative z-20">
+                    <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
+                      {project.title}
                     </h3>
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                      {language === 'en' && project.description_en ? project.description_en : project.description}
+                    <p className="text-muted-foreground text-sm mb-4 flex-grow line-clamp-2">
+                      {project.description}
                     </p>
-                    <div className="flex gap-4 mt-auto">
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {project.tags?.map((tag: string) => (
+                        <span 
+                          key={tag} 
+                          className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-md bg-foreground/5 dark:bg-white/5 border border-foreground/10 dark:border-white/10 text-muted-foreground"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-4">
                       {project.link_demo && (
                         <a href={project.link_demo} target="_blank" rel="noreferrer" className="flex-1">
                           <NeonButton size="sm" className="w-full">
                             <ExternalLink className="w-4 h-4 mr-2" /> {t("projects.visit")}
+                          </NeonButton>
+                        </a>
+                      )}
+                      {project.link_repo && (
+                        <a href={project.link_repo} target="_blank" rel="noreferrer" className="flex-1">
+                          <NeonButton size="sm" variant="outline" glowColor="blue" className="w-full">
+                            <Github className="w-4 h-4 mr-2" /> {t("projects.code")}
                           </NeonButton>
                         </a>
                       )}
