@@ -12,16 +12,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { Slider } from "@/components/ui/slider";
 import { 
   Plus, 
-  LayoutDashboard, 
   Code, 
   Briefcase, 
   LogOut, 
   Loader2, 
   Save, 
   X,
-  Globe
+  Globe,
+  MessageSquare,
+  Star
 } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
@@ -44,13 +46,13 @@ import {
 } from '@dnd-kit/sortable';
 
 import { SortableProjectItem } from "@/components/SortableProjectItem";
-import { SortableSkillItem } from "@/components/SortableSkillItem";
+import { SortableTestimonialItem } from "@/components/SortableTestimonialItem";
 
 const Admin = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [skills, setSkills] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
 
   const sensors = useSensors(
@@ -62,6 +64,7 @@ const Admin = () => {
 
   const inputClasses = "bg-background/50 border-primary/30 focus:border-primary focus:ring-primary/20 transition-all duration-300";
 
+  // Project states
   const [editingProject, setEditingProject] = useState<any>(null);
   const [newProject, setNewProject] = useState({
     title: "",
@@ -71,6 +74,16 @@ const Admin = () => {
     link_demo: "",
     link_repo: "",
     image_url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"
+  });
+
+  // Testimonial states
+  const [editingTestimonial, setEditingTestimonial] = useState<any>(null);
+  const [newTestimonial, setNewTestimonial] = useState({
+    name: "",
+    role: "",
+    rating: 5,
+    image_url: "",
+    text: ""
   });
 
   useEffect(() => {
@@ -89,13 +102,13 @@ const Admin = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [skillsRes, projectsRes] = await Promise.all([
-        supabase.from('skills').select('*').order('order_index', { ascending: true }),
-        supabase.from('projects').select('*').order('order_index', { ascending: true })
+      const [projectsRes, testimonialsRes] = await Promise.all([
+        supabase.from('projects').select('*').order('order_index', { ascending: true }),
+        supabase.from('testimonials').select('*').order('order_index', { ascending: true })
       ]);
 
-      if (skillsRes.data) setSkills(skillsRes.data);
       if (projectsRes.data) setProjects(projectsRes.data);
+      if (testimonialsRes.data) setTestimonials(testimonialsRes.data);
     } catch (err) {
       console.error("Error crítico en fetchData:", err);
     } finally {
@@ -110,44 +123,22 @@ const Admin = () => {
       const newIndex = projects.findIndex((p) => p.id === over.id);
       const newOrder = arrayMove(projects, oldIndex, newIndex);
       setProjects(newOrder);
-
-      const updates = newOrder.map((project, index) => ({
-        ...project,
-        order_index: index,
-        user_id: user.id
-      }));
-
-      const { error } = await supabase.from('projects').upsert(updates, { onConflict: 'id' });
-      if (error) {
-        showError(`Error DB: ${error.message}`);
-        fetchData();
-      } else {
-        showSuccess("Orden de proyectos actualizado");
-      }
+      const updates = newOrder.map((project, index) => ({ ...project, order_index: index, user_id: user.id }));
+      await supabase.from('projects').upsert(updates);
+      showSuccess("Orden de proyectos actualizado");
     }
   };
 
-  const handleDragEndSkills = async (event: DragEndEvent) => {
+  const handleDragEndTestimonials = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      const oldIndex = skills.findIndex((s) => s.id === active.id);
-      const newIndex = skills.findIndex((s) => s.id === over.id);
-      const newOrder = arrayMove(skills, oldIndex, newIndex);
-      setSkills(newOrder);
-
-      const updates = newOrder.map((skill, index) => ({
-        ...skill,
-        order_index: index,
-        user_id: user.id
-      }));
-
-      const { error } = await supabase.from('skills').upsert(updates, { onConflict: 'id' });
-      if (error) {
-        showError(`Error DB: ${error.message}. Asegúrate de ejecutar el SQL para skills.`);
-        fetchData();
-      } else {
-        showSuccess("Orden de habilidades actualizado");
-      }
+      const oldIndex = testimonials.findIndex((t) => t.id === active.id);
+      const newIndex = testimonials.findIndex((t) => t.id === over.id);
+      const newOrder = arrayMove(testimonials, oldIndex, newIndex);
+      setTestimonials(newOrder);
+      const updates = newOrder.map((t, index) => ({ ...t, order_index: index, user_id: user.id }));
+      await supabase.from('testimonials').upsert(updates);
+      showSuccess("Orden de testimonios actualizado");
     }
   };
 
@@ -156,62 +147,22 @@ const Admin = () => {
     navigate("/login");
   };
 
-  const handleSkillUpdateLocal = (id: string, updates: any) => {
-    setSkills(skills.map(s => s.id === id ? { ...s, ...updates } : s));
-  };
-
-  const handleSkillUpdateDB = async (id: string, updates: any) => {
-    const { error } = await supabase.from('skills').update(updates).eq('id', id);
-    if (error) showError("Error al sincronizar skill");
-  };
-
-  const handleDeleteSkill = async (id: string) => {
-    const { error } = await supabase.from('skills').delete().eq('id', id);
-    if (error) showError("Error al eliminar skill");
-    else {
-      setSkills(skills.filter(s => s.id !== id));
-      showSuccess("Skill eliminada");
-    }
-  };
-
-  const handleAddSkill = async () => {
-    const { data, error } = await supabase
-      .from('skills')
-      .insert([{ name: "Nueva Habilidad", category: "Frontend", level: 50, user_id: user.id, order_index: skills.length }])
-      .select();
-    if (error) showError(error.message);
-    else if (data) setSkills([...skills, data[0]]);
-  };
-
+  // Projects Handlers
   const handleProjectSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Separamos por punto y coma (;) como solicitó el usuario
-    const tagsArray = typeof newProject.tags === 'string' 
-      ? newProject.tags.split(';').map(t => t.trim()).filter(t => t !== "")
-      : newProject.tags;
-
+    const tagsArray = typeof newProject.tags === 'string' ? newProject.tags.split(';').map(t => t.trim()).filter(t => t !== "") : newProject.tags;
     if (editingProject) {
-      const { error } = await supabase
-        .from('projects')
-        .update({ ...newProject, tags: tagsArray })
-        .eq('id', editingProject.id);
-
-      if (error) showError(error.message);
-      else {
+      const { error } = await supabase.from('projects').update({ ...newProject, tags: tagsArray }).eq('id', editingProject.id);
+      if (!error) {
         showSuccess("Proyecto actualizado");
         setProjects(projects.map(p => p.id === editingProject.id ? { ...p, ...newProject, tags: tagsArray } : p));
         resetProjectForm();
       }
     } else {
-      const { data, error } = await supabase
-        .from('projects')
-        .insert([{ ...newProject, tags: tagsArray, user_id: user.id, order_index: projects.length }])
-        .select();
-
-      if (error) showError(error.message);
-      else {
+      const { data, error } = await supabase.from('projects').insert([{ ...newProject, tags: tagsArray, user_id: user.id, order_index: projects.length }]).select();
+      if (!error && data) {
         showSuccess("Proyecto creado");
-        if (data) setProjects([...projects, data[0]]);
+        setProjects([...projects, data[0]]);
         resetProjectForm();
       }
     }
@@ -219,38 +170,44 @@ const Admin = () => {
 
   const resetProjectForm = () => {
     setEditingProject(null);
-    setNewProject({
-      title: "",
-      category: "",
-      description: "",
-      tags: "",
-      link_demo: "",
-      link_repo: "",
-      image_url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"
-    });
+    setNewProject({ title: "", category: "", description: "", tags: "", link_demo: "", link_repo: "", image_url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800" });
   };
 
-  const startEditProject = (project: any) => {
-    setEditingProject(project);
-    setNewProject({
-      title: project.title,
-      category: project.category,
-      description: project.description || "",
-      // Unimos con punto y coma para editar
-      tags: project.tags ? project.tags.join('; ') : "",
-      link_demo: project.link_demo || "",
-      link_repo: project.link_repo || "",
-      image_url: project.image_url || ""
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Testimonials Handlers
+  const handleTestimonialSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingTestimonial) {
+      const { error } = await supabase.from('testimonials').update(newTestimonial).eq('id', editingTestimonial.id);
+      if (!error) {
+        showSuccess("Testimonio actualizado");
+        setTestimonials(testimonials.map(t => t.id === editingTestimonial.id ? { ...t, ...newTestimonial } : t));
+        resetTestimonialForm();
+      }
+    } else {
+      const { data, error } = await supabase.from('testimonials').insert([{ ...newTestimonial, user_id: user.id, order_index: testimonials.length }]).select();
+      if (!error && data) {
+        showSuccess("Testimonio creado");
+        setTestimonials([...testimonials, data[0]]);
+        resetTestimonialForm();
+      }
+    }
   };
 
-  const handleDeleteProject = async (id: string) => {
-    const { error } = await supabase.from('projects').delete().eq('id', id);
-    if (error) showError("Error al eliminar");
-    else {
-      setProjects(projects.filter(p => p.id !== id));
-      showSuccess("Proyecto eliminado");
+  const resetTestimonialForm = () => {
+    setEditingTestimonial(null);
+    setNewTestimonial({ name: "", role: "", rating: 5, image_url: "", text: "" });
+  };
+
+  const startEditTestimonial = (t: any) => {
+    setEditingTestimonial(t);
+    setNewTestimonial({ name: t.name, role: t.role, rating: t.rating, image_url: t.image_url || "", text: t.text });
+  };
+
+  const handleDeleteTestimonial = async (id: string) => {
+    const { error } = await supabase.from('testimonials').delete().eq('id', id);
+    if (!error) {
+      setTestimonials(testimonials.filter(t => t.id !== id));
+      showSuccess("Testimonio eliminado");
     }
   };
 
@@ -267,45 +224,75 @@ const Admin = () => {
 
         <Tabs defaultValue="projects" className="space-y-8">
           <TabsList className="glass border-white/5 p-1 h-auto flex-wrap justify-start gap-2">
-            <TabsTrigger value="projects" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary px-6 py-3 rounded-xl transition-all"><Briefcase className="w-4 h-4 mr-2" /> Proyectos</TabsTrigger>
+            <TabsTrigger value="projects" className="px-6 py-3 rounded-xl transition-all"><Briefcase className="w-4 h-4 mr-2" /> Proyectos</TabsTrigger>
+            <TabsTrigger value="testimonials" className="px-6 py-3 rounded-xl transition-all"><MessageSquare className="w-4 h-4 mr-2" /> Testimonios</TabsTrigger>
           </TabsList>
 
           <TabsContent value="projects">
             <div className="grid lg:grid-cols-3 gap-8">
               <GlassCard className="lg:col-span-2 p-8 h-fit">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold">{editingProject ? "Editar Misión" : "Registrar Nueva Misión"}</h3>
+                  <h3 className="text-xl font-bold">{editingProject ? "Editar Proyecto" : "Nuevo Proyecto"}</h3>
                   {editingProject && <button onClick={resetProjectForm} className="text-muted-foreground hover:text-white flex items-center gap-1 text-sm"><X className="w-4 h-4" /> Cancelar</button>}
                 </div>
                 <form onSubmit={handleProjectSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2"><Label className="text-[10px] uppercase font-mono tracking-widest">Título</Label><Input value={newProject.title} onChange={(e) => setNewProject({...newProject, title: e.target.value})} className={inputClasses} required /></div>
-                    <div className="space-y-2"><Label className="text-[10px] uppercase font-mono tracking-widest">Categoría</Label><Input value={newProject.category} onChange={(e) => setNewProject({...newProject, category: e.target.value})} className={inputClasses} required /></div>
+                    <div className="space-y-2"><Label>Título</Label><Input value={newProject.title} onChange={(e) => setNewProject({...newProject, title: e.target.value})} className={inputClasses} required /></div>
+                    <div className="space-y-2"><Label>Categoría</Label><Input value={newProject.category} onChange={(e) => setNewProject({...newProject, category: e.target.value})} className={inputClasses} required /></div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2"><Label className="text-[10px] uppercase font-mono tracking-widest">URL Imagen</Label><Input value={newProject.image_url} onChange={(e) => setNewProject({...newProject, image_url: e.target.value})} className={inputClasses} /></div>
-                    <div className="space-y-2"><Label className="text-[10px] uppercase font-mono tracking-widest">Tags (separados por ;)</Label><Input value={newProject.tags} placeholder="React; Tailwind; Node" onChange={(e) => setNewProject({...newProject, tags: e.target.value})} className={inputClasses} /></div>
+                    <div className="space-y-2"><Label>URL Imagen</Label><Input value={newProject.image_url} onChange={(e) => setNewProject({...newProject, image_url: e.target.value})} className={inputClasses} /></div>
+                    <div className="space-y-2"><Label>Tags (;)</Label><Input value={newProject.tags} onChange={(e) => setNewProject({...newProject, tags: e.target.value})} className={inputClasses} /></div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2"><Label className="text-[10px] uppercase font-mono tracking-widest flex items-center gap-2"><Globe className="w-3 h-3 text-primary" /> URL Previsualización</Label><Input value={newProject.link_demo} onChange={(e) => setNewProject({...newProject, link_demo: e.target.value})} className={cn(inputClasses, "border-primary/50")} /></div>
-                    <div className="space-y-2"><Label className="text-[10px] uppercase font-mono tracking-widest">Repo</Label><Input value={newProject.link_repo} onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} className={inputClasses} /></div>
+                    <div className="space-y-2"><Label>Demo</Label><Input value={newProject.link_demo} onChange={(e) => setNewProject({...newProject, link_demo: e.target.value})} className={inputClasses} /></div>
+                    <div className="space-y-2"><Label>Repo</Label><Input value={newProject.link_repo} onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} className={inputClasses} /></div>
                   </div>
-                  <div className="space-y-2"><Label className="text-[10px] uppercase font-mono tracking-widest">Descripción</Label><Textarea value={newProject.description} onChange={(e) => setNewProject({...newProject, description: e.target.value})} className={cn(inputClasses, "min-h-[100px]")} /></div>
-                  <NeonButton type="submit" className="w-full">{editingProject ? <><Save className="w-4 h-4 mr-2" /> Actualizar</> : <><Plus className="w-4 h-4 mr-2" /> Crear</>}</NeonButton>
+                  <div className="space-y-2"><Label>Descripción</Label><Textarea value={newProject.description} onChange={(e) => setNewProject({...newProject, description: e.target.value})} className={inputClasses} /></div>
+                  <NeonButton type="submit" className="w-full">{editingProject ? "Actualizar" : "Crear"}</NeonButton>
                 </form>
               </GlassCard>
+              <div className="space-y-4">
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndProjects}>
+                  <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                    {projects.map((p) => <SortableProjectItem key={p.id} project={p} onEdit={(p) => { setEditingProject(p); setNewProject({ ...p, tags: p.tags?.join('; ') || "" }); }} onDelete={(id) => { supabase.from('projects').delete().eq('id', id).then(() => fetchData()); }} />)}
+                  </SortableContext>
+                </DndContext>
+              </div>
+            </div>
+          </TabsContent>
 
-              <div className="space-y-6">
-                <h3 className="text-xl font-bold px-2">Archivos Activos (Arrastra para ordenar)</h3>
-                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndProjects}>
-                    <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
-                      {projects.map((p) => (
-                        <SortableProjectItem key={p.id} project={p} onEdit={startEditProject} onDelete={handleDeleteProject} />
-                      ))}
-                    </SortableContext>
-                  </DndContext>
+          <TabsContent value="testimonials">
+            <div className="grid lg:grid-cols-3 gap-8">
+              <GlassCard className="lg:col-span-2 p-8 h-fit">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-bold">{editingTestimonial ? "Editar Testimonio" : "Nuevo Testimonio"}</h3>
+                  {editingTestimonial && <button onClick={resetTestimonialForm} className="text-muted-foreground hover:text-white flex items-center gap-1 text-sm"><X className="w-4 h-4" /> Cancelar</button>}
                 </div>
+                <form onSubmit={handleTestimonialSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2"><Label>Nombre</Label><Input value={newTestimonial.name} onChange={(e) => setNewTestimonial({...newTestimonial, name: e.target.value})} className={inputClasses} required /></div>
+                    <div className="space-y-2"><Label>Rol / Empresa</Label><Input value={newTestimonial.role} onChange={(e) => setNewTestimonial({...newTestimonial, role: e.target.value})} className={inputClasses} required /></div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-6 items-end">
+                    <div className="space-y-2"><Label>URL Foto</Label><Input value={newTestimonial.image_url} onChange={(e) => setNewTestimonial({...newTestimonial, image_url: e.target.value})} className={inputClasses} /></div>
+                    <div className="space-y-4">
+                      <div className="flex justify-between"><Label>Valoración</Label><span className="text-primary font-bold">{newTestimonial.rating}</span></div>
+                      <Slider value={[newTestimonial.rating]} max={5} min={1} step={1} onValueChange={(v) => setNewTestimonial({...newTestimonial, rating: v[0]})} />
+                    </div>
+                  </div>
+                  <div className="space-y-2"><Label>Testimonio</Label><Textarea value={newTestimonial.text} onChange={(e) => setNewTestimonial({...newTestimonial, text: e.target.value})} className={cn(inputClasses, "min-h-[120px]")} required /></div>
+                  <NeonButton type="submit" className="w-full">{editingTestimonial ? "Actualizar" : "Crear"}</NeonButton>
+                </form>
+              </GlassCard>
+              <div className="space-y-4">
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndTestimonials}>
+                  <SortableContext items={testimonials.map(t => t.id)} strategy={verticalListSortingStrategy}>
+                    {testimonials.map((t) => (
+                      <SortableTestimonialItem key={t.id} testimonial={t} onEdit={startEditTestimonial} onDelete={handleDeleteTestimonial} />
+                    ))}
+                  </SortableContext>
+                </DndContext>
               </div>
             </div>
           </TabsContent>
