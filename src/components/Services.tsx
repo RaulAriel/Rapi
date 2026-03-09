@@ -15,7 +15,7 @@ export const Services = () => {
     {
       icon: <Layout className="w-10 h-10" />,
       title: "Diseño Web UI/UX",
-      description: "Interfaces visualmente impactantes con un enfoque obsesivo en la experiencia de usuario y la estética moderna.",
+      description: "Diseños personalizados que combinan estética, funcionalidad y emoción. Cada interfaz nace desde la libertad creativa y se construye para ofrecer experiencias únicas, intuitivas y memorables.",
       color: "text-primary"
     },
     {
