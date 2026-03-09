@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
+import { useLanguage } from "@/hooks/use-language";
 import {
   Accordion,
   AccordionContent,
@@ -9,32 +10,22 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const faqs = [
-  {
-    question: "¿Cuánto tiempo toma desarrollar un sitio web?",
-    answer: "Depende de la complejidad. Una landing page puede estar lista en 1-2 semanas, mientras que una plataforma compleja puede tomar de 1 a 3 meses."
-  },
-  {
-    question: "¿Qué tecnologías utilizas para el desarrollo?",
-    answer: "Me especializo en el ecosistema de React (Next.js), TypeScript, y Tailwind CSS para el frontend, y Node.js o Supabase para el backend."
-  },
-  {
-    question: "¿Ofreces servicios de mantenimiento?",
-    answer: "Sí, ofrezco planes de soporte mensual para asegurar que tu sitio esté siempre actualizado, seguro y funcionando al 100%."
-  },
-  {
-    question: "¿Puedes ayudar con el diseño si no tengo una idea clara?",
-    answer: "¡Por supuesto! Como diseñador UI/UX, puedo guiarte desde la conceptualización hasta el prototipado final antes de escribir una sola línea de código."
-  }
-];
-
 export const FAQ = () => {
+  const { t } = useLanguage();
+
+  const faqs = [
+    { question: t("faq.q1"), answer: t("faq.a1") },
+    { question: t("faq.q2"), answer: t("faq.a2") },
+    { question: t("faq.q3"), answer: t("faq.a3") },
+    { question: t("faq.q4"), answer: t("faq.a4") }
+  ];
+
   return (
     <section id="faq" className="py-24 bg-background/50 relative overflow-hidden">
       <div className="container px-4 md:px-6">
         <SectionHeading 
-          title="Preguntas Frecuentes" 
-          subtitle="Despeja tus dudas sobre el proceso de trabajo y colaboración."
+          title={t("faq.title")} 
+          subtitle={t("faq.subtitle")}
         />
 
         <div className="max-w-3xl mx-auto">

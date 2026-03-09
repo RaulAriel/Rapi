@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
+import { useLanguage } from "@/hooks/use-language";
 import { 
   Code, 
   Layout, 
@@ -11,41 +12,43 @@ import {
 } from "lucide-react";
 
 export const Services = () => {
+  const { t } = useLanguage();
+  
   const services = [
     {
       icon: <Layout className="w-10 h-10" />,
-      title: "Diseño Web UI/UX",
-      description: "Diseños personalizados que combinan estética, funcionalidad y emoción. Cada interfaz nace desde la libertad creativa y se construye para ofrecer experiencias únicas, intuitivas y memorables.",
+      title: t("services.s1.title"),
+      description: t("services.s1.desc"),
       color: "text-primary"
     },
     {
       icon: <Code className="w-10 h-10" />,
-      title: "Desarrollo Web",
-      description: "Arquitecturas robustas y escalables construidas con las tecnologías más avanzadas del mercado actual.",
+      title: t("services.s2.title"),
+      description: t("services.s2.desc"),
       color: "text-secondary"
     },
     {
       icon: <PenTool className="w-10 h-10" />,
-      title: "Diseño de Marca",
-      description: "Identidades visuales únicas y memorables que posicionan tu negocio en la vanguardia digital.",
+      title: t("services.s3.title"),
+      description: t("services.s3.desc"),
       color: "text-pink-500"
     },
     {
       icon: <ShieldCheck className="w-10 h-10" />,
-      title: "Ciberseguridad",
-      description: "Protección integral para tus activos digitales, garantizando la integridad de tus datos y los de tus usuarios.",
+      title: t("services.s4.title"),
+      description: t("services.s4.desc"),
       color: "text-emerald-400"
     },
     {
       icon: <Search className="w-10 h-10" />,
-      title: "Optimización SEO",
-      description: "Estrategias de posicionamiento técnico para dominar los motores de búsqueda y atraer tráfico cualificado.",
+      title: t("services.s5.title"),
+      description: t("services.s5.desc"),
       color: "text-yellow-400"
     },
     {
       icon: <BarChart3 className="w-10 h-10" />,
-      title: "Analítica Avanzada",
-      description: "Monitorización y análisis de datos para optimizar la conversión y entender el comportamiento del usuario.",
+      title: t("services.s6.title"),
+      description: t("services.s6.desc"),
       color: "text-orange-400"
     }
   ];
@@ -56,8 +59,8 @@ export const Services = () => {
       
       <div className="container px-4 md:px-6">
         <SectionHeading 
-          title="Servicios Premium" 
-          subtitle="Soluciones digitales integrales diseñadas para conquistar el mañana."
+          title={t("services.title")} 
+          subtitle={t("services.subtitle")}
         />
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -74,8 +77,6 @@ export const Services = () => {
           ))}
         </div>
       </div>
-      
-      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-secondary/50 to-transparent" />
     </section>
   );
 };
