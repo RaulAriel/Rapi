@@ -23,7 +23,9 @@ import {
   X,
   Globe,
   MessageSquare,
-  Star
+  Star,
+  Upload,
+  Image as ImageIcon
 } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
@@ -54,6 +56,7 @@ const Admin = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -113,6 +116,51 @@ const Admin = () => {
       console.error("Error crítico en fetchData:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // --- Image Upload Logic ---
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Security check: Only JPG/JPEG
+    const isJpg = file.type === 'image/jpeg' || file.type === 'image/jpg';
+    const hasJpgExt = file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg');
+
+    if (!isJpg || !hasJpgExt) {
+      showError("Seguridad: Solo se permiten archivos .jpg o .jpeg");
+      return;
+    }
+
+    // Size limit: 2MB
+    if (file.size > 2 * 1024 * 1024) {
+      showError("El archivo es demasiado grande (Máx 2MB)");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('testimonials')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('testimonials')
+        .getPublicUrl(filePath);
+
+      setNewTestimonial({ ...newTestimonial, image_url: publicUrl });
+      showSuccess("Imagen subida con éxito");
+    } catch (error: any) {
+      showError("Error al subir imagen: " + error.message);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -274,15 +322,43 @@ const Admin = () => {
                     <div className="space-y-2"><Label>Nombre</Label><Input value={newTestimonial.name} onChange={(e) => setNewTestimonial({...newTestimonial, name: e.target.value})} className={inputClasses} required /></div>
                     <div className="space-y-2"><Label>Rol / Empresa</Label><Input value={newTestimonial.role} onChange={(e) => setNewTestimonial({...newTestimonial, role: e.target.value})} className={inputClasses} required /></div>
                   </div>
-                  <div className="grid md:grid-cols-2 gap-6 items-end">
-                    <div className="space-y-2"><Label>URL Foto</Label><Input value={newTestimonial.image_url} onChange={(e) => setNewTestimonial({...newTestimonial, image_url: e.target.value})} className={inputClasses} /></div>
+                  
+                  <div className="grid md:grid-cols-2 gap-6 items-start">
                     <div className="space-y-4">
-                      <div className="flex justify-between"><Label>Valoración</Label><span className="text-primary font-bold">{newTestimonial.rating}</span></div>
+                      <Label>Foto de Perfil (Solo .jpg)</Label>
+                      <div className="flex items-center gap-4">
+                        <div className="relative group w-20 h-20 rounded-full glass border border-primary/30 overflow-hidden flex items-center justify-center">
+                          {newTestimonial.image_url ? (
+                            <img src={newTestimonial.image_url} alt="Preview" className="w-full h-full object-cover" />
+                          ) : (
+                            <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                          )}
+                          {isUploading && (
+                            <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
+                              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <Input 
+                            type="file" 
+                            accept=".jpg,.jpeg" 
+                            onChange={handleFileUpload} 
+                            disabled={isUploading}
+                            className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                          />
+                          <p className="text-[9px] text-muted-foreground mt-2 uppercase tracking-widest">Máximo 2MB • Formato JPG</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex justify-between"><Label>Valoración</Label><span className="text-primary font-bold">{newTestimonial.rating} Estrellas</span></div>
                       <Slider value={[newTestimonial.rating]} max={5} min={1} step={1} onValueChange={(v) => setNewTestimonial({...newTestimonial, rating: v[0]})} />
                     </div>
                   </div>
+
                   <div className="space-y-2"><Label>Testimonio</Label><Textarea value={newTestimonial.text} onChange={(e) => setNewTestimonial({...newTestimonial, text: e.target.value})} className={cn(inputClasses, "min-h-[120px]")} required /></div>
-                  <NeonButton type="submit" className="w-full">{editingTestimonial ? "Actualizar" : "Crear"}</NeonButton>
+                  <NeonButton type="submit" className="w-full" disabled={isUploading}>{editingTestimonial ? "Actualizar" : "Crear"}</NeonButton>
                 </form>
               </GlassCard>
               <div className="space-y-4">
