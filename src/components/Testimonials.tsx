@@ -38,7 +38,7 @@ export const Testimonials = () => {
           subtitle="Lo que dicen mis clientes sobre la transformación de su presencia digital."
         />
 
-        <div className="grid lg:grid-cols-3 gap-6 max-w-[1400px] mx-auto">
+        <div className="grid lg:grid-cols-3 gap-8 max-w-[1400px] mx-auto">
           {testimonials.map((t, index) => (
             <motion.div
               key={index}
@@ -52,8 +52,8 @@ export const Testimonials = () => {
                 className="p-0 overflow-hidden flex flex-col h-full border-white/5" 
                 hoverGlow={false}
               >
-                {/* Foto - Ocupa la parte superior */}
-                <div className="w-full aspect-[4/3] relative overflow-hidden">
+                {/* Foto - Ahora más pequeña (aspecto panorámico 2:1) */}
+                <div className="w-full aspect-[2/1] relative overflow-hidden">
                   <img 
                     src={t.image} 
                     alt={t.name} 
@@ -63,23 +63,26 @@ export const Testimonials = () => {
                 </div>
 
                 {/* Contenido */}
-                <div className="p-6 flex-1 flex flex-col justify-between bg-background/20 backdrop-blur-sm">
+                <div className="p-8 flex-1 flex flex-col justify-between bg-background/20 backdrop-blur-sm">
                   <div>
-                    <Quote className="w-6 h-6 text-primary/20 mb-3" />
-                    <div className="flex gap-0.5 mb-3">
+                    <Quote className="w-8 h-8 text-primary/20 mb-4" />
+                    
+                    {/* Estrellas más grandes */}
+                    <div className="flex gap-1 mb-6">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
+                        <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]" />
                       ))}
                     </div>
-                    <p className="text-sm text-foreground/90 italic mb-6 leading-relaxed line-clamp-4">
+                    
+                    <p className="text-sm text-foreground/90 italic mb-8 leading-relaxed">
                       "{t.text}"
                     </p>
                   </div>
                   
                   <div>
-                    <div className="h-px w-8 bg-primary/30 mb-3" />
-                    <h4 className="font-bold text-lg tracking-tight leading-tight">{t.name}</h4>
-                    <p className="text-[10px] text-primary font-mono uppercase tracking-[0.1em] mt-1">
+                    <div className="h-px w-10 bg-primary/30 mb-4" />
+                    <h4 className="font-bold text-xl tracking-tight leading-tight">{t.name}</h4>
+                    <p className="text-[11px] text-primary font-mono uppercase tracking-[0.15em] mt-1">
                       {t.role}
                     </p>
                   </div>
