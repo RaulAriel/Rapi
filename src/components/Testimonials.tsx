@@ -52,37 +52,35 @@ export const Testimonials = () => {
                 className="p-0 overflow-hidden flex flex-col h-full border-white/5" 
                 hoverGlow={false}
               >
-                {/* Foto - Ahora más pequeña (aspecto panorámico 2:1) */}
-                <div className="w-full aspect-[2/1] relative overflow-hidden">
+                {/* Foto - Centrada y panorámica */}
+                <div className="w-full aspect-[2.2/1] relative overflow-hidden border-b border-white/5">
                   <img 
                     src={t.image} 
                     alt={t.name} 
-                    className="absolute inset-0 w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700" 
+                    className="absolute inset-0 w-full h-full object-cover object-center grayscale-[20%] hover:grayscale-0 transition-all duration-700" 
                   />
                   <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
                 </div>
 
-                {/* Contenido */}
-                <div className="p-8 flex-1 flex flex-col justify-between bg-background/20 backdrop-blur-sm">
-                  <div>
-                    <Quote className="w-8 h-8 text-primary/20 mb-4" />
+                {/* Contenido con espaciado optimizado */}
+                <div className="p-7 md:p-9 flex-1 flex flex-col bg-background/20 backdrop-blur-sm">
+                  <div className="flex-1">
+                    <Quote className="w-6 h-6 text-primary/30 mb-4" />
                     
-                    {/* Estrellas más grandes */}
-                    <div className="flex gap-1 mb-6">
+                    <div className="flex gap-1 mb-5">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]" />
+                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.3)]" />
                       ))}
                     </div>
                     
-                    <p className="text-sm text-foreground/90 italic mb-8 leading-relaxed">
+                    <p className="text-[15px] text-foreground/80 italic mb-10 leading-relaxed">
                       "{t.text}"
                     </p>
                   </div>
                   
-                  <div>
-                    <div className="h-px w-10 bg-primary/30 mb-4" />
-                    <h4 className="font-bold text-xl tracking-tight leading-tight">{t.name}</h4>
-                    <p className="text-[11px] text-primary font-mono uppercase tracking-[0.15em] mt-1">
+                  <div className="pt-6 border-t border-white/5">
+                    <h4 className="font-bold text-lg tracking-tight leading-tight">{t.name}</h4>
+                    <p className="text-[10px] text-primary font-mono uppercase tracking-[0.2em] mt-1.5 opacity-80">
                       {t.role}
                     </p>
                   </div>
