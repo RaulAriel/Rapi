@@ -117,7 +117,7 @@ export const Projects = () => {
                       {project.link_demo && (
                         <a href={project.link_demo} target="_blank" rel="noreferrer" className="flex-1">
                           <NeonButton size="sm" className="w-full">
-                            <ExternalLink className="w-4 h-4 mr-2" /> Ver Demo
+                            <ExternalLink className="w-4 h-4 mr-2" /> Visitar Sitio
                           </NeonButton>
                         </a>
                       )}
