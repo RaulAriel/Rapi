@@ -6,6 +6,7 @@ import { GlassCard } from "./GlassCard";
 import { Quote, Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import albertPhoto from "@/assets/albert.png";
+import alejandraPhoto from "@/assets/alejandra.png";
 
 const testimonials = [
   {
@@ -15,10 +16,10 @@ const testimonials = [
     text: "Desde que lanzamos la nueva página, nuestros clientes entienden mejor lo que ofrecemos y nos contactan con más facilidad. Ahora recibimos reservas y consultas por correo y WhatsApp todos los días, y hemos notado un incremento claro en nuevos clientes. La web refleja justo la esencia de nuestro local"
   },
   {
-    name: "Elena Soto",
-    role: "Product Manager",
-    image: "https://i.pravatar.cc/150?u=elena",
-    text: "Un profesional que entiende el equilibrio perfecto entre diseño audaz y usabilidad. Los tiempos de entrega fueron impecables."
+    name: "Alejandra Glez",
+    role: "Artista",
+    image: alejandraPhoto,
+    text: "Siempre quise tener un espacio donde mostrar mi trabajo de forma clara y profesional. La nueva web me permitió organizar todas mis obras por categorías, crear una galería cuidada y fácil de navegar. Ahora tengo un portafolio digital que refleja mi estilo y me ayuda a presentar mi arte con elegancia. Además, las consultas y ventas llegan mucho más fácilmente."
   },
   {
     name: "Marcus K.",
@@ -42,7 +43,7 @@ export const Testimonials = () => {
             <GlassCard key={index} delay={index * 0.1} className="relative pt-12">
               <div className="absolute -top-6 left-1/2 -translate-x-1/2">
                 <Avatar className="w-16 h-16 border-2 border-primary shadow-lg">
-                  <AvatarImage src={t.image} />
+                  <AvatarImage src={t.image} className="object-cover" />
                   <AvatarFallback>{t.name[0]}</AvatarFallback>
                 </Avatar>
               </div>
