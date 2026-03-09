@@ -121,10 +121,10 @@ const Admin = () => {
   };
 
   const validateAndUpload = async (file: File, bucket: string) => {
-    // Permitir JPG y PNG
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    // Permitir SOLO PNG
+    const allowedTypes = ['image/png'];
     if (!allowedTypes.includes(file.type)) {
-      throw new Error("Formato no permitido. Usa JPG, PNG o WebP.");
+      throw new Error("Formato no permitido. Solo se permiten archivos PNG.");
     }
 
     if (file.size > 5 * 1024 * 1024) {
@@ -158,7 +158,7 @@ const Admin = () => {
     try {
       const url = await validateAndUpload(file, 'projects');
       setNewProject(prev => ({ ...prev, image_url: url }));
-      showSuccess("Imagen del proyecto subida");
+      showSuccess("Imagen PNG del proyecto subida");
     } catch (error: any) {
       showError(error.message);
     } finally {
@@ -173,7 +173,7 @@ const Admin = () => {
     try {
       const url = await validateAndUpload(file, 'testimonials');
       setNewTestimonial(prev => ({ ...prev, image_url: url }));
-      showSuccess("Foto de cliente subida");
+      showSuccess("Foto PNG de cliente subida");
     } catch (error: any) {
       showError(error.message);
     } finally {
@@ -341,7 +341,7 @@ const Admin = () => {
                   
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-4">
-                      <Label>Imagen del Proyecto</Label>
+                      <Label>Imagen del Proyecto (Solo PNG)</Label>
                       <div className="flex items-center gap-4">
                         <div className="relative w-24 h-16 rounded-lg glass border border-primary/30 overflow-hidden flex items-center justify-center">
                           {newProject.image_url ? (
@@ -355,7 +355,12 @@ const Admin = () => {
                             </div>
                           )}
                         </div>
-                        <Input type="file" accept="image/*" onChange={handleProjectFileUpload} className="cursor-pointer file:bg-primary/10 file:text-primary file:border-0 file:rounded-full file:px-4" />
+                        <Input 
+                          type="file" 
+                          accept="image/png" 
+                          onChange={handleProjectFileUpload} 
+                          className="cursor-pointer file:bg-primary/10 file:text-primary file:border-0 file:rounded-full file:px-4" 
+                        />
                       </div>
                     </div>
                     <div className="space-y-2"><Label>Tags (;)</Label><Input value={newProject.tags} onChange={(e) => setNewProject({...newProject, tags: e.target.value})} className={inputClasses} placeholder="React; Tailwild; Supabase" /></div>
@@ -401,7 +406,7 @@ const Admin = () => {
                   
                   <div className="grid md:grid-cols-2 gap-6 items-start">
                     <div className="space-y-4">
-                      <Label>Foto de Perfil</Label>
+                      <Label>Foto de Perfil (Solo PNG)</Label>
                       <div className="flex items-center gap-4">
                         <div className="relative w-20 h-20 rounded-full glass border border-primary/30 overflow-hidden flex items-center justify-center">
                           {newTestimonial.image_url ? (
@@ -415,7 +420,12 @@ const Admin = () => {
                             </div>
                           )}
                         </div>
-                        <Input type="file" accept="image/*" onChange={handleTestimonialFileUpload} className="cursor-pointer file:bg-primary/10 file:text-primary file:border-0 file:rounded-full file:px-4" />
+                        <Input 
+                          type="file" 
+                          accept="image/png" 
+                          onChange={handleTestimonialFileUpload} 
+                          className="cursor-pointer file:bg-primary/10 file:text-primary file:border-0 file:rounded-full file:px-4" 
+                        />
                       </div>
                     </div>
                     <div className="space-y-4">
