@@ -57,6 +57,7 @@ const Admin = () => {
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingProject, setIsUploadingProject] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -76,7 +77,7 @@ const Admin = () => {
     tags: "",
     link_demo: "",
     link_repo: "",
-    image_url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"
+    image_url: ""
   });
 
   // Testimonial states
@@ -119,46 +120,61 @@ const Admin = () => {
     }
   };
 
-  // --- Image Upload Logic ---
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Security check: Only JPG/JPEG
+  // --- Secure Upload Logic ---
+  const validateAndUpload = async (file: File, bucket: string) => {
     const isJpg = file.type === 'image/jpeg' || file.type === 'image/jpg';
     const hasJpgExt = file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg');
 
     if (!isJpg || !hasJpgExt) {
-      showError("Seguridad: Solo se permiten archivos .jpg o .jpeg");
-      return;
+      throw new Error("Seguridad: Solo se permiten archivos .jpg o .jpeg");
     }
 
-    // Size limit: 2MB
     if (file.size > 2 * 1024 * 1024) {
-      showError("El archivo es demasiado grande (Máx 2MB)");
-      return;
+      throw new Error("El archivo es demasiado grande (Máx 2MB)");
     }
 
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
+  const handleProjectFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingProject(true);
+    try {
+      const url = await validateAndUpload(file, 'projects');
+      setNewProject({ ...newProject, image_url: url });
+      showSuccess("Imagen del proyecto subida");
+    } catch (error: any) {
+      showError(error.message);
+    } finally {
+      setIsUploadingProject(false);
+    }
+  };
+
+  const handleTestimonialFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
     setIsUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
-
-      const { error: uploadError, data } = await supabase.storage
-        .from('testimonials')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('testimonials')
-        .getPublicUrl(filePath);
-
-      setNewTestimonial({ ...newTestimonial, image_url: publicUrl });
-      showSuccess("Imagen subida con éxito");
+      const url = await validateAndUpload(file, 'testimonials');
+      setNewTestimonial({ ...newTestimonial, image_url: url });
+      showSuccess("Foto de cliente subida");
     } catch (error: any) {
-      showError("Error al subir imagen: " + error.message);
+      showError(error.message);
     } finally {
       setIsUploading(false);
     }
@@ -218,7 +234,7 @@ const Admin = () => {
 
   const resetProjectForm = () => {
     setEditingProject(null);
-    setNewProject({ title: "", category: "", description: "", tags: "", link_demo: "", link_repo: "", image_url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800" });
+    setNewProject({ title: "", category: "", description: "", tags: "", link_demo: "", link_repo: "", image_url: "" });
   };
 
   // Testimonials Handlers
@@ -288,16 +304,35 @@ const Admin = () => {
                     <div className="space-y-2"><Label>Título</Label><Input value={newProject.title} onChange={(e) => setNewProject({...newProject, title: e.target.value})} className={inputClasses} required /></div>
                     <div className="space-y-2"><Label>Categoría</Label><Input value={newProject.category} onChange={(e) => setNewProject({...newProject, category: e.target.value})} className={inputClasses} required /></div>
                   </div>
+                  
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2"><Label>URL Imagen</Label><Input value={newProject.image_url} onChange={(e) => setNewProject({...newProject, image_url: e.target.value})} className={inputClasses} /></div>
-                    <div className="space-y-2"><Label>Tags (;)</Label><Input value={newProject.tags} onChange={(e) => setNewProject({...newProject, tags: e.target.value})} className={inputClasses} /></div>
+                    <div className="space-y-4">
+                      <Label>Imagen del Proyecto (JPG)</Label>
+                      <div className="flex items-center gap-4">
+                        <div className="relative w-24 h-16 rounded-lg glass border border-primary/30 overflow-hidden flex items-center justify-center">
+                          {newProject.image_url ? (
+                            <img src={newProject.image_url} alt="Preview" className="w-full h-full object-cover" />
+                          ) : (
+                            <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                          )}
+                          {isUploadingProject && (
+                            <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
+                              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                            </div>
+                          )}
+                        </div>
+                        <Input type="file" accept=".jpg,.jpeg" onChange={handleProjectFileUpload} className="cursor-pointer file:bg-primary/10 file:text-primary file:border-0 file:rounded-full file:px-4" />
+                      </div>
+                    </div>
+                    <div className="space-y-2"><Label>Tags (;)</Label><Input value={newProject.tags} onChange={(e) => setNewProject({...newProject, tags: e.target.value})} className={inputClasses} placeholder="React; Tailwild; Supabase" /></div>
                   </div>
+
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2"><Label>Demo</Label><Input value={newProject.link_demo} onChange={(e) => setNewProject({...newProject, link_demo: e.target.value})} className={inputClasses} /></div>
-                    <div className="space-y-2"><Label>Repo</Label><Input value={newProject.link_repo} onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} className={inputClasses} /></div>
+                    <div className="space-y-2"><Label>Enlace Externo</Label><Input value={newProject.link_demo} onChange={(e) => setNewProject({...newProject, link_demo: e.target.value})} className={inputClasses} placeholder="https://..." /></div>
+                    <div className="space-y-2"><Label>Repositorio</Label><Input value={newProject.link_repo} onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} className={inputClasses} placeholder="https://github.com/..." /></div>
                   </div>
                   <div className="space-y-2"><Label>Descripción</Label><Textarea value={newProject.description} onChange={(e) => setNewProject({...newProject, description: e.target.value})} className={inputClasses} /></div>
-                  <NeonButton type="submit" className="w-full">{editingProject ? "Actualizar" : "Crear"}</NeonButton>
+                  <NeonButton type="submit" className="w-full" disabled={isUploadingProject}>{editingProject ? "Actualizar" : "Crear"}</NeonButton>
                 </form>
               </GlassCard>
               <div className="space-y-4">
@@ -325,9 +360,9 @@ const Admin = () => {
                   
                   <div className="grid md:grid-cols-2 gap-6 items-start">
                     <div className="space-y-4">
-                      <Label>Foto de Perfil (Solo .jpg)</Label>
+                      <Label>Foto de Perfil (JPG)</Label>
                       <div className="flex items-center gap-4">
-                        <div className="relative group w-20 h-20 rounded-full glass border border-primary/30 overflow-hidden flex items-center justify-center">
+                        <div className="relative w-20 h-20 rounded-full glass border border-primary/30 overflow-hidden flex items-center justify-center">
                           {newTestimonial.image_url ? (
                             <img src={newTestimonial.image_url} alt="Preview" className="w-full h-full object-cover" />
                           ) : (
@@ -339,16 +374,7 @@ const Admin = () => {
                             </div>
                           )}
                         </div>
-                        <div className="flex-1">
-                          <Input 
-                            type="file" 
-                            accept=".jpg,.jpeg" 
-                            onChange={handleFileUpload} 
-                            disabled={isUploading}
-                            className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                          />
-                          <p className="text-[9px] text-muted-foreground mt-2 uppercase tracking-widest">Máximo 2MB • Formato JPG</p>
-                        </div>
+                        <Input type="file" accept=".jpg,.jpeg" onChange={handleTestimonialFileUpload} className="cursor-pointer file:bg-primary/10 file:text-primary file:border-0 file:rounded-full file:px-4" />
                       </div>
                     </div>
                     <div className="space-y-4">

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { NeonButton } from "./NeonButton";
-import { ExternalLink, Github, Monitor, AlertCircle } from "lucide-react";
+import { ExternalLink, Github, Image as ImageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,34 +17,17 @@ export const Projects = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      // Priorizamos siempre el orden manual definido en el admin
       const { data, error } = await supabase
         .from('projects')
         .select('*')
         .order('order_index', { ascending: true });
 
-      if (error) {
-        console.warn("Falling back to date ordering due to error:", error);
-        const fallback = await supabase
-          .from('projects')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (fallback.data) {
-          setProjects(fallback.data);
-          updateCategories(fallback.data);
-        }
-      } else if (data) {
+      if (data) {
         setProjects(data);
-        updateCategories(data);
+        const cats = ["Todos", ...new Set(data.map((p: any) => p.category))];
+        setCategories(cats);
       }
     };
-
-    const updateCategories = (data: any[]) => {
-      const cats = ["Todos", ...new Set(data.map((p: any) => p.category))];
-      setCategories(cats);
-    };
-
     fetchProjects();
   }, []);
 
@@ -89,49 +72,31 @@ export const Projects = () => {
                 transition={{ duration: 0.4 }}
               >
                 <GlassCard className="p-0 overflow-hidden flex flex-col h-full group" hoverGlow>
+                  {/* Área de Imagen Reemplazando el Iframe */}
                   <div className="relative aspect-video overflow-hidden bg-black/40">
-                    <img 
-                      src={project.image_url || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800"} 
-                      alt={project.title} 
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-60"
-                    />
-
-                    {project.link_demo && (
-                      <div className="absolute inset-0 w-full h-full z-10">
-                        <div className="w-full h-full relative overflow-hidden">
-                          <iframe 
-                            src={project.link_demo} 
-                            scrolling="no"
-                            className="absolute top-0 left-0 border-none pointer-events-none origin-top-left overflow-hidden scrollbar-hide"
-                            style={{ 
-                              width: '200%',
-                              height: '200%',
-                              transform: 'scale(0.5)',
-                              msOverflowStyle: 'none',
-                              scrollbarWidth: 'none',
-                            }}
-                            title={project.title}
-                            loading="lazy"
-                          />
-                        </div>
-                        <div className="absolute inset-0 bg-transparent z-20 cursor-default" />
+                    {project.image_url ? (
+                      <img 
+                        src={project.image_url} 
+                        alt={project.title} 
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/20">
+                        <ImageIcon className="w-16 h-16" />
                       </div>
                     )}
                     
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90 z-30" />
+                    {/* Overlay Gradiente */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60 z-10" />
                     
-                    <div className="absolute top-4 right-4 z-40">
+                    <div className="absolute top-4 right-4 z-20">
                       <Badge variant="secondary" className="glass border-primary/30 uppercase tracking-tighter shadow-sm">
                         {project.category}
                       </Badge>
                     </div>
-
-                    <div className="absolute bottom-4 left-4 z-40 flex items-center gap-2 text-[10px] font-mono text-primary/80">
-                      <Monitor className="w-3 h-3" /> PREVISUALIZACIÓN EN VIVO
-                    </div>
                   </div>
                   
-                  <div className="p-6 flex flex-col flex-grow relative z-40 bg-background/20 backdrop-blur-sm">
+                  <div className="p-6 flex flex-col flex-grow relative z-20">
                     <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
                       {project.title}
                     </h3>
@@ -142,7 +107,7 @@ export const Projects = () => {
                       {project.tags?.map((tag: string) => (
                         <span 
                           key={tag} 
-                          className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-md bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-foreground/70 dark:text-muted-foreground"
+                          className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-muted-foreground"
                         >
                           {tag}
                         </span>
@@ -152,14 +117,14 @@ export const Projects = () => {
                       {project.link_demo && (
                         <a href={project.link_demo} target="_blank" rel="noreferrer" className="flex-1">
                           <NeonButton size="sm" className="w-full">
-                            <ExternalLink className="w-4 h-4" /> Visitar Sitio
+                            <ExternalLink className="w-4 h-4 mr-2" /> Ver Demo
                           </NeonButton>
                         </a>
                       )}
                       {project.link_repo && (
                         <a href={project.link_repo} target="_blank" rel="noreferrer" className="flex-1">
                           <NeonButton size="sm" variant="outline" glowColor="blue" className="w-full">
-                            <Github className="w-4 h-4" /> Repo
+                            <Github className="w-4 h-4 mr-2" /> Código
                           </NeonButton>
                         </a>
                       )}
@@ -169,14 +134,6 @@ export const Projects = () => {
               </motion.div>
             ))}
           </AnimatePresence>
-        </div>
-
-        <div className="mt-12 flex items-center justify-center gap-2 text-xs text-muted-foreground bg-white/5 p-4 rounded-xl border border-white/10 max-w-2xl mx-auto">
-          <AlertCircle className="w-4 h-4 text-primary" />
-          <p>
-            Nota: Algunos sitios externos pueden no visualizarse aquí debido a sus políticas de seguridad (X-Frame-Options). 
-            En esos casos, se mostrará la imagen de portada.
-          </p>
         </div>
       </div>
     </section>
