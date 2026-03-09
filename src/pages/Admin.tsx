@@ -120,28 +120,29 @@ const Admin = () => {
     }
   };
 
-  // --- Secure Upload Logic ---
   const validateAndUpload = async (file: File, bucket: string) => {
-    const isJpg = file.type === 'image/jpeg' || file.type === 'image/jpg';
-    const hasJpgExt = file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg');
-
-    if (!isJpg || !hasJpgExt) {
-      throw new Error("Seguridad: Solo se permiten archivos .jpg o .jpeg");
+    // Permitir JPG y PNG
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error("Formato no permitido. Usa JPG, PNG o WebP.");
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      throw new Error("El archivo es demasiado grande (Máx 2MB)");
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error("El archivo es demasiado grande (Máx 5MB)");
     }
 
     const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
     const filePath = `${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from(bucket)
       .upload(filePath, file);
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error("Upload error details:", uploadError);
+      throw new Error(`Error al subir: Asegúrate de que el bucket '${bucket}' existe y es público.`);
+    }
 
     const { data: { publicUrl } } = supabase.storage
       .from(bucket)
@@ -156,7 +157,7 @@ const Admin = () => {
     setIsUploadingProject(true);
     try {
       const url = await validateAndUpload(file, 'projects');
-      setNewProject({ ...newProject, image_url: url });
+      setNewProject(prev => ({ ...prev, image_url: url }));
       showSuccess("Imagen del proyecto subida");
     } catch (error: any) {
       showError(error.message);
@@ -171,7 +172,7 @@ const Admin = () => {
     setIsUploading(true);
     try {
       const url = await validateAndUpload(file, 'testimonials');
-      setNewTestimonial({ ...newTestimonial, image_url: url });
+      setNewTestimonial(prev => ({ ...prev, image_url: url }));
       showSuccess("Foto de cliente subida");
     } catch (error: any) {
       showError(error.message);
@@ -187,7 +188,18 @@ const Admin = () => {
       const newIndex = projects.findIndex((p) => p.id === over.id);
       const newOrder = arrayMove(projects, oldIndex, newIndex);
       setProjects(newOrder);
-      const updates = newOrder.map((project, index) => ({ ...project, order_index: index, user_id: user.id }));
+      const updates = newOrder.map((project, index) => ({ 
+        id: project.id,
+        title: project.title,
+        category: project.category,
+        description: project.description,
+        image_url: project.image_url,
+        tags: project.tags,
+        link_demo: project.link_demo,
+        link_repo: project.link_repo,
+        order_index: index, 
+        user_id: user.id 
+      }));
       await supabase.from('projects').upsert(updates);
       showSuccess("Orden de proyectos actualizado");
     }
@@ -200,7 +212,16 @@ const Admin = () => {
       const newIndex = testimonials.findIndex((t) => t.id === over.id);
       const newOrder = arrayMove(testimonials, oldIndex, newIndex);
       setTestimonials(newOrder);
-      const updates = newOrder.map((t, index) => ({ ...t, order_index: index, user_id: user.id }));
+      const updates = newOrder.map((t, index) => ({ 
+        id: t.id,
+        name: t.name,
+        role: t.role,
+        rating: t.rating,
+        image_url: t.image_url,
+        text: t.text,
+        order_index: index, 
+        user_id: user.id 
+      }));
       await supabase.from('testimonials').upsert(updates);
       showSuccess("Orden de testimonios actualizado");
     }
@@ -215,12 +236,15 @@ const Admin = () => {
   const handleProjectSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const tagsArray = typeof newProject.tags === 'string' ? newProject.tags.split(';').map(t => t.trim()).filter(t => t !== "") : newProject.tags;
+    
     if (editingProject) {
       const { error } = await supabase.from('projects').update({ ...newProject, tags: tagsArray }).eq('id', editingProject.id);
       if (!error) {
         showSuccess("Proyecto actualizado");
         setProjects(projects.map(p => p.id === editingProject.id ? { ...p, ...newProject, tags: tagsArray } : p));
         resetProjectForm();
+      } else {
+        showError("Error al actualizar proyecto");
       }
     } else {
       const { data, error } = await supabase.from('projects').insert([{ ...newProject, tags: tagsArray, user_id: user.id, order_index: projects.length }]).select();
@@ -228,6 +252,8 @@ const Admin = () => {
         showSuccess("Proyecto creado");
         setProjects([...projects, data[0]]);
         resetProjectForm();
+      } else {
+        showError("Error al crear proyecto");
       }
     }
   };
@@ -275,6 +301,14 @@ const Admin = () => {
     }
   };
 
+  const handleDeleteProject = async (id: string) => {
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+    if (!error) {
+      setProjects(projects.filter(p => p.id !== id));
+      showSuccess("Proyecto eliminado");
+    }
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-12 h-12 text-primary animate-spin" /></div>;
 
   return (
@@ -307,7 +341,7 @@ const Admin = () => {
                   
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-4">
-                      <Label>Imagen del Proyecto (JPG)</Label>
+                      <Label>Imagen del Proyecto</Label>
                       <div className="flex items-center gap-4">
                         <div className="relative w-24 h-16 rounded-lg glass border border-primary/30 overflow-hidden flex items-center justify-center">
                           {newProject.image_url ? (
@@ -321,7 +355,7 @@ const Admin = () => {
                             </div>
                           )}
                         </div>
-                        <Input type="file" accept=".jpg,.jpeg" onChange={handleProjectFileUpload} className="cursor-pointer file:bg-primary/10 file:text-primary file:border-0 file:rounded-full file:px-4" />
+                        <Input type="file" accept="image/*" onChange={handleProjectFileUpload} className="cursor-pointer file:bg-primary/10 file:text-primary file:border-0 file:rounded-full file:px-4" />
                       </div>
                     </div>
                     <div className="space-y-2"><Label>Tags (;)</Label><Input value={newProject.tags} onChange={(e) => setNewProject({...newProject, tags: e.target.value})} className={inputClasses} placeholder="React; Tailwild; Supabase" /></div>
@@ -332,13 +366,20 @@ const Admin = () => {
                     <div className="space-y-2"><Label>Repositorio</Label><Input value={newProject.link_repo} onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} className={inputClasses} placeholder="https://github.com/..." /></div>
                   </div>
                   <div className="space-y-2"><Label>Descripción</Label><Textarea value={newProject.description} onChange={(e) => setNewProject({...newProject, description: e.target.value})} className={inputClasses} /></div>
-                  <NeonButton type="submit" className="w-full" disabled={isUploadingProject}>{editingProject ? "Actualizar" : "Crear"}</NeonButton>
+                  <NeonButton type="submit" className="w-full" disabled={isUploadingProject}>{editingProject ? "Actualizar Proyecto" : "Crear Proyecto"}</NeonButton>
                 </form>
               </GlassCard>
               <div className="space-y-4">
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndProjects}>
                   <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
-                    {projects.map((p) => <SortableProjectItem key={p.id} project={p} onEdit={(p) => { setEditingProject(p); setNewProject({ ...p, tags: p.tags?.join('; ') || "" }); }} onDelete={(id) => { supabase.from('projects').delete().eq('id', id).then(() => fetchData()); }} />)}
+                    {projects.map((p) => (
+                      <SortableProjectItem 
+                        key={p.id} 
+                        project={p} 
+                        onEdit={(p) => { setEditingProject(p); setNewProject({ ...p, tags: p.tags?.join('; ') || "" }); }} 
+                        onDelete={handleDeleteProject} 
+                      />
+                    ))}
                   </SortableContext>
                 </DndContext>
               </div>
@@ -360,7 +401,7 @@ const Admin = () => {
                   
                   <div className="grid md:grid-cols-2 gap-6 items-start">
                     <div className="space-y-4">
-                      <Label>Foto de Perfil (JPG)</Label>
+                      <Label>Foto de Perfil</Label>
                       <div className="flex items-center gap-4">
                         <div className="relative w-20 h-20 rounded-full glass border border-primary/30 overflow-hidden flex items-center justify-center">
                           {newTestimonial.image_url ? (
@@ -374,7 +415,7 @@ const Admin = () => {
                             </div>
                           )}
                         </div>
-                        <Input type="file" accept=".jpg,.jpeg" onChange={handleTestimonialFileUpload} className="cursor-pointer file:bg-primary/10 file:text-primary file:border-0 file:rounded-full file:px-4" />
+                        <Input type="file" accept="image/*" onChange={handleTestimonialFileUpload} className="cursor-pointer file:bg-primary/10 file:text-primary file:border-0 file:rounded-full file:px-4" />
                       </div>
                     </div>
                     <div className="space-y-4">
