@@ -53,22 +53,22 @@ export const Testimonials = () => {
                 className="p-8 h-full flex flex-col border-white/5 bg-background/40" 
                 hoverGlow={true}
               >
-                {/* Header: Avatar + Info */}
-                <div className="flex items-center gap-4 mb-6">
-                  <Avatar className="w-16 h-16 border-2 border-primary/30 shadow-[0_0_15px_rgba(139,92,246,0.2)]">
+                {/* Header: Avatar más grande + Info */}
+                <div className="flex items-center gap-6 mb-8">
+                  <Avatar className="w-24 h-24 border-2 border-primary/30 shadow-[0_0_20px_rgba(139,92,246,0.25)]">
                     <AvatarImage src={t.image} alt={t.name} className="object-cover" />
-                    <AvatarFallback className="bg-primary/20 text-primary">{t.name[0]}</AvatarFallback>
+                    <AvatarFallback className="bg-primary/20 text-primary text-xl font-bold">{t.name[0]}</AvatarFallback>
                   </Avatar>
                   
                   <div className="flex flex-col">
-                    <h4 className="font-bold text-lg tracking-tight leading-tight">{t.name}</h4>
-                    <p className="text-[10px] text-primary font-mono uppercase tracking-[0.1em] mt-0.5 opacity-80">
+                    <h4 className="font-bold text-xl tracking-tight leading-tight">{t.name}</h4>
+                    <p className="text-[11px] text-primary font-mono uppercase tracking-[0.1em] mt-1 opacity-80">
                       {t.role}
                     </p>
                     {/* Estrellas debajo del nombre/rol */}
-                    <div className="flex gap-1 mt-2">
+                    <div className="flex gap-1 mt-3">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.3)]" />
+                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.3)]" />
                       ))}
                     </div>
                   </div>
@@ -76,16 +76,10 @@ export const Testimonials = () => {
 
                 {/* Testimonio debajo */}
                 <div className="relative flex-1">
-                  <Quote className="absolute -top-2 -left-2 w-8 h-8 text-primary/10 -z-10" />
-                  <p className="text-[15px] text-foreground/80 italic leading-relaxed relative z-10">
+                  <Quote className="absolute -top-3 -left-3 w-10 h-10 text-primary/10 -z-10" />
+                  <p className="text-[16px] text-foreground/80 italic leading-relaxed relative z-10 pl-2">
                     "{t.text}"
                   </p>
-                </div>
-                
-                <div className="mt-6 pt-6 border-t border-white/5 flex justify-end">
-                  <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest">
-                    Verificado ✓
-                  </span>
                 </div>
               </GlassCard>
             </motion.div>
