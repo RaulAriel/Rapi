@@ -5,13 +5,14 @@ import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { Quote, Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import albertPhoto from "@/assets/albert.png";
 
 const testimonials = [
   {
-    name: "Alex Rivera",
-    role: "CEO en FutureMind",
-    image: "https://i.pravatar.cc/150?u=alex",
-    text: "La atención al detalle y la capacidad de traducir conceptos futuristas en una web funcional superó todas nuestras expectativas."
+    name: "Albert Viedma",
+    role: "Dueño de Decode-bar",
+    image: albertPhoto,
+    text: "Desde que lanzamos la nueva página, nuestros clientes entienden mejor lo que ofrecemos y nos contactan con más facilidad. Ahora recibimos reservas y consultas por correo y WhatsApp todos los días, y hemos notado un incremento claro en nuevos clientes. La web refleja justo la esencia de nuestro local"
   },
   {
     name: "Elena Soto",
@@ -51,7 +52,7 @@ export const Testimonials = () => {
                   <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                 ))}
               </div>
-              <p className="text-muted-foreground italic mb-6 text-center">
+              <p className="text-muted-foreground italic mb-6 text-center leading-relaxed">
                 "{t.text}"
               </p>
               <div className="text-center">
