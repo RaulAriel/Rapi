@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { useLanguage } from "@/hooks/use-language";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Accordion,
   AccordionContent,
@@ -12,13 +14,26 @@ import {
 
 export const FAQ = () => {
   const { t } = useLanguage();
+  const [faqs, setFaqs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const faqs = [
-    { question: t("faq.q1"), answer: t("faq.a1") },
-    { question: t("faq.q2"), answer: t("faq.a2") },
-    { question: t("faq.q3"), answer: t("faq.a3") },
-    { question: t("faq.q4"), answer: t("faq.a4") }
-  ];
+  useEffect(() => {
+    const fetchFAQs = async () => {
+      const { data, error } = await supabase
+        .from('faqs')
+        .select('*')
+        .order('order_index', { ascending: true });
+
+      if (data) {
+        setFaqs(data);
+      }
+      setLoading(false);
+    };
+
+    fetchFAQs();
+  }, []);
+
+  if (loading || faqs.length === 0) return null;
 
   return (
     <section id="faq" className="py-24 bg-background/50 relative overflow-hidden">
@@ -32,7 +47,7 @@ export const FAQ = () => {
           <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
               <AccordionItem 
-                key={index} 
+                key={faq.id} 
                 value={`item-${index}`}
                 className="glass rounded-2xl border-white/5 overflow-hidden px-6"
               >

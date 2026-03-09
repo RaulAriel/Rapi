@@ -25,7 +25,8 @@ import {
   MessageSquare,
   Star,
   Upload,
-  Image as ImageIcon
+  Image as ImageIcon,
+  HelpCircle
 } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
@@ -49,12 +50,14 @@ import {
 
 import { SortableProjectItem } from "@/components/SortableProjectItem";
 import { SortableTestimonialItem } from "@/components/SortableTestimonialItem";
+import { SortableFAQItem } from "@/components/SortableFAQItem";
 
 const Admin = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [faqs, setFaqs] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingProject, setIsUploadingProject] = useState(false);
@@ -90,6 +93,13 @@ const Admin = () => {
     text: ""
   });
 
+  // FAQ states
+  const [editingFAQ, setEditingFAQ] = useState<any>(null);
+  const [newFAQ, setNewFAQ] = useState({
+    question: "",
+    answer: ""
+  });
+
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -106,13 +116,15 @@ const Admin = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [projectsRes, testimonialsRes] = await Promise.all([
+      const [projectsRes, testimonialsRes, faqsRes] = await Promise.all([
         supabase.from('projects').select('*').order('order_index', { ascending: true }),
-        supabase.from('testimonials').select('*').order('order_index', { ascending: true })
+        supabase.from('testimonials').select('*').order('order_index', { ascending: true }),
+        supabase.from('faqs').select('*').order('order_index', { ascending: true })
       ]);
 
       if (projectsRes.data) setProjects(projectsRes.data);
       if (testimonialsRes.data) setTestimonials(testimonialsRes.data);
+      if (faqsRes.data) setFaqs(faqsRes.data);
     } catch (err) {
       console.error("Error crítico en fetchData:", err);
     } finally {
@@ -121,10 +133,9 @@ const Admin = () => {
   };
 
   const validateAndUpload = async (file: File, bucket: string) => {
-    // Permitir SOLO PNG
-    const allowedTypes = ['image/png'];
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      throw new Error("Formato no permitido. Solo se permiten archivos PNG.");
+      throw new Error("Formato no permitido. Solo se permiten archivos PNG, JPEG o WEBP.");
     }
 
     if (file.size > 5 * 1024 * 1024) {
@@ -141,7 +152,7 @@ const Admin = () => {
 
     if (uploadError) {
       console.error("Upload error details:", uploadError);
-      throw new Error(`Error al subir: Asegúrate de que el bucket '${bucket}' existe y es público.`);
+      throw new Error(`Error al subir imagen.`);
     }
 
     const { data: { publicUrl } } = supabase.storage
@@ -158,7 +169,7 @@ const Admin = () => {
     try {
       const url = await validateAndUpload(file, 'projects');
       setNewProject(prev => ({ ...prev, image_url: url }));
-      showSuccess("Imagen PNG del proyecto subida");
+      showSuccess("Imagen del proyecto subida");
     } catch (error: any) {
       showError(error.message);
     } finally {
@@ -173,7 +184,7 @@ const Admin = () => {
     try {
       const url = await validateAndUpload(file, 'testimonials');
       setNewTestimonial(prev => ({ ...prev, image_url: url }));
-      showSuccess("Foto PNG de cliente subida");
+      showSuccess("Foto de cliente subida");
     } catch (error: any) {
       showError(error.message);
     } finally {
@@ -224,6 +235,25 @@ const Admin = () => {
       }));
       await supabase.from('testimonials').upsert(updates);
       showSuccess("Orden de testimonios actualizado");
+    }
+  };
+
+  const handleDragEndFAQs = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = faqs.findIndex((f) => f.id === active.id);
+      const newIndex = faqs.findIndex((f) => f.id === over.id);
+      const newOrder = arrayMove(faqs, oldIndex, newIndex);
+      setFaqs(newOrder);
+      const updates = newOrder.map((faq, index) => ({ 
+        id: faq.id,
+        question: faq.question,
+        answer: faq.answer,
+        order_index: index, 
+        user_id: user.id 
+      }));
+      await supabase.from('faqs').upsert(updates);
+      showSuccess("Orden de FAQs actualizado");
     }
   };
 
@@ -288,9 +318,39 @@ const Admin = () => {
     setNewTestimonial({ name: "", role: "", rating: 5, image_url: "", text: "" });
   };
 
+  // FAQ Handlers
+  const handleFAQSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingFAQ) {
+      const { error } = await supabase.from('faqs').update(newFAQ).eq('id', editingFAQ.id);
+      if (!error) {
+        showSuccess("Pregunta actualizada");
+        setFaqs(faqs.map(f => f.id === editingFAQ.id ? { ...f, ...newFAQ } : f));
+        resetFAQForm();
+      }
+    } else {
+      const { data, error } = await supabase.from('faqs').insert([{ ...newFAQ, user_id: user.id, order_index: faqs.length }]).select();
+      if (!error && data) {
+        showSuccess("Pregunta creada");
+        setFaqs([...faqs, data[0]]);
+        resetFAQForm();
+      }
+    }
+  };
+
+  const resetFAQForm = () => {
+    setEditingFAQ(null);
+    setNewFAQ({ question: "", answer: "" });
+  };
+
   const startEditTestimonial = (t: any) => {
     setEditingTestimonial(t);
     setNewTestimonial({ name: t.name, role: t.role, rating: t.rating, image_url: t.image_url || "", text: t.text });
+  };
+
+  const startEditFAQ = (f: any) => {
+    setEditingFAQ(f);
+    setNewFAQ({ question: f.question, answer: f.answer });
   };
 
   const handleDeleteTestimonial = async (id: string) => {
@@ -309,6 +369,14 @@ const Admin = () => {
     }
   };
 
+  const handleDeleteFAQ = async (id: string) => {
+    const { error } = await supabase.from('faqs').delete().eq('id', id);
+    if (!error) {
+      setFaqs(faqs.filter(f => f.id !== id));
+      showSuccess("Pregunta eliminada");
+    }
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-12 h-12 text-primary animate-spin" /></div>;
 
   return (
@@ -324,6 +392,7 @@ const Admin = () => {
           <TabsList className="glass border-white/5 p-1 h-auto flex-wrap justify-start gap-2">
             <TabsTrigger value="projects" className="px-6 py-3 rounded-xl transition-all"><Briefcase className="w-4 h-4 mr-2" /> Proyectos</TabsTrigger>
             <TabsTrigger value="testimonials" className="px-6 py-3 rounded-xl transition-all"><MessageSquare className="w-4 h-4 mr-2" /> Testimonios</TabsTrigger>
+            <TabsTrigger value="faqs" className="px-6 py-3 rounded-xl transition-all"><HelpCircle className="w-4 h-4 mr-2" /> FAQ</TabsTrigger>
           </TabsList>
 
           <TabsContent value="projects">
@@ -341,7 +410,7 @@ const Admin = () => {
                   
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-4">
-                      <Label>Imagen del Proyecto (Solo PNG)</Label>
+                      <Label>Imagen del Proyecto</Label>
                       <div className="flex items-center gap-4">
                         <div className="relative w-24 h-16 rounded-lg glass border border-primary/30 overflow-hidden flex items-center justify-center">
                           {newProject.image_url ? (
@@ -357,7 +426,7 @@ const Admin = () => {
                         </div>
                         <Input 
                           type="file" 
-                          accept="image/png" 
+                          accept="image/*" 
                           onChange={handleProjectFileUpload} 
                           className="cursor-pointer file:bg-primary/10 file:text-primary file:border-0 file:rounded-full file:px-4" 
                         />
@@ -406,7 +475,7 @@ const Admin = () => {
                   
                   <div className="grid md:grid-cols-2 gap-6 items-start">
                     <div className="space-y-4">
-                      <Label>Foto de Perfil (Solo PNG)</Label>
+                      <Label>Foto de Perfil</Label>
                       <div className="flex items-center gap-4">
                         <div className="relative w-20 h-20 rounded-full glass border border-primary/30 overflow-hidden flex items-center justify-center">
                           {newTestimonial.image_url ? (
@@ -422,7 +491,7 @@ const Admin = () => {
                         </div>
                         <Input 
                           type="file" 
-                          accept="image/png" 
+                          accept="image/*" 
                           onChange={handleTestimonialFileUpload} 
                           className="cursor-pointer file:bg-primary/10 file:text-primary file:border-0 file:rounded-full file:px-4" 
                         />
@@ -443,6 +512,56 @@ const Admin = () => {
                   <SortableContext items={testimonials.map(t => t.id)} strategy={verticalListSortingStrategy}>
                     {testimonials.map((t) => (
                       <SortableTestimonialItem key={t.id} testimonial={t} onEdit={startEditTestimonial} onDelete={handleDeleteTestimonial} />
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="faqs">
+            <div className="grid lg:grid-cols-3 gap-8">
+              <GlassCard className="lg:col-span-2 p-8 h-fit">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-bold">{editingFAQ ? "Editar Pregunta" : "Nueva Pregunta"}</h3>
+                  {editingFAQ && <button onClick={resetFAQForm} className="text-muted-foreground hover:text-white flex items-center gap-1 text-sm"><X className="w-4 h-4" /> Cancelar</button>}
+                </div>
+                <form onSubmit={handleFAQSubmit} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label>Pregunta</Label>
+                    <Input 
+                      value={newFAQ.question} 
+                      onChange={(e) => setNewFAQ({...newFAQ, question: e.target.value})} 
+                      className={inputClasses} 
+                      placeholder="¿Cómo trabajas?"
+                      required 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Respuesta</Label>
+                    <Textarea 
+                      value={newFAQ.answer} 
+                      onChange={(e) => setNewFAQ({...newFAQ, answer: e.target.value})} 
+                      className={cn(inputClasses, "min-h-[120px]")} 
+                      placeholder="Explica tu metodología aquí..."
+                      required 
+                    />
+                  </div>
+                  <NeonButton type="submit" className="w-full">
+                    {editingFAQ ? "Actualizar Pregunta" : "Añadir Pregunta"}
+                  </NeonButton>
+                </form>
+              </GlassCard>
+              <div className="space-y-4">
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndFAQs}>
+                  <SortableContext items={faqs.map(f => f.id)} strategy={verticalListSortingStrategy}>
+                    {faqs.map((f) => (
+                      <SortableFAQItem 
+                        key={f.id} 
+                        faq={f} 
+                        onEdit={startEditFAQ} 
+                        onDelete={handleDeleteFAQ} 
+                      />
                     ))}
                   </SortableContext>
                 </DndContext>
