@@ -52,7 +52,7 @@ export const Projects = () => {
                 "px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 border",
                 filter === cat 
                   ? "bg-primary text-white border-primary shadow-[0_0_15px_rgba(139,92,246,0.5)]" 
-                  : "bg-white/5 border-white/10 text-muted-foreground hover:border-primary/50"
+                  : "bg-white/5 border-white/10 dark:border-white/10 border-foreground/10 text-muted-foreground hover:border-primary/50"
               )}
             >
               {cat}
@@ -107,7 +107,7 @@ export const Projects = () => {
                       {project.tags?.map((tag: string) => (
                         <span 
                           key={tag} 
-                          className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-muted-foreground"
+                          className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-md bg-foreground/5 dark:bg-white/5 border border-foreground/10 dark:border-white/10 text-muted-foreground"
                         >
                           {tag}
                         </span>
