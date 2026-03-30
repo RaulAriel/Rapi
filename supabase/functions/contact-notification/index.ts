@@ -9,6 +9,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-contact-secret',
 }
 
+// Simple HTML escaping function to prevent injection
+const escapeHtml = (unsafe: string) => {
+  if (!unsafe) return "";
+  return unsafe
+    .toString()
+    .replace(/&/g, "&")
+    .replace(/</g, "<")
+    .replace(/>/g, ">")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -38,6 +50,13 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       })
     }
+
+    // Escape all user inputs before using them in HTML
+    const safeName = escapeHtml(record.full_name);
+    const safeEmail = escapeHtml(record.email);
+    const safeSubject = escapeHtml(record.subject);
+    const safeMessage = escapeHtml(record.message);
+    const safePhone = escapeHtml(record.phone_number || 'No proporcionado');
 
     // --- Phone Normalization Logic ---
     let cleanPhone = record.phone_number?.replace(/\s/g, '') || '';
@@ -79,13 +98,13 @@ serve(async (req) => {
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <h1 style="color: #6366f1;">Nuevo mensaje de contacto</h1>
-            <p><strong>De:</strong> ${record.full_name}</p>
-            <p><strong>Email:</strong> ${record.email}</p>
-            <p><strong>Teléfono:</strong> ${record.phone_number || 'No proporcionado'}</p>
-            <p><strong>Asunto:</strong> ${record.subject}</p>
+            <p><strong>De:</strong> ${safeName}</p>
+            <p><strong>Email:</strong> ${safeEmail}</p>
+            <p><strong>Teléfono:</strong> ${safePhone}</p>
+            <p><strong>Asunto:</strong> ${safeSubject}</p>
             <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
               <p><strong>Mensaje:</strong></p>
-              <p>${record.message}</p>
+              <p style="white-space: pre-wrap;">${safeMessage}</p>
             </div>
             
             ${record.phone_number ? `
