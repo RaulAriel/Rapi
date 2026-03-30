@@ -14,6 +14,9 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// El correo autorizado para administrar el sitio
+const ADMIN_EMAIL = "raularieldiaz@gmail.com";
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -33,7 +36,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (loading) return null;
   
-  if (!session) {
+  // Verificamos que haya sesión Y que el correo coincida con el admin
+  if (!session || session.user.email !== ADMIN_EMAIL) {
+    if (session) {
+        // Si el usuario está logueado pero no es el admin, cerramos su sesión por seguridad
+        supabase.auth.signOut();
+    }
     return <Navigate to="/login" replace />;
   }
 
