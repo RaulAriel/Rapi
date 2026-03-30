@@ -18,18 +18,21 @@ export const Logo = ({ className, size = "md", showNeon = false }: LogoProps) =>
   };
 
   return (
-    <div
+    <div 
       className={cn(
         "w-fit h-fit rounded-[10px] flex items-center justify-center transition-all duration-300",
         showNeon && "neon-border-violet",
         className
       )}
-    >
-      <img
+    > 
+   
+        <img
         src={logoSrc}
         alt="Raúl Ariel Logo"
         className={cn("object-contain block", sizeClasses[size])}
-      />
+        />
+    
+      
     </div>
   );
 };

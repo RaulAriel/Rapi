@@ -44,7 +44,7 @@ export const Navbar = () => {
               : "bg-transparent border-transparent"
           )}
         >
-          <Link to="/" className="flex items-center gap-2 group">
+          <Link to="/#hero" className="flex items-center gap-2 group">
             <Logo 
               size="md" 
               className="group-hover:neon-border-violet" 
