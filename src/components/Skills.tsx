@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { supabase } from "@/integrations/supabase/client";
+import { ADMIN_ID } from "@/lib/constants";
 import { 
   FileJson, 
   Layout, 
@@ -29,14 +30,13 @@ export const Skills = () => {
 
   useEffect(() => {
     const fetchSkills = async () => {
-      // Ordenamos por order_index para respetar la selección del admin
       const { data, error } = await supabase
         .from('skills')
         .select('*')
+        .eq('user_id', ADMIN_ID) // Only fetch skills belonging to the admin
         .order('order_index', { ascending: true });
 
       if (data) {
-        // Mantenemos el orden al agrupar
         const categoriesOrder: string[] = [];
         const grouped = data.reduce((acc: any, skill: any) => {
           const cat = skill.category;
@@ -51,7 +51,6 @@ export const Skills = () => {
           return acc;
         }, {});
         
-        // Renderizamos las categorías en el orden en que aparecieron sus habilidades ordenadas
         setSkillCategories(categoriesOrder.map(cat => grouped[cat]));
       }
     };

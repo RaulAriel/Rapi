@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/use-language";
+import { ADMIN_ID } from "@/lib/constants";
 
 export const Projects = () => {
   const [filter, setFilter] = useState("Todos");
@@ -22,6 +23,7 @@ export const Projects = () => {
       const { data, error } = await supabase
         .from('projects')
         .select('*')
+        .eq('user_id', ADMIN_ID) // Only fetch projects belonging to the admin
         .order('order_index', { ascending: true });
 
       if (data) {
