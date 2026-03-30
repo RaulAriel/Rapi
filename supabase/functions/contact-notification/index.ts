@@ -1,21 +1,35 @@
+// @ts-nocheck
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+const CONTACT_NOTIFICATION_SECRET = Deno.env.get('CONTACT_NOTIFICATION_SECRET')
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-contact-secret',
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
+    // Security check: Verify the custom secret header
+    const receivedSecret = req.headers.get('x-contact-secret')
+    
+    if (!CONTACT_NOTIFICATION_SECRET || receivedSecret !== CONTACT_NOTIFICATION_SECRET) {
+      console.error("[contact-notification] Unauthorized access attempt. Secret mismatch or missing.")
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+        status: 401, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      })
+    }
+
     const { record } = await req.json()
     
-    console.log(`[contact-notification] New message from ${record.full_name} (${record.email})`)
+    console.log(`[contact-notification] Authorized message processing for: ${record.email}`)
 
     if (!RESEND_API_KEY) {
       console.warn("[contact-notification] RESEND_API_KEY is not set. Email won't be sent.")
@@ -28,10 +42,7 @@ serve(async (req) => {
     // --- Phone Normalization Logic ---
     let cleanPhone = record.phone_number?.replace(/\s/g, '') || '';
     
-    // Check if it starts with + or 00
     if (!cleanPhone.startsWith('+') && !cleanPhone.startsWith('00')) {
-      // If it's a 9-digit number, assume it's Spanish and add 34
-      // We also check if it's just numbers to be safe
       const digitsOnly = cleanPhone.replace(/\D/g, '');
       if (digitsOnly.length === 9) {
         cleanPhone = '34' + digitsOnly;
@@ -39,7 +50,6 @@ serve(async (req) => {
         cleanPhone = digitsOnly;
       }
     } else {
-      // Just keep digits if it already had a prefix
       cleanPhone = cleanPhone.replace(/\D/g, '');
     }
 
@@ -65,7 +75,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: 'Rapi Websites <onboarding@resend.dev>',
         to: ['raularieldiaz@gmail.com'],
-        subject: `nuevo mensaje de rapi-web-contact- ${record.subject}`,
+        subject: `Nuevo mensaje de contacto: ${record.subject}`,
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <h1 style="color: #6366f1;">Nuevo mensaje de contacto</h1>
@@ -97,8 +107,6 @@ serve(async (req) => {
     })
 
     const data = await res.json()
-    console.log("[contact-notification] Resend response:", data)
-
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
