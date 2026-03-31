@@ -30,6 +30,7 @@ const contactFormSchema = z.object({
   phone_number: z.string().min(9, "El teléfono debe tener al menos 9 dígitos"),
   subject: z.string().min(5, "El asunto debe tener al menos 5 caracteres"),
   message: z.string().min(10, "El mensaje debe tener al menos 10 caracteres"),
+  website: z.string().optional(), // Honeypot field
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
@@ -45,11 +46,22 @@ export const Contact = () => {
       phone_number: "",
       subject: "",
       message: "",
+      website: "",
     },
   });
 
   const onSubmit = async (values: ContactFormValues) => {
     setIsSubmitting(true);
+    
+    // Client-side honeypot check (though redundant with server check)
+    if (values.website) {
+      console.log("Bot detected");
+      showSuccess("¡Mensaje enviado con éxito!"); // Fake success to confuse bots
+      form.reset();
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from("contact_messages")
@@ -60,6 +72,7 @@ export const Contact = () => {
             phone_number: values.phone_number,
             subject: values.subject,
             message: values.message,
+            website: values.website, // Send honeypot value to server
           },
         ]);
 
@@ -81,7 +94,6 @@ export const Contact = () => {
     { icon: <Instagram />, href: "https://www.instagram.com/raul_ariel_diaz/", label: "Instagram" }
   ];
 
-  // Helper class for inputs
   const inputClasses = "bg-background/50 border-primary/30 focus:border-primary focus:ring-primary/20 transition-all duration-300";
 
   return (
@@ -172,6 +184,21 @@ export const Contact = () => {
             <GlassCard className="p-8">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  {/* Honeypot field: invisible to users, attractive to bots */}
+                  <div className="hidden" aria-hidden="true">
+                    <FormField
+                      control={form.control}
+                      name="website"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input tabIndex={-1} autoComplete="off" {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
                   <div className="grid sm:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
