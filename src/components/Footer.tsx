@@ -19,10 +19,10 @@ export const Footer = () => {
           </Link>
 
           <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-            <a href="#hero" className="hover:text-primary transition-colors">Inicio</a>
-            <a href="#about" className="hover:text-primary transition-colors">Sobre Mí</a>
-            <a href="#projects" className="hover:text-primary transition-colors">Proyectos</a>
-            <a href="#contact" className="hover:text-primary transition-colors">Contacto</a>
+            <Link to="/#hero" className="hover:text-primary transition-colors">Inicio</Link>
+            <Link to="/#about" className="hover:text-primary transition-colors">Sobre Mí</Link>
+            <Link to="/#projects" className="hover:text-primary transition-colors">Proyectos</Link>
+            <Link to="/#contact" className="hover:text-primary transition-colors">Contacto</Link>
           </div>
 
           <div className="text-sm text-muted-foreground flex items-center gap-2">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,8 @@ const navLinks = [
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,6 +29,35 @@ export const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Revisar si venimos de otra página y tenemos que hacer scroll a una sección (ej. /#about)
+  useEffect(() => {
+    if (location.pathname === "/" && location.hash) {
+      setTimeout(() => {
+        const element = document.querySelector(location.hash);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  }, [location.pathname, location.hash]);
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
+    e.preventDefault();
+    
+    if (location.pathname !== "/") {
+      // Si no estamos en la home (ej. en /admin), navegamos a la home con el ancla
+      navigate(`/${hash}`);
+    } else {
+      // Si ya estamos en la home, hacemos scroll suave directamente
+      const element = document.querySelector(hash);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+        window.history.pushState(null, "", `/${hash}`);
+      }
+    }
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <nav
@@ -44,7 +75,17 @@ export const Navbar = () => {
               : "bg-transparent border-transparent"
           )}
         >
-          <Link to="/#hero" className="flex items-center gap-2 group">
+          <Link 
+            to="/" 
+            className="flex items-center gap-2 group"
+            onClick={(e) => {
+              if(location.pathname === "/") {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.history.pushState(null, "", "/");
+              }
+            }}
+          >
             <Logo 
               size="md" 
               className="group-hover:neon-border-violet" 
@@ -60,6 +101,7 @@ export const Navbar = () => {
               <a
                 key={link.name}
                 href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
                 className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group"
               >
                 {link.name}
@@ -96,7 +138,7 @@ export const Navbar = () => {
                 <a
                   key={link.name}
                   href={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={(e) => handleNavClick(e, link.href)}
                   className="text-lg font-medium py-2 border-b border-white/5 last:border-0"
                 >
                   {link.name}
