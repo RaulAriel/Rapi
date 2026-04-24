@@ -22,7 +22,8 @@ export const Testimonials = () => {
       if (error) {
         console.error("Error cargando testimonios:", error);
       } else if (data) {
-        setTestimonials(data);
+        const visibleData = data.filter((t: any) => !t.is_hidden);
+        setTestimonials(visibleData);
       }
       setLoading(false);
     };

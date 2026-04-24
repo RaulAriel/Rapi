@@ -4,7 +4,7 @@ import React from "react";
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GlassCard } from "./GlassCard";
-import { GripVertical, Edit3, Trash2, HelpCircle } from "lucide-react";
+import { GripVertical, Edit3, Trash2, HelpCircle, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SortableFAQItemProps {
@@ -49,7 +49,10 @@ export const SortableFAQItem = ({ faq, onEdit, onDelete }: SortableFAQItemProps)
         </div>
 
         <div className="flex-1 min-w-0">
-          <h4 className="font-bold text-sm truncate">{faq.question}</h4>
+          <h4 className="font-bold text-sm truncate flex items-center gap-2">
+            {faq.question}
+            {faq.is_hidden && <span title="Oculto en la web" className="flex"><EyeOff className="w-3 h-3 text-destructive" /></span>}
+          </h4>
           <p className="text-[10px] text-muted-foreground line-clamp-1">{faq.answer}</p>
         </div>
 

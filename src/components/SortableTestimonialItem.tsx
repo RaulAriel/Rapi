@@ -4,7 +4,7 @@ import React from "react";
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GlassCard } from "./GlassCard";
-import { GripVertical, Edit3, Trash2, Star } from "lucide-react";
+import { GripVertical, Edit3, Trash2, Star, EyeOff } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { cn } from "@/lib/utils";
 
@@ -51,7 +51,10 @@ export const SortableTestimonialItem = ({ testimonial, onEdit, onDelete }: Sorta
         </Avatar>
 
         <div className="flex-1 min-w-0">
-          <h4 className="font-bold text-sm truncate">{testimonial.name}</h4>
+          <h4 className="font-bold text-sm truncate flex items-center gap-2">
+            {testimonial.name}
+            {testimonial.is_hidden && <span title="Oculto en la web" className="flex"><EyeOff className="w-3 h-3 text-destructive" /></span>}
+          </h4>
           <div className="flex gap-0.5">
             {[...Array(testimonial.rating)].map((_, i) => (
               <Star key={i} className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />

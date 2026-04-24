@@ -4,7 +4,7 @@ import React from "react";
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GlassCard } from "./GlassCard";
-import { GripVertical, Edit3, Trash2 } from "lucide-react";
+import { GripVertical, Edit3, Trash2, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SortableProjectItemProps {
@@ -45,7 +45,10 @@ export const SortableProjectItem = ({ project, onEdit, onDelete }: SortableProje
         </button>
         
         <div className="flex-1 min-w-0">
-          <h4 className="font-bold text-sm truncate">{project.title}</h4>
+          <h4 className="font-bold text-sm truncate flex items-center gap-2">
+            {project.title}
+            {project.is_hidden && <span title="Oculto en la web" className="flex"><EyeOff className="w-3 h-3 text-destructive" /></span>}
+          </h4>
           <p className="text-[10px] text-muted-foreground uppercase">{project.category}</p>
         </div>
 

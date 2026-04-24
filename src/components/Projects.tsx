@@ -19,7 +19,6 @@ export const Projects = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      // Eliminamos el filtro de user_id para que se carguen todos los proyectos de la tabla
       const { data, error } = await supabase
         .from('projects')
         .select('*')
@@ -31,8 +30,9 @@ export const Projects = () => {
       }
 
       if (data) {
-        setProjects(data);
-        const cats = ["Todos", ...new Set(data.map((p: any) => p.category))];
+        const visibleData = data.filter((p: any) => !p.is_hidden);
+        setProjects(visibleData);
+        const cats = ["Todos", ...new Set(visibleData.map((p: any) => p.category))];
         setCategories(cats);
       }
     };

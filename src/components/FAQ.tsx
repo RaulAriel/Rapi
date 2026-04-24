@@ -27,7 +27,8 @@ export const FAQ = () => {
       if (error) {
         console.error("Error cargando FAQs:", error);
       } else if (data) {
-        setFaqs(data);
+        const visibleData = data.filter((f: any) => !f.is_hidden);
+        setFaqs(visibleData);
       }
       setLoading(false);
     };

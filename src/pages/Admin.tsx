@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { 
   Plus, 
   Code, 
@@ -80,7 +81,8 @@ const Admin = () => {
     tags: "",
     link_demo: "",
     link_repo: "",
-    image_url: ""
+    image_url: "",
+    is_hidden: false
   });
 
   // Testimonial states
@@ -90,14 +92,16 @@ const Admin = () => {
     role: "",
     rating: 5,
     image_url: "",
-    text: ""
+    text: "",
+    is_hidden: false
   });
 
   // FAQ states
   const [editingFAQ, setEditingFAQ] = useState<any>(null);
   const [newFAQ, setNewFAQ] = useState({
     question: "",
-    answer: ""
+    answer: "",
+    is_hidden: false
   });
 
   useEffect(() => {
@@ -208,6 +212,7 @@ const Admin = () => {
         tags: project.tags,
         link_demo: project.link_demo,
         link_repo: project.link_repo,
+        is_hidden: project.is_hidden,
         order_index: index, 
         user_id: user.id 
       }));
@@ -230,6 +235,7 @@ const Admin = () => {
         rating: t.rating,
         image_url: t.image_url,
         text: t.text,
+        is_hidden: t.is_hidden,
         order_index: index, 
         user_id: user.id 
       }));
@@ -249,6 +255,7 @@ const Admin = () => {
         id: faq.id,
         question: faq.question,
         answer: faq.answer,
+        is_hidden: faq.is_hidden,
         order_index: index, 
         user_id: user.id 
       }));
@@ -290,7 +297,7 @@ const Admin = () => {
 
   const resetProjectForm = () => {
     setEditingProject(null);
-    setNewProject({ title: "", category: "", description: "", tags: "", link_demo: "", link_repo: "", image_url: "" });
+    setNewProject({ title: "", category: "", description: "", tags: "", link_demo: "", link_repo: "", image_url: "", is_hidden: false });
   };
 
   // Testimonials Handlers
@@ -315,7 +322,7 @@ const Admin = () => {
 
   const resetTestimonialForm = () => {
     setEditingTestimonial(null);
-    setNewTestimonial({ name: "", role: "", rating: 5, image_url: "", text: "" });
+    setNewTestimonial({ name: "", role: "", rating: 5, image_url: "", text: "", is_hidden: false });
   };
 
   // FAQ Handlers
@@ -340,17 +347,17 @@ const Admin = () => {
 
   const resetFAQForm = () => {
     setEditingFAQ(null);
-    setNewFAQ({ question: "", answer: "" });
+    setNewFAQ({ question: "", answer: "", is_hidden: false });
   };
 
   const startEditTestimonial = (t: any) => {
     setEditingTestimonial(t);
-    setNewTestimonial({ name: t.name, role: t.role, rating: t.rating, image_url: t.image_url || "", text: t.text });
+    setNewTestimonial({ name: t.name, role: t.role, rating: t.rating, image_url: t.image_url || "", text: t.text, is_hidden: t.is_hidden || false });
   };
 
   const startEditFAQ = (f: any) => {
     setEditingFAQ(f);
-    setNewFAQ({ question: f.question, answer: f.answer });
+    setNewFAQ({ question: f.question, answer: f.answer, is_hidden: f.is_hidden || false });
   };
 
   const handleDeleteTestimonial = async (id: string) => {
@@ -440,6 +447,15 @@ const Admin = () => {
                     <div className="space-y-2"><Label>Repositorio</Label><Input value={newProject.link_repo} onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} className={inputClasses} placeholder="https://github.com/..." /></div>
                   </div>
                   <div className="space-y-2"><Label>Descripción</Label><Textarea value={newProject.description} onChange={(e) => setNewProject({...newProject, description: e.target.value})} className={inputClasses} /></div>
+                  
+                  <div className="flex items-center justify-between p-4 rounded-xl border border-primary/20 bg-background/50">
+                    <div className="space-y-0.5">
+                      <Label>Ocultar Proyecto</Label>
+                      <p className="text-[10px] text-muted-foreground">El proyecto no será visible en la web pública.</p>
+                    </div>
+                    <Switch checked={newProject.is_hidden} onCheckedChange={(c) => setNewProject({...newProject, is_hidden: c})} />
+                  </div>
+
                   <NeonButton type="submit" className="w-full" disabled={isUploadingProject}>{editingProject ? "Actualizar Proyecto" : "Crear Proyecto"}</NeonButton>
                 </form>
               </GlassCard>
@@ -450,7 +466,7 @@ const Admin = () => {
                       <SortableProjectItem 
                         key={p.id} 
                         project={p} 
-                        onEdit={(p) => { setEditingProject(p); setNewProject({ ...p, tags: p.tags?.join('; ') || "" }); }} 
+                        onEdit={(p) => { setEditingProject(p); setNewProject({ ...p, tags: p.tags?.join('; ') || "", is_hidden: p.is_hidden || false }); }} 
                         onDelete={handleDeleteProject} 
                       />
                     ))}
@@ -504,6 +520,15 @@ const Admin = () => {
                   </div>
 
                   <div className="space-y-2"><Label>Testimonio</Label><Textarea value={newTestimonial.text} onChange={(e) => setNewTestimonial({...newTestimonial, text: e.target.value})} className={cn(inputClasses, "min-h-[120px]")} required /></div>
+                  
+                  <div className="flex items-center justify-between p-4 rounded-xl border border-primary/20 bg-background/50">
+                    <div className="space-y-0.5">
+                      <Label>Ocultar Testimonio</Label>
+                      <p className="text-[10px] text-muted-foreground">No se mostrará en la sección pública.</p>
+                    </div>
+                    <Switch checked={newTestimonial.is_hidden} onCheckedChange={(c) => setNewTestimonial({...newTestimonial, is_hidden: c})} />
+                  </div>
+
                   <NeonButton type="submit" className="w-full" disabled={isUploading}>{editingTestimonial ? "Actualizar" : "Crear"}</NeonButton>
                 </form>
               </GlassCard>
@@ -547,6 +572,15 @@ const Admin = () => {
                       required 
                     />
                   </div>
+
+                  <div className="flex items-center justify-between p-4 rounded-xl border border-primary/20 bg-background/50">
+                    <div className="space-y-0.5">
+                      <Label>Ocultar Pregunta</Label>
+                      <p className="text-[10px] text-muted-foreground">La pregunta no aparecerá en el listado.</p>
+                    </div>
+                    <Switch checked={newFAQ.is_hidden} onCheckedChange={(c) => setNewFAQ({...newFAQ, is_hidden: c})} />
+                  </div>
+
                   <NeonButton type="submit" className="w-full">
                     {editingFAQ ? "Actualizar Pregunta" : "Añadir Pregunta"}
                   </NeonButton>
