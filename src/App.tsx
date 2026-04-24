@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/hooks/use-language";
 import { Analytics } from "@vercel/analytics/react";
+import { ADMIN_ID } from "@/lib/constants";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
@@ -23,6 +24,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
+      
+      if (session) {
+        console.log("Tu ID de usuario actual es:", session.user.id);
+        console.log("El ADMIN_ID configurado es:", ADMIN_ID);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -34,8 +40,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (loading) return null;
   
-  // Ahora solo verificamos que haya una sesión activa
-  if (!session) {
+  // Verificamos que haya sesión Y que el ID coincida con el ADMIN_ID
+  if (!session || session.user.id !== ADMIN_ID) {
+    if (session) console.error("Acceso denegado: El ID no coincide con el administrador.");
     return <Navigate to="/login" replace />;
   }
 
