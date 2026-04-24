@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { GlassCard } from "./GlassCard";
 import { supabase } from "@/integrations/supabase/client";
-import { ADMIN_ID } from "@/lib/constants";
 import { 
   FileJson, 
   Layout, 
@@ -30,11 +29,16 @@ export const Skills = () => {
 
   useEffect(() => {
     const fetchSkills = async () => {
+      // Cargamos todas las habilidades sin filtrar por ID
       const { data, error } = await supabase
         .from('skills')
         .select('*')
-        .eq('user_id', ADMIN_ID) // Only fetch skills belonging to the admin
         .order('order_index', { ascending: true });
+
+      if (error) {
+        console.error("Error cargando habilidades:", error);
+        return;
+      }
 
       if (data) {
         const categoriesOrder: string[] = [];

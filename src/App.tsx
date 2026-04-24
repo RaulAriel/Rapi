@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/hooks/use-language";
-import { ADMIN_ID } from "@/lib/constants";
 import { Analytics } from "@vercel/analytics/react";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
@@ -35,12 +34,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (loading) return null;
   
-  // Verify that the logged-in user matches the hardcoded Admin ID
-  if (!session || session.user.id !== ADMIN_ID) {
-    if (session) {
-        // If an unauthorized user is logged in, sign them out for security
-        supabase.auth.signOut();
-    }
+  // Ahora solo verificamos que haya una sesión activa
+  if (!session) {
     return <Navigate to="/login" replace />;
   }
 
