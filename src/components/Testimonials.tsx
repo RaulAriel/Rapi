@@ -7,7 +7,6 @@ import { GlassCard } from "./GlassCard";
 import { Quote, Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import { ADMIN_ID } from "@/lib/constants";
 
 export const Testimonials = () => {
   const [testimonials, setTestimonials] = useState<any[]>([]);
@@ -18,10 +17,13 @@ export const Testimonials = () => {
       const { data, error } = await supabase
         .from('testimonials')
         .select('*')
-        .eq('user_id', ADMIN_ID) // Only fetch testimonials belonging to the admin
         .order('order_index', { ascending: true });
 
-      if (data) setTestimonials(data);
+      if (error) {
+        console.error("Error cargando testimonios:", error);
+      } else if (data) {
+        setTestimonials(data);
+      }
       setLoading(false);
     };
 

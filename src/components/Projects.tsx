@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/use-language";
-import { ADMIN_ID } from "@/lib/constants";
 
 export const Projects = () => {
   const [filter, setFilter] = useState("Todos");
@@ -20,11 +19,16 @@ export const Projects = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
+      // Eliminamos el filtro de user_id para que se carguen todos los proyectos de la tabla
       const { data, error } = await supabase
         .from('projects')
         .select('*')
-        .eq('user_id', ADMIN_ID) // Only fetch projects belonging to the admin
         .order('order_index', { ascending: true });
+
+      if (error) {
+        console.error("Error cargando proyectos:", error);
+        return;
+      }
 
       if (data) {
         setProjects(data);

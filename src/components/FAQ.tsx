@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { useLanguage } from "@/hooks/use-language";
 import { supabase } from "@/integrations/supabase/client";
-import { ADMIN_ID } from "@/lib/constants";
 import {
   Accordion,
   AccordionContent,
@@ -23,10 +22,11 @@ export const FAQ = () => {
       const { data, error } = await supabase
         .from('faqs')
         .select('*')
-        .eq('user_id', ADMIN_ID) // Only fetch FAQs belonging to the admin
         .order('order_index', { ascending: true });
 
-      if (data) {
+      if (error) {
+        console.error("Error cargando FAQs:", error);
+      } else if (data) {
         setFaqs(data);
       }
       setLoading(false);
