@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { GlassCard } from "@/components/GlassCard";
 import { NeonButton } from "@/components/NeonButton";
@@ -46,11 +46,17 @@ const Login = () => {
       
       <GlassCard className="w-full max-w-md p-8 relative z-10" hoverGlow={false}>
         <div className="flex flex-col items-center mb-8">
-          <div className="mb-4">
-            <Logo size="xl" showNeon />
-          </div>
-          <h1 className="text-2xl font-black tracking-tighter">SISTEMA DE <span className="text-primary">ACCESO</span></h1>
-          <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] mt-2">Nivel de Seguridad: Alpha</p>
+          
+          {/* Logo interactivo para volver a la Home */}
+          <Link to="/" className="flex items-center gap-3 mb-6 group transition-transform hover:scale-105" title="Volver al inicio">
+            <Logo size="lg" className="group-hover:neon-border-violet transition-all" showNeon />
+            <span className="text-3xl font-black tracking-tighter">
+              RAÚL<span className="text-primary">ARIEL</span>
+            </span>
+          </Link>
+
+          <h1 className="text-xl font-black tracking-tighter">SISTEMA DE <span className="text-primary">ACCESO</span></h1>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] mt-2">Nivel de Seguridad: Alpha</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
