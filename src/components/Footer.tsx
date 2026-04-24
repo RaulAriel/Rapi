@@ -26,7 +26,15 @@ export const Footer = () => {
           </div>
 
           <div className="text-sm text-muted-foreground flex items-center gap-2">
-            © {currentYear} — Hecho con <Heart className="w-3 h-3 text-red-500 fill-red-500" /> por Raúl Ariel
+            © {currentYear} — Hecho con <Heart className="w-3 h-3 text-red-500 fill-red-500" /> por{" "}
+            <a 
+              href="https://www.linkedin.com/in/ra%C3%BAl-ariel-gazapo-diaz-74b94b98/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors font-bold"
+            >
+              Raúl Ariel
+            </a>
           </div>
         </div>
         
