@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/hooks/use-language";
 import { ADMIN_ID } from "@/lib/constants";
+import { Analytics } from "@vercel/analytics/react";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
@@ -73,6 +74,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
+          <Analytics />
         </TooltipProvider>
       </LanguageProvider>
     </ThemeProvider>
