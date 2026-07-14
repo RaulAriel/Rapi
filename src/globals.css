@@ -77,7 +77,7 @@
     @apply border-border selection:bg-primary/30 selection:text-primary-foreground;
   }
 
-  /* Beautiful smooth transitions for theme change fallback */
+  /* Hermosas transiciones para cuando cambie de tema sin View Transitions */
   body, 
   header, 
   footer, 
@@ -112,13 +112,13 @@
   }
 }
 
-/* Temporarily disable standard transitions on all elements during active theme changes to prevent jumps */
+/* Evitamos que las transiciones de CSS interrumpan la expansión del círculo */
 .theme-transitioning *,
 .theme-transitioning {
   transition: none !important;
 }
 
-/* Modern circular transition wave setup */
+/* Configuración de View Transitions */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none !important;
@@ -131,6 +131,20 @@
 
 ::view-transition-new(root) {
   z-index: 9999;
+}
+
+/* Animación de Degradado en Movimiento */
+@keyframes gradient-x {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 6s ease infinite;
 }
 
 @layer utilities {
