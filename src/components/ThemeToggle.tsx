@@ -75,14 +75,48 @@ export const ThemeToggle = () => {
 
   if (!mounted) return null;
 
-  const toggleTheme = () => {
-    if (theme === "system") {
-      setTheme("light");
-    } else if (theme === "light") {
-      setTheme("dark");
-    } else {
-      setTheme("system");
+  const toggleTheme = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const nextTheme = theme === "system" ? "light" : theme === "light" ? "dark" : "system";
+    
+    // Check if the View Transitions API is supported
+    const isTransitionable = 
+      typeof document !== "undefined" && 
+      "startViewTransition" in document &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!isTransitionable) {
+      setTheme(nextTheme);
+      return;
     }
+
+    const x = event.clientX;
+    const y = event.clientY;
+    
+    // Compute screen boundaries to find max radius needed to fully cover the screen
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    const transition = (document as any).startViewTransition(() => {
+      setTheme(nextTheme);
+    });
+
+    transition.ready.then(() => {
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`
+          ]
+        },
+        {
+          duration: 650,
+          easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+          pseudoElement: "::view-transition-new(root)"
+        }
+      );
+    });
   };
 
   return (
@@ -91,7 +125,7 @@ export const ThemeToggle = () => {
       whileTap={{ scale: 0.95 }}
       onClick={toggleTheme}
       className="p-2 rounded-xl glass border-primary/20 text-primary hover:neon-border-violet transition-all flex items-center gap-2 h-10 w-10 lg:w-24 justify-center shrink-0"
-      aria-label="Cambiar tema"
+      aria-label="Change Theme"
     >
       <div className="flex-shrink-0">
         {theme === "system" ? (
