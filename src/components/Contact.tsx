@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/hooks/use-language";
 import {
   Form,
   FormControl,
@@ -25,11 +26,11 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 
 const contactFormSchema = z.object({
-  full_name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
-  email: z.string().email("Correo electrónico inválido"),
-  phone_number: z.string().min(9, "El teléfono debe tener al menos 9 dígitos"),
-  subject: z.string().min(5, "El asunto debe tener al menos 5 caracteres"),
-  message: z.string().min(10, "El mensaje debe tener al menos 10 caracteres"),
+  full_name: z.string().min(2, "El nombre debe tener al menos 2 caracteres / Name must be at least 2 chars"),
+  email: z.string().email("Correo electrónico inválido / Invalid email"),
+  phone_number: z.string().min(9, "El teléfono debe tener al menos 9 dígitos / Phone must be at least 9 digits"),
+  subject: z.string().min(5, "El asunto debe tener al menos 5 caracteres / Subject must be at least 5 chars"),
+  message: z.string().min(10, "El mensaje debe tener al menos 10 caracteres / Message must be at least 10 chars"),
   website: z.string().optional(), // Honeypot field
 });
 
@@ -37,6 +38,7 @@ type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 export const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useLanguage();
 
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
@@ -53,10 +55,10 @@ export const Contact = () => {
   const onSubmit = async (values: ContactFormValues) => {
     setIsSubmitting(true);
     
-    // Client-side honeypot check (though redundant with server check)
+    // Client-side honeypot check
     if (values.website) {
       console.log("Bot detected");
-      showSuccess("¡Mensaje enviado con éxito!"); // Fake success to confuse bots
+      showSuccess("¡Mensaje enviado con éxito!"); // Fake success
       form.reset();
       setIsSubmitting(false);
       return;
@@ -72,17 +74,17 @@ export const Contact = () => {
             phone_number: values.phone_number,
             subject: values.subject,
             message: values.message,
-            website: values.website, // Send honeypot value to server
+            website: values.website,
           },
         ]);
 
       if (error) throw error;
 
-      showSuccess("¡Mensaje enviado con éxito! Me pondré en contacto pronto.");
+      showSuccess(t("contact.send") === "Enviar Mensaje" ? "¡Mensaje enviado con éxito! Me pondré en contacto pronto." : "Message sent successfully! I will get in touch soon.");
       form.reset();
     } catch (error: any) {
       console.error("Error sending message:", error);
-      showError("Hubo un error al enviar el mensaje. Por favor, inténtalo de nuevo.");
+      showError(t("contact.send") === "Enviar Mensaje" ? "Hubo un error al enviar el mensaje." : "There was an error sending the message.");
     } finally {
       setIsSubmitting(false);
     }
@@ -102,8 +104,8 @@ export const Contact = () => {
 
       <div className="container px-4 md:px-6">
         <SectionHeading 
-          title="Contacto" 
-          subtitle="¿Listo para iniciar tu próxima misión digital? Envíame un mensaje."
+          title={t("contact.title")} 
+          subtitle={t("contact.subtitle")}
         />
 
         <div className="grid lg:grid-cols-5 gap-12">
@@ -114,7 +116,7 @@ export const Contact = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <h3 className="text-2xl font-bold mb-6">Información de Enlace</h3>
+              <h3 className="text-2xl font-bold mb-6">{t("contact.info")}</h3>
               <div className="space-y-6">
                 <a 
                   href="mailto:raularieldiaz@gmail.com" 
@@ -149,8 +151,8 @@ export const Contact = () => {
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-widest">Ubicación</p>
-                    <p className="font-bold">Barcelona, España</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">{t("contact.send") === "Enviar Mensaje" ? "Ubicación" : "Location"}</p>
+                    <p className="font-bold">{t("contact.send") === "Enviar Mensaje" ? "Barcelona, España" : "Barcelona, Spain"}</p>
                   </div>
                 </div>
               </div>
@@ -162,7 +164,7 @@ export const Contact = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <h3 className="text-2xl font-bold mb-6">Redes Sociales</h3>
+              <h3 className="text-2xl font-bold mb-6">{t("contact.social")}</h3>
               <div className="flex gap-4">
                 {socials.map((social, index) => (
                   <a
@@ -184,7 +186,7 @@ export const Contact = () => {
             <GlassCard className="p-8">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  {/* Honeypot field: invisible to users, attractive to bots */}
+                  {/* Honeypot field */}
                   <div className="hidden" aria-hidden="true">
                     <FormField
                       control={form.control}
@@ -205,10 +207,10 @@ export const Contact = () => {
                       name="full_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs uppercase tracking-widest font-mono">Nombre Completo</FormLabel>
+                          <FormLabel className="text-xs uppercase tracking-widest font-mono">{t("contact.name")}</FormLabel>
                           <FormControl>
                             <Input 
-                              placeholder="Tu nombre" 
+                              placeholder={t("contact.send") === "Enviar Mensaje" ? "Tu nombre" : "Your name"} 
                               className={inputClasses}
                               {...field} 
                             />
@@ -222,7 +224,7 @@ export const Contact = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs uppercase tracking-widest font-mono">Correo Electrónico</FormLabel>
+                          <FormLabel className="text-xs uppercase tracking-widest font-mono">{t("contact.email")}</FormLabel>
                           <FormControl>
                             <Input 
                               type="email" 
@@ -242,7 +244,7 @@ export const Contact = () => {
                       name="phone_number"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs uppercase tracking-widest font-mono">Teléfono / WhatsApp</FormLabel>
+                          <FormLabel className="text-xs uppercase tracking-widest font-mono">{t("contact.phone")}</FormLabel>
                           <FormControl>
                             <Input 
                               placeholder="+34 600 000 000" 
@@ -259,10 +261,10 @@ export const Contact = () => {
                       name="subject"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs uppercase tracking-widest font-mono">Asunto</FormLabel>
+                          <FormLabel className="text-xs uppercase tracking-widest font-mono">{t("contact.subject")}</FormLabel>
                           <FormControl>
                             <Input 
-                              placeholder="Propuesta de Proyecto" 
+                              placeholder={t("contact.send") === "Enviar Mensaje" ? "Propuesta de Proyecto" : "Project Proposal"} 
                               className={inputClasses}
                               {...field} 
                             />
@@ -277,10 +279,10 @@ export const Contact = () => {
                     name="message"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs uppercase tracking-widest font-mono">Mensaje</FormLabel>
+                        <FormLabel className="text-xs uppercase tracking-widest font-mono">{t("contact.message")}</FormLabel>
                         <FormControl>
                           <Textarea 
-                            placeholder="Cuéntame sobre tu visión..." 
+                            placeholder={t("contact.send") === "Enviar Mensaje" ? "Cuéntame sobre tu visión..." : "Tell me about your vision..."} 
                             className={cn(inputClasses, "min-h-[150px]")}
                             {...field} 
                           />
@@ -296,11 +298,11 @@ export const Contact = () => {
                   >
                     {isSubmitting ? (
                       <>
-                        Enviando... <Loader2 className="w-5 h-5 animate-spin" />
+                        {t("contact.sending")} <Loader2 className="w-5 h-5 animate-spin" />
                       </>
                     ) : (
                       <>
-                        Enviar Mensaje <Send className="w-5 h-5" />
+                        {t("contact.send")} <Send className="w-5 h-5" />
                       </>
                     )}
                   </NeonButton>

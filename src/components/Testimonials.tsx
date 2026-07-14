@@ -7,10 +7,12 @@ import { GlassCard } from "./GlassCard";
 import { Quote, Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/hooks/use-language";
 
 export const Testimonials = () => {
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchTestimonials = async () => {
@@ -37,8 +39,8 @@ export const Testimonials = () => {
     <section id="testimonials" className="py-24 bg-background/50 relative overflow-hidden">
       <div className="container px-4 md:px-6">
         <SectionHeading 
-          title="Casos de Éxito" 
-          subtitle="Lo que dicen mis clientes sobre la transformación de su presencia digital."
+          title={t("testimonials.title")} 
+          subtitle={t("testimonials.subtitle")}
         />
 
         <div className="grid lg:grid-cols-3 gap-8 max-w-[1400px] mx-auto">

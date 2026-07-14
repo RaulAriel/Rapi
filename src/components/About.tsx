@@ -4,23 +4,26 @@ import { motion } from "framer-motion";
 import { GlassCard } from "./GlassCard";
 import { SectionHeading } from "./SectionHeading";
 import { User, Code, Palette, Zap } from "lucide-react";
+import { useLanguage } from "@/hooks/use-language";
 
 export const About = () => {
+  const { t } = useLanguage();
+
   const highlights = [
     {
       icon: <Palette className="w-6 h-6 text-primary" />,
-      title: "Diseño UX/UI",
-      description: "Interfaces intuitivas y visualmente impactantes enfocadas en la conversión."
+      title: t("services.s1.title"),
+      description: t("services.s1.desc")
     },
     {
       icon: <Code className="w-6 h-6 text-secondary" />,
-      title: "Desarrollo Moderno",
-      description: "Código limpio y eficiente utilizando las últimas tecnologías web."
+      title: t("services.s2.title"),
+      description: t("services.s2.desc")
     },
     {
       icon: <Zap className="w-6 h-6 text-yellow-400" />,
-      title: "Rendimiento",
-      description: "Optimización al detalle para tiempos de carga ultrarrápidos."
+      title: t("process.step4.title"),
+      description: t("process.step4.desc")
     }
   ];
 
@@ -28,8 +31,8 @@ export const About = () => {
     <section id="about" className="py-24 relative overflow-hidden">
       <div className="container px-4 md:px-6">
         <SectionHeading 
-          title="Sobre Mí" 
-          subtitle="Fusionando creatividad y tecnología para dar vida a visiones digitales audaces."
+          title={t("about.title")} 
+          subtitle={t("about.subtitle")}
         />
 
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -62,7 +65,7 @@ export const About = () => {
               {/* Stats Badge */}
               <div className="absolute -bottom-6 -right-6 p-6 glass rounded-2xl border border-primary/30 hidden md:block shadow-[0_0_20px_rgba(139,92,246,0.3)]">
                 <p className="text-3xl font-black text-primary">+5 Años</p>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">Experiencia</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("about.exp")}</p>
               </div>
             </div>
           </motion.div>
@@ -75,16 +78,13 @@ export const About = () => {
               transition={{ duration: 0.5 }}
             >
               <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                <User className="text-primary w-6 h-6" /> Biografía Profesional
+                <User className="text-primary w-6 h-6" /> {t("about.bio")}
               </h3>
               <p className="text-muted-foreground leading-relaxed">
-                Soy un apasionado de la intersección entre el arte digital y la ingeniería de software. 
-                Mi enfoque se basa en romper los moldes tradicionales para crear experiencias web 
-                que no solo funcionen a la perfección, sino que también cuenten una historia visual.
+                {t("about.p1")}
               </p>
               <p className="text-muted-foreground mt-4 leading-relaxed">
-                Desde el diseño de marca hasta el despliegue en la nube, manejo cada etapa del proceso 
-                con una mentalidad obsesionada con el detalle y la excelencia técnica.
+                {t("about.p2")}
               </p>
             </motion.div>
 
