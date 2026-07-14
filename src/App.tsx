@@ -55,7 +55,6 @@ const App = () => (
       attribute="class" 
       defaultTheme="system" 
       enableSystem={true}
-      disableTransitionOnChange
     >
       <LanguageProvider>
         <TooltipProvider>
