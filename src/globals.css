@@ -112,11 +112,17 @@
   }
 }
 
+/* Temporarily disable standard transitions on all elements during active theme changes to prevent jumps */
+.theme-transitioning *,
+.theme-transitioning {
+  transition: none !important;
+}
+
 /* Modern circular transition wave setup */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
+  animation: none !important;
+  mix-blend-mode: normal !important;
 }
 
 ::view-transition-old(root) {

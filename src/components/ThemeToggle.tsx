@@ -98,6 +98,9 @@ export const ThemeToggle = () => {
       Math.max(y, window.innerHeight - y)
     );
 
+    // Disable traditional animations globally before running the view transition
+    document.documentElement.classList.add("theme-transitioning");
+
     const transition = (document as any).startViewTransition(() => {
       setTheme(nextTheme);
     });
@@ -116,6 +119,11 @@ export const ThemeToggle = () => {
           pseudoElement: "::view-transition-new(root)"
         }
       );
+    });
+
+    // Re-enable traditional CSS animations once the circular wave completes
+    transition.finished.then(() => {
+      document.documentElement.classList.remove("theme-transitioning");
     });
   };
 
