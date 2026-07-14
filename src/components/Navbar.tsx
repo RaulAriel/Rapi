@@ -9,11 +9,11 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Logo } from "./Logo";
 
 const navLinks = [
-  { name: "Inicio", href: "#hero" },
-  { name: "Sobre Mí", href: "#about" },
-  { name: "Servicios", href: "#services" },
-  { name: "Proyectos", href: "#projects" },
-  { name: "Contacto", href: "#contact" },
+  { name: "Home", href: "#hero" },
+  { name: "About Me", href: "#about" },
+  { name: "Services", href: "#services" },
+  { name: "Projects", href: "#projects" },
+  { name: "Contact", href: "#contact" },
 ];
 
 export const Navbar = () => {
@@ -30,7 +30,7 @@ export const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Revisar si venimos de otra página y tenemos que hacer scroll a una sección (ej. /#about)
+  // Check if we came from another page to scroll smoothly to a section
   useEffect(() => {
     if (location.pathname === "/" && location.hash) {
       setTimeout(() => {
@@ -46,10 +46,8 @@ export const Navbar = () => {
     e.preventDefault();
     
     if (location.pathname !== "/") {
-      // Si no estamos en la home (ej. en /admin), navegamos a la home con el ancla
       navigate(`/${hash}`);
     } else {
-      // Si ya estamos en la home, hacemos scroll suave directamente
       const element = document.querySelector(hash);
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });

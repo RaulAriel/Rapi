@@ -29,10 +29,10 @@ const Login = () => {
 
       if (error) throw error;
 
-      showSuccess("Acceso concedido. Entrando al sistema...");
+      showSuccess("Access granted. Entering system...");
       navigate("/admin");
     } catch (error: any) {
-      showError(error.message || "Error de autenticación");
+      showError(error.message || "Authentication error");
     } finally {
       setLoading(false);
     }
@@ -47,22 +47,22 @@ const Login = () => {
       <GlassCard className="w-full max-w-md p-8 relative z-10" hoverGlow={false}>
         <div className="flex flex-col items-center mb-8">
           
-          {/* Logo interactivo para volver a la Home */}
-          <Link to="/" className="flex items-center gap-3 mb-6 group transition-transform hover:scale-105" title="Volver al inicio">
+          {/* Back to Home Interactive Logo */}
+          <Link to="/" className="flex items-center gap-3 mb-6 group transition-transform hover:scale-105" title="Go back to Home">
             <Logo size="lg" className="group-hover:neon-border-violet transition-all" showNeon />
             <span className="text-3xl font-black tracking-tighter">
               RAÚL<span className="text-primary">ARIEL</span>
             </span>
           </Link>
 
-          <h1 className="text-xl font-black tracking-tighter">SISTEMA DE <span className="text-primary">ACCESO</span></h1>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] mt-2">Nivel de Seguridad: Alpha</p>
+          <h1 className="text-xl font-black tracking-tighter">SYSTEM <span className="text-primary">ACCESS</span></h1>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] mt-2 font-mono">Security Level: Alpha</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-[10px] uppercase tracking-widest font-mono flex items-center gap-2">
-              <User className="w-3 h-3 text-primary" /> Identificador (Email)
+              <User className="w-3 h-3 text-primary" /> Identifier (Email)
             </Label>
             <Input 
               id="email" 
@@ -77,7 +77,7 @@ const Login = () => {
 
           <div className="space-y-2">
             <Label htmlFor="password" className="text-[10px] uppercase tracking-widest font-mono flex items-center gap-2">
-              <Lock className="w-3 h-3 text-primary" /> Clave de Encriptación
+              <Lock className="w-3 h-3 text-primary" /> Encryption Key
             </Label>
             <Input 
               id="password" 
@@ -95,13 +95,13 @@ const Login = () => {
             className="w-full h-12 text-lg" 
             disabled={loading}
           >
-            {loading ? "VERIFICANDO..." : "INICIAR SESIÓN"}
+            {loading ? "VERIFYING..." : "LOG IN"}
           </NeonButton>
         </form>
 
         <div className="mt-8 pt-6 border-t border-white/5 text-center">
           <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">
-            Acceso restringido solo a personal autorizado
+            Restricted access — authorized personnel only
           </p>
         </div>
       </GlassCard>

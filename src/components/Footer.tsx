@@ -19,14 +19,14 @@ export const Footer = () => {
           </Link>
 
           <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-            <Link to="/#hero" className="hover:text-primary transition-colors">Inicio</Link>
-            <Link to="/#about" className="hover:text-primary transition-colors">Sobre Mí</Link>
-            <Link to="/#projects" className="hover:text-primary transition-colors">Proyectos</Link>
-            <Link to="/#contact" className="hover:text-primary transition-colors">Contacto</Link>
+            <Link to="/#hero" className="hover:text-primary transition-colors">Home</Link>
+            <Link to="/#about" className="hover:text-primary transition-colors">About Me</Link>
+            <Link to="/#projects" className="hover:text-primary transition-colors">Projects</Link>
+            <Link to="/#contact" className="hover:text-primary transition-colors">Contact</Link>
           </div>
 
           <div className="text-sm text-muted-foreground flex items-center gap-2">
-            © {currentYear} — Hecho con <Heart className="w-3 h-3 text-red-500 fill-red-500" /> por{" "}
+            © {currentYear} — Made with <Heart className="w-3 h-3 text-red-500 fill-red-500" /> by{" "}
             <a 
               href="https://www.linkedin.com/in/ra%C3%BAl-ariel-gazapo-diaz-74b94b98/" 
               target="_blank" 
@@ -39,7 +39,7 @@ export const Footer = () => {
         </div>
         
         <div className="mt-12 text-center text-[10px] text-muted-foreground/30 font-mono uppercase tracking-[0.5em]">
-          Construyendo el futuro una línea de código a la vez
+          Building the future one line of code at a time
         </div>
       </div>
     </footer>

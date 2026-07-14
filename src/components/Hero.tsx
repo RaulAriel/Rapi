@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
 import { NeonButton } from "./NeonButton";
 import { ChevronRight, Sparkles } from "lucide-react";
+import { useLanguage } from "@/hooks/use-language";
 
 export const Hero = () => {
+  const { t } = useLanguage();
+
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
       {/* Background elements */}
@@ -20,7 +23,7 @@ export const Hero = () => {
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass border border-primary/30 text-primary text-sm font-medium mb-6"
         >
           <Sparkles className="w-4 h-4" />
-          <span>Diseñador & Desarrollador</span>
+          <span>{t("hero.badge")}</span>
         </motion.div>
 
         <motion.h1
@@ -29,9 +32,9 @@ export const Hero = () => {
           transition={{ duration: 0.7, delay: 0.1 }}
           className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-6"
         >
-          CONSTRUYENDO EL <br />
+          {t("hero.title1")} <br />
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] animate-gradient-x">
-            FUTURO DIGITAL
+            {t("hero.title2")}
           </span>
         </motion.h1>
 
@@ -41,8 +44,7 @@ export const Hero = () => {
           transition={{ duration: 0.7, delay: 0.2 }}
           className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto mb-10 leading-relaxed"
         >
-          Transformo tus ideas en experiencias digitales de alto impacto que impulsan tu negocio. 
-          Especializado en diseño moderno, desarrollo web escalable y soluciones centradas en resultados para llevar tu marca al siguiente nivel.
+          {t("hero.desc")}
         </motion.p>
 
         <motion.div
@@ -53,12 +55,12 @@ export const Hero = () => {
         >
           <a href="#projects">
             <NeonButton size="lg" className="px-8 h-14 text-lg">
-              Ver Proyectos <ChevronRight className="w-5 h-5" />
+              {t("hero.cta1")} <ChevronRight className="w-5 h-5" />
             </NeonButton>
           </a>
           <a href="#contact">
             <NeonButton size="lg" variant="outline" glowColor="blue" className="px-8 h-14 text-lg">
-              Contactar
+              {t("hero.cta2")}
             </NeonButton>
           </a>
         </motion.div>

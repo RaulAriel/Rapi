@@ -130,7 +130,7 @@ const Admin = () => {
       if (testimonialsRes.data) setTestimonials(testimonialsRes.data);
       if (faqsRes.data) setFaqs(faqsRes.data);
     } catch (err) {
-      console.error("Error crítico en fetchData:", err);
+      console.error("Critical error inside fetchData:", err);
     } finally {
       setLoading(false);
     }
@@ -139,11 +139,11 @@ const Admin = () => {
   const validateAndUpload = async (file: File, bucket: string) => {
     const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      throw new Error("Formato no permitido. Solo se permiten archivos PNG, JPEG o WEBP.");
+      throw new Error("Format not permitted. Only PNG, JPEG, or WEBP are allowed.");
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      throw new Error("El archivo es demasiado grande (Máx 5MB)");
+      throw new Error("File is too large (Max 5MB)");
     }
 
     const fileExt = file.name.split('.').pop();
@@ -156,7 +156,7 @@ const Admin = () => {
 
     if (uploadError) {
       console.error("Upload error details:", uploadError);
-      throw new Error(`Error al subir imagen.`);
+      throw new Error(`Error uploading image.`);
     }
 
     const { data: { publicUrl } } = supabase.storage
@@ -173,7 +173,7 @@ const Admin = () => {
     try {
       const url = await validateAndUpload(file, 'projects');
       setNewProject(prev => ({ ...prev, image_url: url }));
-      showSuccess("Imagen del proyecto subida");
+      showSuccess("Project image uploaded successfully");
     } catch (error: any) {
       showError(error.message);
     } finally {
@@ -188,7 +188,7 @@ const Admin = () => {
     try {
       const url = await validateAndUpload(file, 'testimonials');
       setNewTestimonial(prev => ({ ...prev, image_url: url }));
-      showSuccess("Foto de cliente subida");
+      showSuccess("Client photo uploaded successfully");
     } catch (error: any) {
       showError(error.message);
     } finally {
@@ -217,7 +217,7 @@ const Admin = () => {
         user_id: user.id 
       }));
       await supabase.from('projects').upsert(updates);
-      showSuccess("Orden de proyectos actualizado");
+      showSuccess("Projects order updated");
     }
   };
 
@@ -240,7 +240,7 @@ const Admin = () => {
         user_id: user.id 
       }));
       await supabase.from('testimonials').upsert(updates);
-      showSuccess("Orden de testimonios actualizado");
+      showSuccess("Testimonials order updated");
     }
   };
 
@@ -260,7 +260,7 @@ const Admin = () => {
         user_id: user.id 
       }));
       await supabase.from('faqs').upsert(updates);
-      showSuccess("Orden de FAQs actualizado");
+      showSuccess("FAQ order updated");
     }
   };
 
@@ -277,20 +277,20 @@ const Admin = () => {
     if (editingProject) {
       const { error } = await supabase.from('projects').update({ ...newProject, tags: tagsArray }).eq('id', editingProject.id);
       if (!error) {
-        showSuccess("Proyecto actualizado");
+        showSuccess("Project updated");
         setProjects(projects.map(p => p.id === editingProject.id ? { ...p, ...newProject, tags: tagsArray } : p));
         resetProjectForm();
       } else {
-        showError("Error al actualizar proyecto");
+        showError("Error updating project");
       }
     } else {
       const { data, error } = await supabase.from('projects').insert([{ ...newProject, tags: tagsArray, user_id: user.id, order_index: projects.length }]).select();
       if (!error && data) {
-        showSuccess("Proyecto creado");
+        showSuccess("Project created");
         setProjects([...projects, data[0]]);
         resetProjectForm();
       } else {
-        showError("Error al crear proyecto");
+        showError("Error creating project");
       }
     }
   };
@@ -306,14 +306,14 @@ const Admin = () => {
     if (editingTestimonial) {
       const { error } = await supabase.from('testimonials').update(newTestimonial).eq('id', editingTestimonial.id);
       if (!error) {
-        showSuccess("Testimonio actualizado");
+        showSuccess("Testimonial updated");
         setTestimonials(testimonials.map(t => t.id === editingTestimonial.id ? { ...t, ...newTestimonial } : t));
         resetTestimonialForm();
       }
     } else {
       const { data, error } = await supabase.from('testimonials').insert([{ ...newTestimonial, user_id: user.id, order_index: testimonials.length }]).select();
       if (!error && data) {
-        showSuccess("Testimonio creado");
+        showSuccess("Testimonial created");
         setTestimonials([...testimonials, data[0]]);
         resetTestimonialForm();
       }
@@ -331,14 +331,14 @@ const Admin = () => {
     if (editingFAQ) {
       const { error } = await supabase.from('faqs').update(newFAQ).eq('id', editingFAQ.id);
       if (!error) {
-        showSuccess("Pregunta actualizada");
+        showSuccess("Question updated");
         setFaqs(faqs.map(f => f.id === editingFAQ.id ? { ...f, ...newFAQ } : f));
         resetFAQForm();
       }
     } else {
       const { data, error } = await supabase.from('faqs').insert([{ ...newFAQ, user_id: user.id, order_index: faqs.length }]).select();
       if (!error && data) {
-        showSuccess("Pregunta creada");
+        showSuccess("Question created");
         setFaqs([...faqs, data[0]]);
         resetFAQForm();
       }
@@ -364,7 +364,7 @@ const Admin = () => {
     const { error } = await supabase.from('testimonials').delete().eq('id', id);
     if (!error) {
       setTestimonials(testimonials.filter(t => t.id !== id));
-      showSuccess("Testimonio eliminado");
+      showSuccess("Testimonial deleted");
     }
   };
 
@@ -372,7 +372,7 @@ const Admin = () => {
     const { error } = await supabase.from('projects').delete().eq('id', id);
     if (!error) {
       setProjects(projects.filter(p => p.id !== id));
-      showSuccess("Proyecto eliminado");
+      showSuccess("Project deleted");
     }
   };
 
@@ -380,7 +380,7 @@ const Admin = () => {
     const { error } = await supabase.from('faqs').delete().eq('id', id);
     if (!error) {
       setFaqs(faqs.filter(f => f.id !== id));
-      showSuccess("Pregunta eliminada");
+      showSuccess("Question deleted");
     }
   };
 
@@ -391,14 +391,14 @@ const Admin = () => {
       <Navbar />
       <main className="pt-32 pb-24 container px-4 md:px-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
-          <SectionHeading title="SISTEMA DE CONTROL" subtitle="Modifica la infraestructura de tu presencia digital." align="left" className="mb-0" />
-          <NeonButton variant="outline" glowColor="blue" onClick={handleLogout}><LogOut className="w-4 h-4 mr-2" /> Desconectar</NeonButton>
+          <SectionHeading title="CONTROL PANEL" subtitle="Modify the layout and items of your digital presence." align="left" className="mb-0" />
+          <NeonButton variant="outline" glowColor="blue" onClick={handleLogout}><LogOut className="w-4 h-4 mr-2" /> Log Out</NeonButton>
         </div>
 
         <Tabs defaultValue="projects" className="space-y-8">
           <TabsList className="glass border-white/5 p-1 h-auto flex-wrap justify-start gap-2">
-            <TabsTrigger value="projects" className="px-6 py-3 rounded-xl transition-all"><Briefcase className="w-4 h-4 mr-2" /> Proyectos</TabsTrigger>
-            <TabsTrigger value="testimonials" className="px-6 py-3 rounded-xl transition-all"><MessageSquare className="w-4 h-4 mr-2" /> Testimonios</TabsTrigger>
+            <TabsTrigger value="projects" className="px-6 py-3 rounded-xl transition-all"><Briefcase className="w-4 h-4 mr-2" /> Projects</TabsTrigger>
+            <TabsTrigger value="testimonials" className="px-6 py-3 rounded-xl transition-all"><MessageSquare className="w-4 h-4 mr-2" /> Testimonials</TabsTrigger>
             <TabsTrigger value="faqs" className="px-6 py-3 rounded-xl transition-all"><HelpCircle className="w-4 h-4 mr-2" /> FAQ</TabsTrigger>
           </TabsList>
 
@@ -406,18 +406,18 @@ const Admin = () => {
             <div className="grid lg:grid-cols-3 gap-8">
               <GlassCard className="lg:col-span-2 p-8 h-fit">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold">{editingProject ? "Editar Proyecto" : "Nuevo Proyecto"}</h3>
-                  {editingProject && <button onClick={resetProjectForm} className="text-muted-foreground hover:text-white flex items-center gap-1 text-sm"><X className="w-4 h-4" /> Cancelar</button>}
+                  <h3 className="text-xl font-bold">{editingProject ? "Edit Project" : "New Project"}</h3>
+                  {editingProject && <button onClick={resetProjectForm} className="text-muted-foreground hover:text-white flex items-center gap-1 text-sm"><X className="w-4 h-4" /> Cancel</button>}
                 </div>
                 <form onSubmit={handleProjectSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2"><Label>Título</Label><Input value={newProject.title} onChange={(e) => setNewProject({...newProject, title: e.target.value})} className={inputClasses} required /></div>
-                    <div className="space-y-2"><Label>Categoría</Label><Input value={newProject.category} onChange={(e) => setNewProject({...newProject, category: e.target.value})} className={inputClasses} required /></div>
+                    <div className="space-y-2"><Label>Title</Label><Input value={newProject.title} onChange={(e) => setNewProject({...newProject, title: e.target.value})} className={inputClasses} required /></div>
+                    <div className="space-y-2"><Label>Category</Label><Input value={newProject.category} onChange={(e) => setNewProject({...newProject, category: e.target.value})} className={inputClasses} required /></div>
                   </div>
                   
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-4">
-                      <Label>Imagen del Proyecto</Label>
+                      <Label>Project Image</Label>
                       <div className="flex items-center gap-4">
                         <div className="relative w-24 h-16 rounded-lg glass border border-primary/30 overflow-hidden flex items-center justify-center">
                           {newProject.image_url ? (
@@ -439,24 +439,24 @@ const Admin = () => {
                         />
                       </div>
                     </div>
-                    <div className="space-y-2"><Label>Tags (;)</Label><Input value={newProject.tags} onChange={(e) => setNewProject({...newProject, tags: e.target.value})} className={inputClasses} placeholder="React; Tailwild; Supabase" /></div>
+                    <div className="space-y-2"><Label>Tags (;)</Label><Input value={newProject.tags} onChange={(e) => setNewProject({...newProject, tags: e.target.value})} className={inputClasses} placeholder="React; Tailwind; Supabase" /></div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2"><Label>Enlace Externo</Label><Input value={newProject.link_demo} onChange={(e) => setNewProject({...newProject, link_demo: e.target.value})} className={inputClasses} placeholder="https://..." /></div>
-                    <div className="space-y-2"><Label>Repositorio</Label><Input value={newProject.link_repo} onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} className={inputClasses} placeholder="https://github.com/..." /></div>
+                    <div className="space-y-2"><Label>Demo Link</Label><Input value={newProject.link_demo} onChange={(e) => setNewProject({...newProject, link_demo: e.target.value})} className={inputClasses} placeholder="https://..." /></div>
+                    <div className="space-y-2"><Label>Repository Link</Label><Input value={newProject.link_repo} onChange={(e) => setNewProject({...newProject, link_repo: e.target.value})} className={inputClasses} placeholder="https://github.com/..." /></div>
                   </div>
-                  <div className="space-y-2"><Label>Descripción</Label><Textarea value={newProject.description} onChange={(e) => setNewProject({...newProject, description: e.target.value})} className={inputClasses} /></div>
+                  <div className="space-y-2"><Label>Description</Label><Textarea value={newProject.description} onChange={(e) => setNewProject({...newProject, description: e.target.value})} className={inputClasses} /></div>
                   
                   <div className="flex items-center justify-between p-4 rounded-xl border border-primary/20 bg-background/50">
                     <div className="space-y-0.5">
-                      <Label>Ocultar Proyecto</Label>
-                      <p className="text-[10px] text-muted-foreground">El proyecto no será visible en la web pública.</p>
+                      <Label>Hide Project</Label>
+                      <p className="text-[10px] text-muted-foreground">The project won't be visible in the public portfolio.</p>
                     </div>
                     <Switch checked={newProject.is_hidden} onCheckedChange={(c) => setNewProject({...newProject, is_hidden: c})} />
                   </div>
 
-                  <NeonButton type="submit" className="w-full" disabled={isUploadingProject}>{editingProject ? "Actualizar Proyecto" : "Crear Proyecto"}</NeonButton>
+                  <NeonButton type="submit" className="w-full" disabled={isUploadingProject}>{editingProject ? "Update Project" : "Create Project"}</NeonButton>
                 </form>
               </GlassCard>
               <div className="space-y-4">
@@ -480,18 +480,18 @@ const Admin = () => {
             <div className="grid lg:grid-cols-3 gap-8">
               <GlassCard className="lg:col-span-2 p-8 h-fit">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold">{editingTestimonial ? "Editar Testimonio" : "Nuevo Testimonio"}</h3>
-                  {editingTestimonial && <button onClick={resetTestimonialForm} className="text-muted-foreground hover:text-white flex items-center gap-1 text-sm"><X className="w-4 h-4" /> Cancelar</button>}
+                  <h3 className="text-xl font-bold">{editingTestimonial ? "Edit Testimonial" : "New Testimonial"}</h3>
+                  {editingTestimonial && <button onClick={resetTestimonialForm} className="text-muted-foreground hover:text-white flex items-center gap-1 text-sm"><X className="w-4 h-4" /> Cancel</button>}
                 </div>
                 <form onSubmit={handleTestimonialSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2"><Label>Nombre</Label><Input value={newTestimonial.name} onChange={(e) => setNewTestimonial({...newTestimonial, name: e.target.value})} className={inputClasses} required /></div>
-                    <div className="space-y-2"><Label>Rol / Empresa</Label><Input value={newTestimonial.role} onChange={(e) => setNewTestimonial({...newTestimonial, role: e.target.value})} className={inputClasses} required /></div>
+                    <div className="space-y-2"><Label>Name</Label><Input value={newTestimonial.name} onChange={(e) => setNewTestimonial({...newTestimonial, name: e.target.value})} className={inputClasses} required /></div>
+                    <div className="space-y-2"><Label>Role / Company</Label><Input value={newTestimonial.role} onChange={(e) => setNewTestimonial({...newTestimonial, role: e.target.value})} className={inputClasses} required /></div>
                   </div>
                   
                   <div className="grid md:grid-cols-2 gap-6 items-start">
                     <div className="space-y-4">
-                      <Label>Foto de Perfil</Label>
+                      <Label>Profile Picture</Label>
                       <div className="flex items-center gap-4">
                         <div className="relative w-20 h-20 rounded-full glass border border-primary/30 overflow-hidden flex items-center justify-center">
                           {newTestimonial.image_url ? (
@@ -514,22 +514,22 @@ const Admin = () => {
                       </div>
                     </div>
                     <div className="space-y-4">
-                      <div className="flex justify-between"><Label>Valoración</Label><span className="text-primary font-bold">{newTestimonial.rating} Estrellas</span></div>
+                      <div className="flex justify-between"><Label>Rating</Label><span className="text-primary font-bold">{newTestimonial.rating} Stars</span></div>
                       <Slider value={[newTestimonial.rating]} max={5} min={1} step={1} onValueChange={(v) => setNewTestimonial({...newTestimonial, rating: v[0]})} />
                     </div>
                   </div>
 
-                  <div className="space-y-2"><Label>Testimonio</Label><Textarea value={newTestimonial.text} onChange={(e) => setNewTestimonial({...newTestimonial, text: e.target.value})} className={cn(inputClasses, "min-h-[120px]")} required /></div>
+                  <div className="space-y-2"><Label>Testimonial Content</Label><Textarea value={newTestimonial.text} onChange={(e) => setNewTestimonial({...newTestimonial, text: e.target.value})} className={cn(inputClasses, "min-h-[120px]")} required /></div>
                   
                   <div className="flex items-center justify-between p-4 rounded-xl border border-primary/20 bg-background/50">
                     <div className="space-y-0.5">
-                      <Label>Ocultar Testimonio</Label>
-                      <p className="text-[10px] text-muted-foreground">No se mostrará en la sección pública.</p>
+                      <Label>Hide Testimonial</Label>
+                      <p className="text-[10px] text-muted-foreground">This won't be visible in the public testimonials section.</p>
                     </div>
                     <Switch checked={newTestimonial.is_hidden} onCheckedChange={(c) => setNewTestimonial({...newTestimonial, is_hidden: c})} />
                   </div>
 
-                  <NeonButton type="submit" className="w-full" disabled={isUploading}>{editingTestimonial ? "Actualizar" : "Crear"}</NeonButton>
+                  <NeonButton type="submit" className="w-full" disabled={isUploading}>{editingTestimonial ? "Update" : "Create"}</NeonButton>
                 </form>
               </GlassCard>
               <div className="space-y-4">
@@ -548,41 +548,41 @@ const Admin = () => {
             <div className="grid lg:grid-cols-3 gap-8">
               <GlassCard className="lg:col-span-2 p-8 h-fit">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold">{editingFAQ ? "Editar Pregunta" : "Nueva Pregunta"}</h3>
-                  {editingFAQ && <button onClick={resetFAQForm} className="text-muted-foreground hover:text-white flex items-center gap-1 text-sm"><X className="w-4 h-4" /> Cancelar</button>}
+                  <h3 className="text-xl font-bold">{editingFAQ ? "Edit Question" : "New Question"}</h3>
+                  {editingFAQ && <button onClick={resetFAQForm} className="text-muted-foreground hover:text-white flex items-center gap-1 text-sm"><X className="w-4 h-4" /> Cancel</button>}
                 </div>
                 <form onSubmit={handleFAQSubmit} className="space-y-6">
                   <div className="space-y-2">
-                    <Label>Pregunta</Label>
+                    <Label>Question</Label>
                     <Input 
                       value={newFAQ.question} 
                       onChange={(e) => setNewFAQ({...newFAQ, question: e.target.value})} 
                       className={inputClasses} 
-                      placeholder="¿Cómo trabajas?"
+                      placeholder="e.g., How long does it take?"
                       required 
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Respuesta</Label>
+                    <Label>Answer</Label>
                     <Textarea 
                       value={newFAQ.answer} 
                       onChange={(e) => setNewFAQ({...newFAQ, answer: e.target.value})} 
                       className={cn(inputClasses, "min-h-[120px]")} 
-                      placeholder="Explica tu metodología aquí..."
+                      placeholder="Explain the process clearly here..."
                       required 
                     />
                   </div>
 
                   <div className="flex items-center justify-between p-4 rounded-xl border border-primary/20 bg-background/50">
                     <div className="space-y-0.5">
-                      <Label>Ocultar Pregunta</Label>
-                      <p className="text-[10px] text-muted-foreground">La pregunta no aparecerá en el listado.</p>
+                      <Label>Hide FAQ</Label>
+                      <p className="text-[10px] text-muted-foreground">The question will be temporarily hidden from public list.</p>
                     </div>
                     <Switch checked={newFAQ.is_hidden} onCheckedChange={(c) => setNewFAQ({...newFAQ, is_hidden: c})} />
                   </div>
 
                   <NeonButton type="submit" className="w-full">
-                    {editingFAQ ? "Actualizar Pregunta" : "Añadir Pregunta"}
+                    {editingFAQ ? "Update Question" : "Add Question"}
                   </NeonButton>
                 </form>
               </GlassCard>
