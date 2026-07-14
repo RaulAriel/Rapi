@@ -4,26 +4,23 @@ import { motion } from "framer-motion";
 import { GlassCard } from "./GlassCard";
 import { SectionHeading } from "./SectionHeading";
 import { User, Code, Palette, Zap } from "lucide-react";
-import { useLanguage } from "@/hooks/use-language";
 
 export const About = () => {
-  const { t } = useLanguage();
-
   const highlights = [
     {
       icon: <Palette className="w-6 h-6 text-primary" />,
-      title: t("services.s1.title"),
-      description: t("services.s1.desc")
+      title: "Diseño UX/UI",
+      description: "Interfaces intuitivas y visualmente impactantes enfocadas en la conversión."
     },
     {
       icon: <Code className="w-6 h-6 text-secondary" />,
-      title: t("services.s2.title"),
-      description: t("services.s2.desc")
+      title: "Desarrollo Moderno",
+      description: "Código limpio y eficiente utilizando las últimas tecnologías web."
     },
     {
       icon: <Zap className="w-6 h-6 text-yellow-400" />,
-      title: t("services.s6.title"),
-      description: t("services.s6.desc")
+      title: "Rendimiento",
+      description: "Optimización al detalle para tiempos de carga ultrarrápidos."
     }
   ];
 
@@ -31,8 +28,8 @@ export const About = () => {
     <section id="about" className="py-24 relative overflow-hidden">
       <div className="container px-4 md:px-6">
         <SectionHeading 
-          title={t("about.title")} 
-          subtitle={t("about.subtitle")}
+          title="Sobre Mí" 
+          subtitle="Fusionando creatividad y tecnología para dar vida a visiones digitales audaces."
         />
 
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -43,22 +40,29 @@ export const About = () => {
             transition={{ duration: 0.6 }}
           >
             <div className="relative group">
+              {/* Animated Glow behind image */}
               <div className="absolute -inset-1 bg-gradient-to-r from-primary via-secondary to-primary rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200 animate-gradient-x" />
               
               <div className="relative rounded-2xl overflow-hidden aspect-[4/5] bg-muted border border-white/10 shadow-2xl">
+                {/* Image with Cyberpunk Filters */}
                 <img 
                   src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800&h=1000" 
                   alt="Raúl Ariel" 
                   className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105 saturate-[1.2] brightness-[0.9] hue-rotate-[-10deg]"
                 />
+                
+                {/* Cyberpunk Overlays */}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-primary/10 to-transparent mix-blend-overlay" />
                 <div className="absolute inset-0 bg-gradient-to-tr from-secondary/20 via-transparent to-primary/20 pointer-events-none" />
+                
+                {/* Scanline Effect */}
                 <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
               </div>
 
+              {/* Stats Badge */}
               <div className="absolute -bottom-6 -right-6 p-6 glass rounded-2xl border border-primary/30 hidden md:block shadow-[0_0_20px_rgba(139,92,246,0.3)]">
                 <p className="text-3xl font-black text-primary">+5 Años</p>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("about.exp")}</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">Experiencia</p>
               </div>
             </div>
           </motion.div>
@@ -71,13 +75,16 @@ export const About = () => {
               transition={{ duration: 0.5 }}
             >
               <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                <User className="text-primary w-6 h-6" /> {t("about.bio")}
+                <User className="text-primary w-6 h-6" /> Biografía Profesional
               </h3>
               <p className="text-muted-foreground leading-relaxed">
-                {t("about.p1")}
+                Soy un apasionado de la intersección entre el arte digital y la ingeniería de software. 
+                Mi enfoque se basa en romper los moldes tradicionales para crear experiencias web 
+                que no solo funcionen a la perfección, sino que también cuenten una historia visual.
               </p>
               <p className="text-muted-foreground mt-4 leading-relaxed">
-                {t("about.p2")}
+                Desde el diseño de marca hasta el despliegue en la nube, manejo cada etapa del proceso 
+                con una mentalidad obsesionada con el detalle y la excelencia técnica.
               </p>
             </motion.div>
 

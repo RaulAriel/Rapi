@@ -6,24 +6,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
-import { LanguageToggle } from "./LanguageToggle";
 import { Logo } from "./Logo";
-import { useLanguage } from "@/hooks/use-language";
+
+const navLinks = [
+  { name: "Inicio", href: "#hero" },
+  { name: "Sobre Mí", href: "#about" },
+  { name: "Servicios", href: "#services" },
+  { name: "Proyectos", href: "#projects" },
+  { name: "Contacto", href: "#contact" },
+];
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
-
-  const navLinks = [
-    { name: t("nav.home"), href: "#hero" },
-    { name: t("nav.about"), href: "#about" },
-    { name: t("nav.services"), href: "#services" },
-    { name: t("nav.projects"), href: "#projects" },
-    { name: t("nav.contact"), href: "#contact" },
-  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,6 +30,7 @@ export const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Revisar si venimos de otra página y tenemos que hacer scroll a una sección (ej. /#about)
   useEffect(() => {
     if (location.pathname === "/" && location.hash) {
       setTimeout(() => {
@@ -48,8 +46,10 @@ export const Navbar = () => {
     e.preventDefault();
     
     if (location.pathname !== "/") {
+      // Si no estamos en la home (ej. en /admin), navegamos a la home con el ancla
       navigate(`/${hash}`);
     } else {
+      // Si ya estamos en la home, hacemos scroll suave directamente
       const element = document.querySelector(hash);
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
@@ -96,7 +96,7 @@ export const Navbar = () => {
           </Link>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-4 lg:gap-6">
+          <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <a
                 key={link.name}
@@ -108,22 +108,17 @@ export const Navbar = () => {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
               </a>
             ))}
-            <div className="flex items-center gap-2 border-l border-white/10 pl-4 lg:pl-6">
-              <LanguageToggle />
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
           </div>
 
           {/* Mobile Actions */}
-          <div className="flex items-center gap-2 md:hidden">
-            <LanguageToggle />
+          <div className="flex items-center gap-4 md:hidden">
             <ThemeToggle />
             <button
               className="p-2 text-foreground"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileMenuOpen ? <X /> : <Menu />}
             </button>
           </div>
         </div>
