@@ -3,41 +3,37 @@
 import { motion } from "framer-motion";
 import { SectionHeading } from "./SectionHeading";
 import { Search, PenTool, Code, Zap } from "lucide-react";
-import { useLanguage } from "@/hooks/use-language";
 
-const getSteps = (t: (key: string) => string) => [
+const steps = [
   {
     icon: <Search className="w-8 h-8" />,
-    title: t("process.step1.title"),
-    description: t("process.step1.desc")
+    title: "Investigación",
+    description: "Analizo los requisitos y objetivos para definir la arquitectura ideal del proyecto."
   },
   {
     icon: <PenTool className="w-8 h-8" />,
-    title: t("process.step2.title"),
-    description: t("process.step2.desc")
+    title: "Diseño UX/UI",
+    description: "Creo wireframes y prototipos visuales de alta fidelidad con estética moderna."
   },
   {
     icon: <Code className="w-8 h-8" />,
-    title: t("process.step3.title"),
-    description: t("process.step3.desc")
+    title: "Desarrollo",
+    description: "Transformo el diseño en código limpio, escalable y optimizado para la web."
   },
   {
     icon: <Zap className="w-8 h-8" />,
-    title: t("process.step4.title"),
-    description: t("process.step4.desc")
+    title: "Lanzamiento",
+    description: "Despliegue y optimización continua para asegurar un rendimiento impecable."
   }
 ];
 
 export const Process = () => {
-  const { t } = useLanguage();
-  const steps = getSteps(t);
-
   return (
     <section id="process" className="py-24 relative overflow-hidden">
       <div className="container px-4 md:px-6">
         <SectionHeading 
-          title={t("process.title")} 
-          subtitle={t("process.subtitle")}
+          title="Mi Proceso Creativo" 
+          subtitle="De la idea al despliegue final siguiendo un flujo de trabajo optimizado."
         />
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">

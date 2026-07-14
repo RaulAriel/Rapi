@@ -6,16 +6,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
-import { LanguageToggle } from "./LanguageToggle";
 import { Logo } from "./Logo";
-import { useLanguage } from "@/hooks/use-language";
 
-const getNavLinks = (t: (key: string) => string) => [
-  { name: t("nav.home"), href: "#hero" },
-  { name: t("nav.about"), href: "#about" },
-  { name: t("nav.services"), href: "#services" },
-  { name: t("nav.projects"), href: "#projects" },
-  { name: t("nav.contact"), href: "#contact" },
+const navLinks = [
+  { name: "Inicio", href: "#hero" },
+  { name: "Sobre Mí", href: "#about" },
+  { name: "Servicios", href: "#services" },
+  { name: "Proyectos", href: "#projects" },
+  { name: "Contacto", href: "#contact" },
 ];
 
 export const Navbar = () => {
@@ -23,9 +21,6 @@ export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { t } = useLanguage();
-
-  const navLinks = getNavLinks(t);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -101,7 +96,7 @@ export const Navbar = () => {
           </Link>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <a
                 key={link.name}
@@ -113,18 +108,14 @@ export const Navbar = () => {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
               </a>
             ))}
-            <div className="flex items-center gap-2 border-l border-white/10 pl-6">
-              <LanguageToggle />
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
           </div>
 
           {/* Mobile Actions */}
-          <div className="flex items-center gap-2 md:hidden">
-            <LanguageToggle />
+          <div className="flex items-center gap-4 md:hidden">
             <ThemeToggle />
             <button
-              className="p-2 text-foreground ml-1"
+              className="p-2 text-foreground"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X /> : <Menu />}
